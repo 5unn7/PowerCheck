@@ -57,11 +57,87 @@ function powerCheck({ oat, pa, tq, mgt, variant }) {
   return { K, maxMGT, margin: maxMGT - mgt, kMin: kMinFor(oat), da: densityAlt(pa, oat) };
 }
 
+/* ------------------------- staying on the chart -------------------------
+
+   interp() fits a line through the two bracketing points and keeps going
+   past the ends, so every axis extrapolates without complaint — and it
+   extrapolates optimistically. Torque typed as 700 instead of 70 reads a
+   confident +3381 C margin. The printed chart is the authority, so the
+   digitised grid is the domain: outside it there is no answer to give.
+
+   Bounds are read from the chart data itself, so re-digitising a chart
+   moves them automatically.                                             */
+
+function bracket(xs, x) {
+  const n = xs.length;
+  let idx = 0;
+  for (let i = 0; i < n; i++) if (xs[i] <= x) idx = i;
+  if (idx >= n - 1) idx = n - 2;
+  return [idx, idx + 1];
+}
+
+const AXIS = {};
+function axisFor(variant) {
+  if (AXIS[variant]) return AXIS[variant];
+  const d = CHARTS[variant];
+  const mgt = d.mgtK.flat().map((q) => q[0]);
+  return (AXIS[variant] = {
+    oat: [d.oat[0], d.oat[d.oat.length - 1]],
+    pa: [d.pa[0], d.pa[d.pa.length - 1]],
+    mgt: [Math.min(...mgt), Math.max(...mgt)],
+  });
+}
+
+/* The torque a chart covers depends on pressure altitude — the high curves
+   stop well short of 100% — and only the two curves bracketing pa are read,
+   so the usable span is the part both of them cover. */
+function tqSpanAt(variant, pa) {
+  const d = CHARTS[variant];
+  const ax = axisFor(variant);
+  const p = Math.max(ax.pa[0], Math.min(ax.pa[1], pa));
+  const [i, j] = bracket(d.pa, p);
+  const spanOf = (row) => {
+    const xs = row.map((q) => q[0]);
+    return [Math.min(...xs), Math.max(...xs)];
+  };
+  const a = spanOf(d.tqK[i]), b = spanOf(d.tqK[j]);
+  return [Math.max(a[0], b[0]), Math.min(a[1], b[1])];
+}
+
+/* Returns [] when every reading sits on the chart, otherwise one plain
+   sentence per reading that does not. */
+function offChartFor({ oat, pa, tq, mgt, variant }) {
+  if (!CHARTS[variant]) return [];
+  const ax = axisFor(variant);
+  const out = [];
+  const r0 = (v) => Math.round(v);
+  if (Number.isFinite(oat) && (oat < ax.oat[0] || oat > ax.oat[1]))
+    out.push(`OAT ${fmt(oat, 0)} °C is off the chart — it is drawn for ${ax.oat[0]} to ${ax.oat[1]} °C.`);
+  if (Number.isFinite(pa) && (pa < ax.pa[0] || pa > ax.pa[1]))
+    out.push(`Pressure altitude ${fmt(pa, 0)} ft is off the chart — it is drawn for ${ax.pa[0]} to ${ax.pa[1]} ft.`);
+  const paOnChart = Number.isFinite(pa) && pa >= ax.pa[0] && pa <= ax.pa[1];
+  if (Number.isFinite(tq) && paOnChart) {
+    const [lo, hi] = tqSpanAt(variant, pa);
+    if (tq < lo || tq > hi)
+      out.push(`Torque ${fmt(tq, 1)}% is off the chart — at this pressure altitude it is drawn for ${r0(lo)} to ${r0(hi)}%.`);
+  }
+  if (Number.isFinite(mgt) && (mgt < ax.mgt[0] || mgt > ax.mgt[1]))
+    out.push(`MGT ${fmt(mgt, 0)} °C is outside the chart's ${r0(ax.mgt[0])} to ${r0(ax.mgt[1])} °C scale — check the reading.`);
+  return out;
+}
+
 const STORE_KEY = "pc407:records:v1";
 const PREF_KEY = "pc407:prefs:v1";
 const num = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v));
 const fmt = (v, d = 1) => (Number.isFinite(v) ? v.toFixed(d) : "—");
-const todayISO = () => new Date().toISOString().slice(0, 10);
+/* Local date, not UTC: a check flown at 18:00 in UTC-7 belongs to that day,
+   and toISOString() would file it under tomorrow. */
+const todayISO = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 function statusOf(margin) {
@@ -385,14 +461,19 @@ export default function App() {
   const missing = variant ? null : MISSING[`${inlet}|${snow ? "on" : "off"}`];
   const nOat = num(oat), nPa = num(pa), nTq = num(tq), nMgt = num(mgt);
   const complete = [nOat, nPa, nTq, nMgt].every(Number.isFinite);
-  const result = complete && variant ? powerCheck({ oat: nOat, pa: nPa, tq: nTq, mgt: nMgt, variant }) : null;
+  // Off the chart there is no margin to report — extrapolation reads generous,
+  // so the number is withheld rather than shown with a warning beside it.
+  const offChart = complete && variant
+    ? offChartFor({ oat: nOat, pa: nPa, tq: nTq, mgt: nMgt, variant })
+    : [];
+  const result = complete && variant && offChart.length === 0
+    ? powerCheck({ oat: nOat, pa: nPa, tq: nTq, mgt: nMgt, variant })
+    : null;
   const status = statusOf(result ? result.margin : NaN);
 
   const alerts = [];
-  if (result) {
-    if (nOat < -40 || nOat > 50) alerts.push("OAT is off the chart (−40 to 50 °C).");
-    if (nPa < -2000 || nPa > 20000) alerts.push("Pressure altitude is off the chart (−2000 to 20000 ft).");
-    if (result.K < result.kMin) alerts.push(`K ${fmt(result.K, 1)} is under the ${fmt(result.kMin, 1)} minimum for this OAT — avoid area, repeat at higher torque.`);
+  if (result && result.K < result.kMin) {
+    alerts.push(`K ${fmt(result.K, 1)} is under the ${fmt(result.kMin, 1)} minimum for this OAT — avoid area, repeat at higher torque.`);
   }
 
   async function persist(next) {
@@ -446,7 +527,7 @@ export default function App() {
   const series = useMemo(() => records
     .filter((r) => r.reg === activeReg)
     .sort((a, b) => (a.date < b.date ? -1 : 1))
-    .map((r) => ({ ...r, label: r.date.slice(5) })), [records, activeReg]);
+    .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [records, activeReg]);
   const useHours = series.length > 1 && series.every((r) => Number.isFinite(r.hours));
 
   const trend = useMemo(() => {
@@ -475,24 +556,57 @@ export default function App() {
     a.click();
   }
 
+  /* Identity of a check is the reading itself, so re-importing a file cannot
+     duplicate a log. */
+  const keyOf = (r) => [r.reg, r.date, r.hours, r.oat, r.pa, r.tq, r.mgt, r.variant].join("|");
+
   function importCSV(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     const reader = new FileReader();
     reader.onload = async () => {
-      const added = String(reader.result).trim().split(/\r?\n/).slice(1).map((line) => {
+      const seen = new Set(records.map(keyOf));
+      let skipped = 0;
+      const added = [];
+
+      for (const line of String(reader.result).trim().split(/\r?\n/).slice(1)) {
+        if (!line.trim()) continue;
         const c = line.split(",");
-        if (c.length < 12) return null;
+        if (c.length < 12) { skipped++; continue; }
+
+        const date = c[1].trim();
+        const inlet = (c[3] || "basic").trim();
+        const snow = c[4] === "yes";
+        const oat = num(c[5]), pa = num(c[6]), tq = num(c[7]), mgt = num(c[8]);
+        const variant = VARIANT[inlet] ? VARIANT[inlet][snow ? "on" : "off"] : null;
+
+        // A row is only worth keeping if it can be recomputed from its own
+        // readings — a margin column is taken on trust otherwise, and a stale
+        // or hand-edited export would quietly rewrite the trend.
+        if (!isISODate(date) || !variant || ![oat, pa, tq, mgt].every(Number.isFinite)) { skipped++; continue; }
+        if (offChartFor({ oat, pa, tq, mgt, variant }).length) { skipped++; continue; }
+
+        const res = powerCheck({ oat, pa, tq, mgt, variant });
+        if (!res || !Number.isFinite(res.margin)) { skipped++; continue; }
+
         const rec = {
-          id: uid(), reg: c[0].toUpperCase(), date: c[1], hours: num(c[2]),
-          inlet: c[3], snow: c[4] === "yes", oat: num(c[5]), pa: num(c[6]), tq: num(c[7]),
-          mgt: num(c[8]), K: num(c[9]), maxMGT: num(c[10]), margin: num(c[11]), note: c[12] || "",
+          id: uid(), reg: (c[0] || "UNREG").trim().toUpperCase(), date,
+          hours: num(c[2]), inlet, snow, variant, oat, pa, tq, mgt,
+          K: res.K, maxMGT: res.maxMGT, margin: res.margin,
+          // the note is the rest of the line, so stray commas survive
+          note: c.slice(12).join(",").trim(),
         };
-        return Number.isFinite(rec.margin) ? rec : null;
-      }).filter(Boolean);
-      await persist([...records, ...added]);
-      setFlash(`${added.length} checks imported`);
-      setTimeout(() => setFlash(""), 3500);
+        const k = keyOf(rec);
+        if (seen.has(k)) { skipped++; continue; }
+        seen.add(k);
+        added.push(rec);
+      }
+
+      if (added.length) await persist([...records, ...added]);
+      const parts = [`${added.length} ${added.length === 1 ? "check" : "checks"} imported`];
+      if (skipped) parts.push(`${skipped} skipped`);
+      setFlash(parts.join(" \u00b7 "));
+      setTimeout(() => setFlash(""), 5000);
     };
     reader.readAsText(f);
     e.target.value = "";
@@ -563,6 +677,13 @@ export default function App() {
             </section>
           ) : (
             <section className="panel">
+              {offChart.length > 0 && (
+                <div className="offchart" role="alert">
+                  <b>Off the chart — no margin computed</b>
+                  {offChart.map((m, i) => <span key={i}>{m}</span>)}
+                </div>
+              )}
+
               <div className="hero">
                 <div className="big">
                   <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>°C</i>
@@ -611,7 +732,6 @@ export default function App() {
                 <input value={note} placeholder="Note" onChange={(e) => setNote(e.target.value)} />
                 <button className="btn" disabled={!result} onClick={handleSave}>Log check</button>
               </div>
-              {flash && <p className="flash">{flash}</p>}
               {!storeOk && <p className="alert">Storage unavailable — export to CSV to keep these.</p>}
             </section>
           )}
@@ -689,6 +809,8 @@ export default function App() {
           </div>
         </section>
       )}
+
+      {flash && <p className="flash">{flash}</p>}
 
       <footer className="foot">
         Charts digitised from BHT-407-FM-1 (fig 4-1, 4-2), FMS-3 and FMS-4. Trending aid — the flight manual is the authority.
@@ -843,7 +965,7 @@ const CSS = `
 .btn:disabled{background:none;color:#c3ced2;border-color:var(--line);cursor:default;opacity:1;}
 .btn.ghost{background:none;color:var(--ink);border-color:var(--line);}
 .btn.ghost:disabled{color:#c3ced2;}
-.flash{font-size:13px;color:var(--green);margin:14px 0 0;}
+.flash{font-size:13px;color:var(--green);margin:0;padding:14px 20px 0;}
 .quiet{color:var(--ink-3);font-size:14px;margin:2px 0 16px;}
 
 .tchart{margin:0 -8px;}
@@ -855,5 +977,10 @@ td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line-2);white-space:nowr
 .x{background:none;border:0;color:#c3ced2;font-size:17px;cursor:pointer;padding:0 4px;line-height:1;}
 .x:hover{color:var(--red);}
 .io{display:flex;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
+.offchart{display:block;margin:0 0 22px;padding:13px 15px;background:#fdf6ec;
+  border:1px solid var(--amber);border-left-width:3px;}
+.offchart b{display:block;font-size:12.5px;font-weight:600;color:var(--ink);
+  letter-spacing:.02em;margin-bottom:5px;}
+.offchart span{display:block;font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:3px;}
 .foot{padding:16px 20px 0;font-size:11.5px;color:var(--ink-3);}
 `;
