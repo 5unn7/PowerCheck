@@ -3,6 +3,7 @@
 import { build } from "esbuild";
 import { readFile, writeFile } from "node:fs/promises";
 import vm from "node:vm";
+import { createHash } from "node:crypto";
 
 const { outputFiles } = await build({
   entryPoints: ["entry.jsx"],
@@ -32,4 +33,12 @@ new vm.Script(js, { filename: "bundle.js" });
 if (!html.includes(js)) throw new Error("bundle was mangled during inlining");
 
 await writeFile("index.html", html);
+
+// the service worker's cache name carries the page's hash, so a deploy
+// installs a new cache and the previous one is dropped on activate
+const version = createHash("sha256").update(html).digest("hex").slice(0, 12);
+const sw = (await readFile("sw.template.js", "utf8")).replaceAll("__VERSION__", version);
+await writeFile("sw.js", sw);
+
 console.log("index.html written —", (js.length / 1024).toFixed(0), "KB of JS, parses clean");
+console.log("sw.js written — cache powercheck-" + version);

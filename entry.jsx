@@ -11,7 +11,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./bell-407-power-check.jsx";
+import App from "./src/App.jsx";
 
 const NS = "pc407::";
 
@@ -40,3 +40,11 @@ if (!window.storage) {
 }
 
 createRoot(document.getElementById("root")).render(<App />);
+
+/* Installed to a home screen the app must open with no network at all, so the
+   service worker precaches the page and serves it from cache first. */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register(new URL("sw.js", document.baseURI)).catch(() => {});
+  });
+}

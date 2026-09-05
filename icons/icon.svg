@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#16272c"/>
+  <!-- a positive margin -->
+  <g fill="#7fd0ae">
+    <rect x="186" y="184" width="140" height="30"/>
+    <rect x="241" y="129" width="30" height="140"/>
+  </g>
+  <!-- over the margin gauge the app is built around -->
+  <g>
+    <rect x="86" y="322" width="38" height="30" fill="#9c211a"/>
+    <rect x="124" y="322" width="38" height="30" fill="#c2820e"/>
+    <rect x="162" y="322" width="264" height="30" fill="#0d6a4d"/>
+    <rect x="332" y="306" width="10" height="62" fill="#f4f6f7"/>
+  </g>
+</svg>

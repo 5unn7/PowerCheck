@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Nothing reaches the site until the charts reproduce their published
+  # examples and the page actually renders in a browser.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Charts reproduce the manual
+        run: npm test
+
+      - name: Rebuild
+        run: npm run build
+
+      - name: The committed build is current
+        run: |
+          if ! git diff --quiet -- index.html sw.js; then
+            echo "index.html or sw.js is stale — run 'npm run build' and commit the result."
+            git diff --stat -- index.html sw.js
+            exit 1
+          fi
+
+      - name: The page renders and computes
+        run: |
+          npx playwright install --with-deps chromium
+          npm run smoke
+
   deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
