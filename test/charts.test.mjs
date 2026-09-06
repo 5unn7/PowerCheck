@@ -178,6 +178,10 @@ console.log("\nthe avoid area matches the template it came from");
   // Powercheck sheet: TREND through (-32.5, 0) and (46, 12.25)
   check("kMin at OAT 12 reproduces the workbook to the digit",
         Math.abs(air.kMin(12) - 6.944267515923567) < 1e-12, String(air.kMin(12)));
+  check("a cut-off that can withhold an answer says whose rule it is",
+        AIRCRAFT.every((a) => !Number.isFinite(a.kMin(10)) || !!a.kMinNote));
+  check("and the 407's does not claim the flight manual",
+        /no source in the flight manual/i.test(air.kMinNote));
   check("the two points it is drawn through are recorded on the aircraft",
         JSON.stringify(air.avoidArea) === JSON.stringify([[-32.5, 0], [46, 12.25]]));
   check("it passes through both of them",

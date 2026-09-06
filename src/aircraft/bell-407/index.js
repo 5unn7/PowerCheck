@@ -65,23 +65,29 @@ export default {
     },
   },
 
-  /* The avoid area, exactly as the source template draws it.
+  /* A low-torque cut-off, below which no margin is reported.
 
-     Powercheck_407_v2.2.xlsx, sheet "Tq-pA" rows 68-72, labelled "Avoid
-     Area", is a straight line through two points in (OAT, K) evaluated
-     with TREND — which on two points is plain linear interpolation:
+     Traced as far as it goes: the source workbook, sheet "Tq-pA" rows 68-72,
+     labels it "Avoid Area" and draws a straight line through two points in
+     (OAT, K) with TREND, which on two points is plain linear interpolation:
 
          OAT -32.5 °C  ->  K 0
          OAT  46.0 °C  ->  K 12.25
 
-     Below that line the chart is not read and no margin is reported. The
-     app reproduces the template's own value to the digit: at OAT 12 the
-     workbook holds 6.9442675, and so does this.
+     The app reproduces the workbook to the digit — 6.9442675 at OAT 12.
 
-     What those two points were read off has not been established. They are
-     not marked on BHT-407-FM-1 fig 4-1, and the answer is not in the pages
-     held here — see docs/engineering-review.md. */
+     WHERE THOSE TWO POINTS CAME FROM IS NOT KNOWN. They are not marked on
+     BHT-407-FM-1 fig 4-1, no page held here shows them, and the operator's
+     licensed engineer does not know either. The workbook they come from was
+     a sample test file, not a controlled document.
+
+     It is kept because it only ever withholds an answer and never produces
+     one, so keeping it errs conservative while its provenance is open. What
+     it must not do is speak in the flight manual's voice, which is why the
+     wording below says plainly whose rule it is. See
+     docs/engineering-review.md item 2. */
   avoidArea: [[-32.5, 0], [46, 12.25]],
+  kMinNote: "This cut-off is inherited from the operator's spreadsheet and has no source in the flight manual — repeat at higher torque, or read fig 4-1 directly.",
   kMin: (oat) => {
     const [[o0, k0], [o1, k1]] = [[-32.5, 0], [46, 12.25]];
     return k0 + ((k1 - k0) * (oat - o0)) / (o1 - o0);

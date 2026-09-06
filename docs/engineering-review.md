@@ -46,32 +46,37 @@ Confirmed against the source: the workbook's only margin rule is
 `cellIs lessThan 0` — red below zero and nothing else. The band was added on
 top of that by the operator, and the app now reflects exactly that split.
 
-## 2 · The avoid-area gate — **traced to source, one question left**
+## 2 · The low-torque cut-off — **traced as far as it goes, and that is not far**
 
-`src/aircraft/bell-407/index.js` → `kMin`
+`src/aircraft/bell-407/index.js` → `avoidArea`, `kMin`
 
-**Found.** The rule comes from the project's own source workbook,
-`Powercheck_407_v2.2.xlsx`, sheet **"Tq-pA" rows 68–72**, where it is
-labelled **"Avoid Area"**:
+The rule comes from the source workbook, sheet **"Tq-pA" rows 68–72**,
+labelled **"Avoid Area"**: a straight line through **(−32.5 °C, K 0)** and
+**(46 °C, K 12.25)**, drawn with `TREND`, which on two points is plain linear
+interpolation. That is exactly the constants the app had been carrying with
+no comment, and it reproduces the workbook's own cached value to the last
+digit — 6.9442675 at OAT 12.
 
-| | OAT | K |
-|---|---|---|
-| A69/B69 | −32.5 °C | 0 |
-| A70/B70 | 46.0 °C | 12.25 |
-| A72 | `=TREND(B69:B70, A69:A70, Powercheck!$B$5)` | |
+**Where those two points came from is not known.** They are not marked on
+BHT-407-FM-1 fig 4-1, no page held here shows them, and the operator's
+licensed engineer does not know either. The workbook itself was a **sample
+test file**, not a controlled document.
 
-`TREND` through two points is plain linear interpolation, which is exactly
-`(OAT + 32.5) × 12.25 ÷ 78.5`. The app now carries the two points rather
-than the collapsed constants, and reproduces the workbook's own cached
-value to the last digit — 6.944267515923567 at OAT 12. A test pins it.
+**Kept, deliberately.** The rule only ever withholds an answer — it can never
+produce one — so keeping it errs conservative while its provenance is open.
+Deleting it would make the app answer in a region nobody has vouched for,
+which is the wrong direction to be wrong.
 
-**Still open, and it is a short question:** *what were those two points read
-off?* They are not marked on BHT-407-FM-1 fig 4-1, and no page held here
-shows them. Someone chose (−32.5, 0) and (46, 12.25) years ago. If they came
-from the engine manual, a Bell service instruction, or an operator practice,
-say which and it can be cited. If they were judgement, the app should say so
-where it refuses to answer, because at present it refuses in the manual's
-voice rather than in yours.
+**What changed is the voice.** It no longer says "avoid area", which reads as
+a flight manual term. It now says:
+
+> *N is below the M cut-off for this OAT — no margin reported. This cut-off is
+> inherited from the operator's spreadsheet and has no source in the flight
+> manual — repeat at higher torque, or read fig 4-1 directly.*
+
+**To close properly:** find what those two points were read off, and either
+cite it or replace the rule. Until then a pilot is being stopped by something
+nobody can point to.
 
 ## 3 · Engine model — **closed, by removal**
 
@@ -105,29 +110,44 @@ one way or the other, and why an engineer had to.
 
 ---
 
-## 5 · Chart data — **verified against source; the manual link is still one point**
+## 5 · Chart data — **what is actually established**
 
 `test/charts.test.mjs`
 
-Two different things, worth keeping apart.
+Three separate claims, and only two of them hold.
 
-**The app against the workbook: exact.** Every digitised point in the repo was
-compared against `Powercheck_407_v2.2.xlsx` — all three variants, both panels,
-**126 curves and 3794 numbers, zero disagreements, and every curve the same
-length**. The app is a faithful copy of the template it came from. That
-removes any question of transcription error.
+**The app matches the workbook: exact.** Every digitised point compared —
+all three variants, both panels, **126 curves, 3794 numbers, zero
+disagreements, every curve the same length**. No transcription error exists
+between the workbook and this app.
 
-**The workbook against the manual: still one point per chart.** Each chart
-reproduces the example printed beside it to within 1 °C, enforced in CI. But
-that remains **70% torque, 6000 ft, 10 °C** — one point near the middle of a
-nomogram spanning −2000 to 20,000 ft and −40 to +50 °C. Whoever traced the
-curves into the workbook did so from the printed chart, and nothing here
-checks the corners, where curves crowd and a tracing is least reliable.
+**The workbook is not a controlled document.** The operator describes it as a
+**sample test file**. So the paragraph above establishes internal consistency
+and nothing more — it does not make the workbook an authority, and this
+review should not have leaned on it as one.
 
-**To close:** a second and third read per chart at the extremes — a high,
-cold, low-torque corner and a low, hot, high-torque one. Three values off
-each page, about ten minutes, and it converts "verified at one point" into
-"verified across the sheet". Still the highest-value item on this list.
+**What does validate the curves: the three published examples.** Each chart
+reproduces the answer printed beside it in its own manual to within 1 °C, and
+CI fails the build otherwise:
+
+| Chart | Manual prints | App gives |
+|---|---|---|
+| BHT-407-FM-1 fig 4-1 | 676 °C | 676 |
+| BHT-407-FMS-3 fig 4-1 | 682 °C | 682 |
+| BHT-407-FMS-4 fig 4-1 | 722 °C | 722 |
+
+That is meaningful evidence, and worth stating plainly: **you cannot hit three
+printed answers on three different charts with invented data.** Whatever the
+workbook's status, the curves in it are a real tracing of the real charts.
+
+**But it is three points, one per chart, all at 70% torque / 6000 ft / 10 °C**
+— the middle of a nomogram spanning −2000 to 20,000 ft and −40 to +50 °C.
+Nothing checks the corners, where curves crowd and a tracing is least
+reliable, and the sample-file provenance makes that gap matter more, not less.
+
+**To close:** three readings off each 407 page at the extremes — a high, cold,
+low-torque corner and a low, hot, high-torque one. About ten minutes with the
+pages. This is now the single most valuable outstanding item in this review.
 
 ## 6 · The trend line will fit a slope through two points
 
@@ -220,8 +240,11 @@ Stated so a reviewer knows where not to spend time.
 
 ## What would close the most, fastest
 
-1. **Three readings off each 407 page** at the corners (item 5). Ten minutes,
-   and it converts "verified at one point" into "verified across the sheet".
-2. **What the two avoid-area points were read off** (item 2) — the rule is
-   traced to the workbook, but not past it.
-3. **The 250-C47B family operating limits** (item 7) — still open.
+1. **Three readings off each 407 page** at the corners (item 5). The source
+   workbook is a sample test file, so the three published examples are the
+   only real validation the curves have, and there are only three of them.
+2. **The 250-C47B family operating limits** (item 7) — the engineer has
+   agreed to supply these.
+3. **What the two low-torque cut-off points were read off** (item 2). Nobody
+   currently knows. Until someone does, a pilot is being stopped by a rule
+   with no source.

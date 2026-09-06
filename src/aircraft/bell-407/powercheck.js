@@ -40,8 +40,11 @@ export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
       { label: "Max MGT °C", value: fmt(maxMGT, 0) },
       { label: "K factor", value: fmt(K, 1) },
     ],
+    /* The aircraft supplies the wording, because it has to say whose rule
+       this is, and that differs by type. */
     notes: K < kMin
-      ? [`K ${fmt(K, 1)} is under the ${fmt(kMin, 1)} minimum for this OAT — avoid area, repeat at higher torque.`]
+      ? [`${fmt(K, 1)} is below the ${fmt(kMin, 1)} cut-off for this OAT — no margin reported. `
+         + (aircraft.kMinNote || "")]
       : [],
   };
 }
