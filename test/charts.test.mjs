@@ -166,9 +166,14 @@ console.log("\nnothing is shared between types");
         /practice/i.test(b407.watchNote) && /not a flight manual/i.test(b407.watchNote));
   check("a margin inside it reads low, not failed", statusOf(5, b407).key === "watch");
   check("a margin outside it reads clear", statusOf(15, b407).key === "ok");
-  // a failed check must pass on what the manual says to do about it
-  for (const a of AIRCRAFT)
+  /* The check exists to answer one question, so both answers must be in
+     words and both must come from the manual rather than from this app. */
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: a passed check says so`, !!a.passNote);
     check(`${a.label}: a failed check carries the manual's next step`, !!a.failNote);
+    check(`${a.label}: neither verdict reads as a release to service`,
+          !/serviceable|airworth|released|fit for/i.test(a.passNote + " " + a.failNote));
+  }
   check("the 407 sends the crew to the maintenance manual",
         /BHT-407-MM/.test(b407.failNote));
   check("the 212 carries no band of its own", byId("bell-212-pt6t3").watchBelow === undefined);

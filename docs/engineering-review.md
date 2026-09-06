@@ -33,9 +33,21 @@ Eleven further charts are held but not implemented — see `pending-charts.md`.
 
 ## 1 · Airworthiness language — **closed**
 
-"Serviceable" is gone. A positive margin now carries no verdict at all, and a
-negative one says **"Over the chart maximum"**, which is a statement about the
-chart rather than about the aircraft.
+"Serviceable" is gone, and it has not been replaced with silence. The check
+exists to answer one question, so both answers are now stated in words — and
+in the manual's words, not this app's:
+
+| | Shown |
+|---|---|
+| **407 pass** | *Engine performance equals or exceeds minimum specification, and the performance data in the flight manual can be achieved.* — BHT-407-FM-1 §4-2 |
+| **407 fail** | *Engine performance is below minimum specification… Refer to BHT-407-MM to determine the cause of low power (high MGT).* — §4-2 |
+| **212 pass** | *Observed gas producer speed and ITT are both below the chart figures for this OAT.* — fig 4-2 step 8 |
+| **212 fail** | *Steps should be taken to determine the cause of power loss.* — fig 4-2 step 10 |
+
+Note what these are and are not. They state whether the engine meets the
+**minimum specification the chart tests**, which is the question the check
+asks. None of them is a release to service, and a test rejects any verdict
+containing "serviceable", "airworthy", "released" or "fit for".
 
 The 10 °C amber band is **shop practice, ruled by the operator's licensed
 engineer**, and is now carried that way: it belongs to the 407 alone, it is

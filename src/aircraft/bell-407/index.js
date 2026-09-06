@@ -106,6 +106,17 @@ export default {
      licensed engineer, 2026. The source workbook colours the margin red
      below zero and nothing else; this band was added by the operator on
      top of that, so the app shows it and says whose it is. */
+  /* The verdict the check exists to give, in the manual's own words rather
+     than in words this app invented. BHT-407-FM-1 4-2: "If actual MGT is
+     less than or equal to chart MGT, engine performance equals or exceeds
+     minimum specification and performance data contained in this manual can
+     be achieved."
+
+     Note what this is not. It is a statement about whether the engine meets
+     the Rolls-Royce minimum specification, which is what the chart tests. It
+     is not a release to service and does not read like one. */
+  passNote: "Engine performance equals or exceeds minimum specification, and the performance data in the flight manual can be achieved.",
+
   /* BHT-407-FM-1 4-2: "If actual MGT is greater than chart MGT, engine
      performance is less than minimum specification and all performance data
      contained in this manual cannot be achieved. Refer to BHT-407-MM to

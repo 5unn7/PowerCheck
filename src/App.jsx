@@ -500,11 +500,17 @@ export default function App() {
               )}
 
               {result && <Gauge aircraft={aircraft} margin={result.margin} />}
+              {/* The answer in words, not only in colour. A margin at or
+                  above zero is a pass however small it is — the amber band
+                  is the operator's caution on top, not a different verdict. */}
+              {result && status.key !== "fail" && aircraft.passNote && (
+                <p className="verdict pass">{aircraft.passNote}</p>
+              )}
               {status.key === "watch" && aircraft.watchNote && (
                 <p className="quiet watchnote">{aircraft.watchNote}</p>
               )}
               {status.key === "fail" && aircraft.failNote && (
-                <p className="alert failnote">{aircraft.failNote}</p>
+                <p className="verdict fail">{aircraft.failNote}</p>
               )}
 
               <div className="stats">

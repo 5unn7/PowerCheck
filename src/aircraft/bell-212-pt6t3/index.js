@@ -58,6 +58,10 @@ export default {
   frame: { oat: [-60, 55], itt: [500, 830], n1: [84, 102] },
   gauge: [-20, 60],
 
+  /* BHT-212VFR-FM-1 fig 4-2 step 8: "OBSERVED GAS PROD (N1) RPM AND ITT
+     MUST BE LESS THAN CHART GAS PROD (N1) RPM AND ITT FOR OBSERVED OAT." */
+  passNote: "Observed gas producer speed and ITT are both below the chart figures for this OAT.",
+
   /* BHT-212VFR-FM-1 fig 4-2 step 10: "If OBSERVED GAS PROD (N1) RPM AND/OR
      ITT ARE GREATER THAN CHART B ... FOR OBSERVED OAT, STEPS SHOULD BE TAKEN
      TO DETERMINE CAUSE OF POWER LOSS." */
