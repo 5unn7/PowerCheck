@@ -3,7 +3,7 @@ export const CSS = `
 
 .wrap{
   --paper:#fff; --base:#f4f6f7; --line:#dfe5e7; --line-2:#eef1f2;
-  --ink:#16272c; --ink-2:#4a6067; --ink-3:#8b9ba1;
+  --ink:#16272c; --ink-2:#4a6067; --ink-3:#607076;
   --green:#0d6a4d; --amber:#ad5f0b; --red:#9c211a;
   font-family:'Barlow',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   color:var(--ink); background:var(--base); font-size:15px; line-height:1.5;
@@ -20,7 +20,7 @@ export const CSS = `
 /* the way back to the aircraft page — a real target, not a caption */
 .change{display:inline-flex;align-items:center;gap:7px;font-family:'Barlow Semi Condensed',sans-serif;
   font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
-  background:none;border:1px solid var(--line);padding:6px 11px;margin:0 0 9px -1px;cursor:pointer;
+  background:none;border:1px solid var(--line);padding:6px 13px;min-height:44px;margin:0 0 9px -1px;cursor:pointer;
   transition:border-color .18s,color .18s;-webkit-tap-highlight-color:transparent;}
 .change svg{display:block;}
 .change:hover{border-color:var(--ink-3);color:var(--ink);}
@@ -34,7 +34,7 @@ export const CSS = `
   letter-spacing:.1em;transition:border-color .2s;}
 .reg:focus,.dt:focus{border-bottom-color:var(--ink);}
 .reg:focus-visible,.dt:focus-visible{outline:none;box-shadow:inset 0 -2px 0 -1px var(--ink);}
-.reg::placeholder{color:#c3ced2;}
+.reg::placeholder{color:var(--ink-3);font-weight:500;}
 .dt{width:132px;font-size:14px;letter-spacing:0;}
 
 .fleet{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line);
@@ -58,8 +58,12 @@ export const CSS = `
 .card:hover .card-cta svg{transform:translateX(3px);}
 
 .tabs{display:flex;gap:26px;background:var(--paper);border-bottom:1px solid var(--line);padding:0 20px;}
-.tab{font:inherit;font-size:14px;font-weight:500;background:none;border:0;color:var(--ink-3);
+.tab{position:relative;font:inherit;font-size:14px;font-weight:500;background:none;border:0;color:var(--ink-3);
   padding:15px 0;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s;}
+/* the rule under a tab is meant to be exactly as wide as its label, so the
+   target is widened past the label rather than the padding — the 26px gap
+   leaves room for this without two tabs ever overlapping */
+.tab::after{content:"";position:absolute;top:0;bottom:0;left:-7px;right:-7px;}
 .tab.on{color:var(--ink);border-bottom-color:var(--ink);}
 
 .config{display:flex;gap:16px 22px;flex-wrap:wrap;align-items:flex-end;padding:20px 20px 0;}
@@ -68,14 +72,18 @@ export const CSS = `
 .optlbl{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
 .seg{display:inline-flex;}
 .seg button{font:inherit;font-size:13px;font-weight:500;background:none;color:var(--ink-3);cursor:pointer;
-  border:1px solid var(--line);border-right:0;padding:10px 16px;transition:all .18s;
+  border:1px solid var(--line);border-right:0;padding:10px 16px;min-height:44px;
+  /* named rather than "all", which animated outline-width too: the focus ring
+     faded in over 180ms and never fully drew for anyone tabbing quickly */
+  transition:background .18s,border-color .18s,color .18s;
   -webkit-tap-highlight-color:transparent;}
 .seg button:last-child{border-right:1px solid var(--line);}
 .seg button.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
 .wrapseg{flex-wrap:wrap;margin-bottom:18px;}
 .wrapseg button{border-right:1px solid var(--line);margin:0 -1px 0 0;}
 
-.switch{display:inline-flex;align-items:center;gap:11px;background:none;border:0;padding:0;cursor:pointer;}
+.switch{display:inline-flex;align-items:center;gap:11px;background:none;border:0;padding:0;
+  min-height:44px;cursor:pointer;}
 .track{position:relative;width:46px;height:26px;border-radius:999px;background:#e8edee;
   border:1px solid var(--line);overflow:hidden;
   transition:background .3s,border-color .3s,box-shadow .3s;}
@@ -93,14 +101,14 @@ export const CSS = `
 
 .share{margin-left:auto;align-self:center;display:inline-flex;align-items:center;gap:7px;font:inherit;
   font-size:13px;font-weight:500;color:var(--ink-2);background:none;border:1px solid var(--line);
-  padding:7px 13px;cursor:pointer;transition:border-color .18s,color .18s;}
+  padding:7px 15px;min-height:44px;cursor:pointer;transition:border-color .18s,color .18s;}
 .share:hover{border-color:var(--ink-3);color:var(--ink);}
 .share:disabled{color:#c3ced2;border-color:var(--line-2);cursor:default;}
 .share svg{display:block;}
 
 .cond{padding:16px 20px 0;}
 .cond summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  list-style:none;cursor:pointer;padding:4px 0 6px;-webkit-tap-highlight-color:transparent;}
+  list-style:none;cursor:pointer;padding:10px 0 12px;min-height:44px;-webkit-tap-highlight-color:transparent;}
 .cond summary::-webkit-details-marker{display:none;}
 .cond b{font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);}
 .cond-more{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.08em;
@@ -125,7 +133,7 @@ export const CSS = `
   background:none;width:100%;padding:2px 0 0;color:var(--ink);font-variant-numeric:tabular-nums;
   min-width:0;line-height:1.2;}
 .field input:focus,.field input:focus-visible{outline:none;}
-.field input::placeholder{color:#ccd6d9;}
+.field input::placeholder{color:var(--ink-3);font-size:15px;font-weight:500;}
 
 .panel{background:var(--paper);border-bottom:1px solid var(--line);padding:26px 20px 24px;}
 .missing{margin:0;font-size:14px;color:var(--ink-2);}
@@ -191,8 +199,8 @@ export const CSS = `
 .save input:focus{border-bottom-color:var(--ink);}
 .save input:focus-visible{outline:none;box-shadow:inset 0 -2px 0 -1px var(--ink);}
 .btn{font-family:'Barlow Semi Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:.03em;
-  background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 20px;cursor:pointer;
-  white-space:nowrap;transition:opacity .18s;}
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 20px;min-height:44px;
+  cursor:pointer;white-space:nowrap;transition:opacity .18s;}
 .btn:hover{opacity:.86;}
 .btn:disabled{background:none;color:#c3ced2;border-color:var(--line);cursor:default;opacity:1;}
 .btn.ghost{background:none;color:var(--ink);border-color:var(--line);}
@@ -207,7 +215,8 @@ table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:ta
 th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
   border-bottom:1px solid var(--line);padding:0 12px 7px 0;white-space:nowrap;}
 td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line-2);white-space:nowrap;}
-.x{background:none;border:0;color:#c3ced2;font-size:17px;cursor:pointer;padding:6px 10px;line-height:1;}
+.x{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;
+  color:var(--ink-3);font-size:17px;cursor:pointer;min-width:44px;min-height:44px;padding:0;line-height:1;}
 .x:hover{color:var(--red);}
 .io{display:flex;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
 .offchart{display:block;margin:0 0 22px;padding:13px 15px;background:#fdf6ec;
@@ -221,5 +230,5 @@ td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line-2);white-space:nowr
 .updated button{font:inherit;font-weight:600;color:var(--ink);background:#e8eef0;
   border:0;padding:6px 12px;cursor:pointer;}
 .foot{padding:16px 20px 0;font-size:11.5px;color:var(--ink-3);}
-.build{display:block;margin-top:6px;font-variant-numeric:tabular-nums;color:#b3c1c5;}
+.build{display:block;margin-top:6px;font-variant-numeric:tabular-nums;color:var(--ink-3);}
 `;

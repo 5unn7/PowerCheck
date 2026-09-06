@@ -518,7 +518,8 @@ export default function App() {
               </div>
 
               <div className="save">
-                <input value={note} placeholder="Note" onChange={(e) => setNote(e.target.value)} />
+                <input value={note} placeholder="Note" aria-label="Note"
+                  onChange={(e) => setNote(e.target.value)} />
                 <button className="btn" disabled={!result} onClick={handleSave}>Log check</button>
               </div>
               {!storeOk && <p className="alert">Storage unavailable — export to CSV to keep these.</p>}
@@ -594,7 +595,8 @@ export default function App() {
                         <td style={{ color: statusOf(r.margin, seriesAircraft).color, fontWeight: 600 }}>
                           {(r.margin > 0 ? "+" : "") + fmt(r.margin)}
                         </td>
-                        <td><button className="x" onClick={() => persist(records.filter((q) => q.id !== r.id))}>×</button></td>
+                        <td><button className="x" aria-label={`Delete the check logged on ${r.date}`}
+                          onClick={() => persist(records.filter((q) => q.id !== r.id))}>×</button></td>
                       </tr>
                     ))}
                   </tbody>

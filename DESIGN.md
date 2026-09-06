@@ -122,34 +122,40 @@ much as copy rules: a positive margin gets **no verdict**, a negative one reads
 interface must never imply an airworthiness release, so there is no green tick,
 no "PASS", and no badge that could be photographed and read as one.
 
+## Accessibility floor
+
+The app is read in sunlight, sometimes through gloves, by someone who has
+better things to do than squint. These are checked by measurement rather than
+by eye — the script that walks the built page is in the commit that closed
+them, and the numbers below are what it reports.
+
+- **Text clears WCAG AA** on the ground it is actually painted on. `--base`
+  is the binding constraint, not `--paper`: `--ink-3` is 5.15:1 on paper but
+  4.75:1 on the page ground, so the ground is what a new tone must be checked
+  against.
+- **Every touch target is at least 44×44px.** Where a control is painted
+  smaller than that on purpose — the tabs, whose rule is meant to be exactly
+  as wide as the label — the target is widened past the paint with a
+  pseudo-element rather than by growing the control.
+- **Every control shows a focus ring at the first frame after Tab.** Not
+  eventually: `transition: all` once animated `outline-width` from zero, so
+  the ring faded in over 180ms and never fully drew for anyone tabbing at
+  speed. Transitions on interactive elements name their properties.
+- **Every control has an accessible name.** The delete button's name was the
+  character `×`, which is what a screen reader read out for the one action in
+  the app that cannot be undone.
+
 ## Known gaps
 
-Measured, not asserted. These are real and unfixed — the app is under-tested
-against its own sunlight-and-gloves use case.
+**Borders on interactive controls are below 3:1.** `--line` `#dfe5e7` is
+1.27:1 on paper, and it draws the boundary of the segmented options, the
+registration and date fields and the ghost buttons — boundaries WCAG asks to
+clear 3:1. It also draws every decorative rule in the app, which is exempt and
+is most of its uses. Fixing this properly means splitting the token into a
+structural rule and a control boundary rather than darkening every line in the
+product, so it is left as a deliberate decision rather than a quiet change.
 
-**`--ink-3` fails AA for text.** `#8b9ba1` on `--paper` is **2.88:1**, against
-the 4.5:1 required for normal-size text (2.65:1 on `--base`). It is the color
-of every micro-label, every axis tick, the card engine name, the conditions
-block, the table headers and the footer — so this is systemic, not local. It is
-worst exactly where the app is used: low-contrast gray is the first thing to
-disappear in direct sunlight. `--ink-2` (`#4a6067`, 6.65:1) is already in the
-palette and would fix it wherever the label carries information.
-
-**Placeholders carry information at 1.5:1.** The reading placeholders
-(`#ccd6d9`, 1.48:1) are example values — `70.9`, `619` — which is genuinely
-useful guidance about expected magnitude and precision, and effectively
-invisible. Information that valuable probably belongs in the label or a hint
-line rather than in a placeholder that vanishes on focus.
-
-**Several touch targets are under 44px.** Approximate rendered heights:
-`.seg button` ≈ 41px, `.btn` ≈ 42px, `.share` ≈ 36px, `.change` ≈ 32px, the
-delete `.x` ≈ 29px, the switch track 26px. For gloved use these want padding or
-a transparent hit area — the delete control in particular is both the smallest
-target and the only destructive one.
-
-**Amber sits on the AA line.** `--amber` is 4.75:1 on `--paper` but 4.38:1 on
-`--base`, and the switch-on label `#d1550a` is 4.19:1. Both are under threshold
-where they land on the page ground.
-
-None of these affect a computed margin — the chart maths is covered by
-`npm test`. They affect whether the answer can be read on the ramp.
+**The reading placeholders are still hints, not labels.** They are legible now
+and cannot be mistaken for a reading, but an example value that vanishes on
+focus is a weak place for information about expected precision. If it turns out
+to matter, it belongs on the label.

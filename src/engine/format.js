@@ -21,7 +21,7 @@ export const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(D
    `color` is for the page, `hex` for the shared card: canvas cannot resolve a
    CSS variable and silently keeps the last fill, which drew every card grey. */
 export function statusOf(margin, aircraft) {
-  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)", hex: "#8b9ba1" };
+  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)", hex: "#607076" };
   if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)", hex: "#9c211a" };
   const watch = aircraft && aircraft.watchBelow;
   if (Number.isFinite(watch) && margin < watch)
