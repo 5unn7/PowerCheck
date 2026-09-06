@@ -202,5 +202,22 @@ console.log("\nnothing is shared between types");
   }
 }
 
+/* The 407 avoid area came from the source template, not from this app, and
+   the template holds a cached value to check against. */
+console.log("\nthe avoid area matches the template it came from");
+{
+  const air = byId("bell-407");
+  // Powercheck_407_v2.2.xlsx, sheet "Tq-pA" cell A72, with OAT 12 on the
+  // Powercheck sheet: TREND through (-32.5, 0) and (46, 12.25)
+  check("kMin at OAT 12 reproduces the workbook to the digit",
+        Math.abs(air.kMin(12) - 6.944267515923567) < 1e-12, String(air.kMin(12)));
+  check("the two points it is drawn through are recorded on the aircraft",
+        JSON.stringify(air.avoidArea) === JSON.stringify([[-32.5, 0], [46, 12.25]]));
+  check("it passes through both of them",
+        Math.abs(air.kMin(-32.5) - 0) < 1e-12 && Math.abs(air.kMin(46) - 12.25) < 1e-12);
+  check("and it rises with OAT, so a hot day needs more torque to be readable",
+        air.kMin(40) > air.kMin(0) && air.kMin(0) > air.kMin(-30));
+}
+
 console.log(`\n${ran - failed}/${ran} passed`);
 process.exit(failed ? 1 : 0);

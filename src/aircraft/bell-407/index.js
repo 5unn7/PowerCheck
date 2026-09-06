@@ -84,8 +84,27 @@ export default {
     },
   },
 
-  // minimum K below which the chart is not read — the C47B avoid area
-  kMin: (oat) => ((oat + 32.5) * 12.25) / 78.5,
+  /* The avoid area, exactly as the source template draws it.
+
+     Powercheck_407_v2.2.xlsx, sheet "Tq-pA" rows 68-72, labelled "Avoid
+     Area", is a straight line through two points in (OAT, K) evaluated
+     with TREND — which on two points is plain linear interpolation:
+
+         OAT -32.5 °C  ->  K 0
+         OAT  46.0 °C  ->  K 12.25
+
+     Below that line the chart is not read and no margin is reported. The
+     app reproduces the template's own value to the digit: at OAT 12 the
+     workbook holds 6.9442675, and so does this.
+
+     What those two points were read off has not been established. They are
+     not marked on BHT-407-FM-1 fig 4-1, and the answer is not in the pages
+     held here — see docs/engineering-review.md. */
+  avoidArea: [[-32.5, 0], [46, 12.25]],
+  kMin: (oat) => {
+    const [[o0, k0], [o1, k1]] = [[-32.5, 0], [46, 12.25]];
+    return k0 + ((k1 - k0) * (oat - o0)) / (o1 - o0);
+  },
 
   /* The axes BHT-407-FM-1 fig 4-1 is drawn on, and the range the margin
      dial spans. The dial range is presentation, chosen so this aircraft's

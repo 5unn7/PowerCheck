@@ -45,27 +45,32 @@ the margin is in a different quantity read off a different chart.
 **To close:** replace the verdict with a neutral statement of the number, or
 supply the source for a threshold and scope it per aircraft.
 
-## 2 · The avoid-area gate cites no source
+## 2 · The avoid-area gate — **traced to source, one question left**
 
-`src/aircraft/bell-407.js` → `kMin`
+`src/aircraft/bell-407/index.js` → `kMin`
 
-```js
-kMin: (oat) => ((oat + 32.5) * 12.25) / 78.5,
-```
+**Found.** The rule comes from the project's own source workbook,
+`Powercheck_407_v2.2.xlsx`, sheet **"Tq-pA" rows 68–72**, where it is
+labelled **"Avoid Area"**:
 
-When the computed chart ordinate falls below this line the tool refuses to
-report a margin and tells the crew *"avoid area, repeat at higher torque."*
-The formula was carried in from the project's first commit with no comment
-and no citation, and nothing on BHT-407-FM-1 fig 4-1 marks an avoid area.
+| | OAT | K |
+|---|---|---|
+| A69/B69 | −32.5 °C | 0 |
+| A70/B70 | 46.0 °C | 12.25 |
+| A72 | `=TREND(B69:B70, A69:A70, Powercheck!$B$5)` | |
 
-This is not idle: the BHT-206L4 chart in the same pack *does* print
-**"avoid this area (possible bleed valve open area)"** explicitly, which
-shows what a sourced version of this looks like — and shows that its absence
-from the 407 page is meaningful.
+`TREND` through two points is plain linear interpolation, which is exactly
+`(OAT + 32.5) × 12.25 ÷ 78.5`. The app now carries the two points rather
+than the collapsed constants, and reproduces the workbook's own cached
+value to the last digit — 6.944267515923567 at OAT 12. A test pins it.
 
-**To close:** identify the source (a section 4 note? the original digitising
-workbook?), or remove the gate. A blocking rule with no provenance is worse
-than no rule.
+**Still open, and it is a short question:** *what were those two points read
+off?* They are not marked on BHT-407-FM-1 fig 4-1, and no page held here
+shows them. Someone chose (−32.5, 0) and (46, 12.25) years ago. If they came
+from the engine manual, a Bell service instruction, or an operator practice,
+say which and it can be cited. If they were judgement, the app should say so
+where it refuses to answer, because at present it refuses in the manual's
+voice rather than in yours.
 
 ## 3 · Engine model — **partly closed, one question still open**
 
@@ -116,22 +121,29 @@ claim AFS coverage.
 
 ---
 
-## 5 · Each chart is proved at exactly one point
+## 5 · Chart data — **verified against source; the manual link is still one point**
 
 `test/charts.test.mjs`
 
-Every chart reproduces the worked example printed beside it, to within 1 °C.
-That is the right test and it is genuinely load-bearing — but the 407 charts
-are proved only at **70% torque, 6000 ft, 10 °C**, one point near the middle
-of a nomogram spanning −2000 to 20,000 ft and −40 to +50 °C.
+Two different things, worth keeping apart.
 
-A tracing can match at one point and drift at the corners, which is exactly
-where the curves crowd together and where a digitising is least reliable.
+**The app against the workbook: exact.** Every digitised point in the repo was
+compared against `Powercheck_407_v2.2.xlsx` — all three variants, both panels,
+**126 curves and 3794 numbers, zero disagreements, and every curve the same
+length**. The app is a faithful copy of the template it came from. That
+removes any question of transcription error.
 
-**To close:** a second and third read per chart, chosen at the extremes — a
-high, cold, low-torque corner and a low, hot, high-torque one. A reviewer
-reading three values off each page would close this in about ten minutes and
-it is the single highest-value thing anyone can contribute.
+**The workbook against the manual: still one point per chart.** Each chart
+reproduces the example printed beside it to within 1 °C, enforced in CI. But
+that remains **70% torque, 6000 ft, 10 °C** — one point near the middle of a
+nomogram spanning −2000 to 20,000 ft and −40 to +50 °C. Whoever traced the
+curves into the workbook did so from the printed chart, and nothing here
+checks the corners, where curves crowd and a tracing is least reliable.
+
+**To close:** a second and third read per chart at the extremes — a high,
+cold, low-torque corner and a low, hot, high-torque one. Three values off
+each page, about ten minutes, and it converts "verified at one point" into
+"verified across the sheet". Still the highest-value item on this list.
 
 ## 6 · The trend line will fit a slope through two points
 
@@ -226,8 +238,8 @@ Stated so a reviewer knows where not to spend time.
 
 1. **Three readings off each 407 page** at the corners (item 5). Ten minutes,
    and it converts "verified at one point" into "verified across the sheet".
-2. **The source of the `kMin` avoid-area rule** (item 2), or permission to
-   delete it.
+2. **What the two avoid-area points were read off** (item 2) — the rule is
+   traced to the workbook, but not past it.
 3. **A ruling on AFS** (item 4), and **whether a basic-inlet chart exists for
    the C47E/4** (item 3). Both are questions about which approved chart
    applies, and neither can be answered from the pages in hand.
