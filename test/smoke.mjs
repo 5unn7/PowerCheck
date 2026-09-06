@@ -165,6 +165,18 @@ check("the one last checked is marked", (await page.locator(".fleet .card em").c
 await page.locator(".fleet .card").first().click();
 check("picking one shows the check", (await page.locator(".field input").count()) > 0);
 
+// the two pages are two pages: the system back button returns to the first
+await page.goBack();
+await page.waitForTimeout(300);
+check("and the back button returns to it", (await page.locator(".fleet .card").count()) > 0);
+await page.locator(".fleet .card").first().click();
+await page.waitForSelector(".field input");
+await page.locator(".change").click();
+await page.waitForTimeout(300);
+check("as does the header control", (await page.locator(".fleet .card").count()) > 0);
+await page.locator(".fleet .card").first().click();
+await page.waitForSelector(".field input");
+
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

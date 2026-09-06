@@ -99,6 +99,27 @@ export default function App() {
 
   const setOption = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
+  /* The aircraft page and the check are two pages to whoever is holding the
+     phone, so the system back button has to move between them. They are one
+     document, so that means an entry on the history stack: picking pushes
+     one, back pops it, and the header control goes through the same door so
+     the stack never drifts from what is on screen.
+
+     A reload lands on the aircraft page whatever the stack said, so a state
+     left over from before the reload is dropped rather than left to swallow
+     the first press of back. */
+  useEffect(() => {
+    if (window.history.state && window.history.state.pc) window.history.replaceState(null, "");
+    const onPop = (e) => setPicked(!!(e.state && e.state.pc === "check"));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const backToFleet = () => {
+    if (window.history.state && window.history.state.pc === "check") window.history.back();
+    else setPicked(false);
+  };
+
   /* Coming back to the page and choosing the same type again keeps the
      readings already typed; choosing a different one cannot, since the
      readings and the fitted options are that aircraft's. */
@@ -109,6 +130,7 @@ export default function App() {
       setValues({});
     }
     setLastId(id);
+    if (!picked) window.history.pushState({ pc: "check" }, "");
     setPicked(true);
     setTab("check");
   }
@@ -361,12 +383,12 @@ export default function App() {
 
       <header className="plate">
         <div className="plate-l">
-          <button className="change" onClick={() => setPicked(false)} aria-label="Change aircraft">
-            {aircraft.label}
+          <button className="change" onClick={backToFleet} aria-label="Change aircraft">
             <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor"
               strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="m5 8 5 5 5-5" />
+              <path d="m12 5-5 5 5 5" />
             </svg>
+            {aircraft.label}
           </button>
           <h1>Power assurance</h1>
         </div>
