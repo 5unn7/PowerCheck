@@ -67,7 +67,7 @@ from the 407 page is meaningful.
 workbook?), or remove the gate. A blocking rule with no provenance is worse
 than no rule.
 
-## 3 · Engine model is never asked, and the charts differ on it
+## 3 · Engine model — **partly closed, one question still open**
 
 Read the titles:
 
@@ -77,13 +77,24 @@ Read the titles:
 | BHT-407-FMS-3 fig 4-1 (particle separator) | 250-C47B, 250-C47B/8 **or 250-C47E/4** |
 | BHT-407-FMS-4 fig 4-1 (snow deflector) | 250-C47B, 250-C47B/8 **or 250-C47E/4** |
 
-The basic inlet chart does not cover the **250-C47E/4**. The tool never asks
-which engine is installed, so a C47E/4 on a basic inlet reads FM-1 — a chart
-that, on its own title, does not apply to it.
+The basic inlet chart does not cover the **250-C47E/4**.
 
-**To close:** confirm whether a separate basic-inlet chart exists for the
-C47E/4. If it does, it is a fourth chart. If it does not, the tool must ask
-the engine model and refuse the combination.
+**Done:** the tool now asks the engine model as a fitted option, and a
+250-C47E/4 on a basic inlet is **refused** — it names BHT-407-FM-1, says the
+page is titled for the C47B and C47B/8 only, and offers no number and no way
+to log a check. The same engine reads FMS-3 with a particle separator and
+FMS-4 with snow deflectors, both of which do name it.
+
+The model never changes an answer — one chart serves all three wherever it
+covers them — so this gates coverage only. The test suite asserts both: that
+every engine × inlet × deflector combination yields either a chart or a
+stated reason and never a blank screen, and that the model does not move the
+computed maximum MGT where a chart applies.
+
+**Still open, and needs a reviewer:** *is there a basic-inlet power assurance
+chart for the 250-C47E/4?* If one exists it is a fourth chart and the refusal
+should become a fourth entry. If none exists, confirm the refusal is the
+correct behaviour rather than there being some other approved means.
 
 ## 4 · The AFS is read off the basic inlet chart, uncited
 
@@ -217,7 +228,7 @@ Stated so a reviewer knows where not to spend time.
    and it converts "verified at one point" into "verified across the sheet".
 2. **The source of the `kMin` avoid-area rule** (item 2), or permission to
    delete it.
-3. **A ruling on AFS and on the C47E/4** (items 3 and 4) — both are questions
-   about which approved chart applies, and neither can be answered from the
-   pages in hand.
+3. **A ruling on AFS** (item 4), and **whether a basic-inlet chart exists for
+   the C47E/4** (item 3). Both are questions about which approved chart
+   applies, and neither can be answered from the pages in hand.
 4. **The 250-C47B family operating limits** (item 7).

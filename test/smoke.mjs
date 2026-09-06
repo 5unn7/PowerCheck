@@ -121,6 +121,23 @@ console.log("\ntwo different checks never share a line");
   await page.waitForTimeout(200);
 }
 
+/* A configuration with no approved chart must say so on screen, and must
+   not offer a number or a Log button. */
+console.log("\na configuration with no chart is refused on screen");
+{
+  const b407 = AIRCRAFT.find((a) => a.id === "bell-407");
+  await selectAircraft(b407);
+  await applyConfig(b407, { engine: "c47e4", inlet: "basic", snow: false });
+  const why = await page.locator(".missing").innerText().catch(() => "");
+  check("the C47E/4 on a basic inlet is refused", /FM-1/.test(why), why.slice(0, 60));
+  check("and no result is offered", (await page.locator(".save .btn").count()) === 0);
+
+  await applyConfig(b407, { engine: "c47e4", inlet: "ps", snow: false });
+  check("the same engine reads FMS-3 with a particle separator",
+        (await page.locator(".missing").count()) === 0
+        && (await page.locator(".big span").innerText()).trim() !== "");
+}
+
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

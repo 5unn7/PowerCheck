@@ -382,7 +382,10 @@ export default function App() {
 
           {!chart ? (
             <section className="panel gap">
-              <p className="missing">No chart digitised for this fit yet.</p>
+              <p className="missing">
+                {(aircraft.noChart && aircraft.noChart(config))
+                  || "No chart digitised for this fit yet."}
+              </p>
             </section>
           ) : (
             <section className="panel">

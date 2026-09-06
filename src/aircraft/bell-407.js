@@ -21,8 +21,23 @@ export default {
     { key: "pa", label: "Press alt", unit: "ft", placeholder: "4000" },
   ],
 
-  // what is fitted, and which chart that selects
+  /* What is fitted, and which chart that selects.
+
+     The engine model never changes an answer — one chart serves all three
+     models wherever it covers them — but it decides whether a chart applies
+     at all. FMS-3 and FMS-4 are titled for the C47B, C47B/8 and C47E/4;
+     BHT-407-FM-1 is titled for the C47B and C47B/8 only, so a C47E/4 on a
+     basic inlet has no chart here and is refused rather than read off a
+     page that does not name it. */
   options: [
+    {
+      key: "engine", type: "segmented", default: "c47b",
+      choices: [
+        { id: "c47b", label: "250-C47B" },
+        { id: "c47b8", label: "C47B/8" },
+        { id: "c47e4", label: "C47E/4" },
+      ],
+    },
     {
       key: "inlet", type: "segmented", default: "basic",
       choices: [
@@ -32,7 +47,21 @@ export default {
     },
     { key: "snow", type: "switch", label: "Snow deflectors", default: false },
   ],
-  variantFor: ({ inlet, snow }) => (snow ? "psb" : inlet),
+  variantFor: ({ inlet, snow, engine }) => {
+    if (snow) return "psb";                        // FMS-4 covers all three
+    if (inlet === "ps") return "ps";               // FMS-3 covers all three
+    return engine === "c47e4" ? null : "basic";    // FM-1 does not name the E/4
+  },
+
+  /* Why there is no chart, in the crew's terms. Silence here would leave a
+     blank screen where an answer belongs. This must stay exactly the
+     complement of variantFor — the snow deflector case reads FMS-4, which
+     does name the E/4 — and the test suite asserts that across every
+     combination rather than trusting the two to be read together. */
+  noChart: ({ engine, inlet, snow }) =>
+    engine === "c47e4" && inlet === "basic" && !snow
+      ? "BHT-407-FM-1 fig 4-1 is titled for the 250-C47B and 250-C47B/8 only, so it is not read for a 250-C47E/4. Use the supplement that covers this installation."
+      : null,
 
   meta: {
     basic: {
@@ -59,11 +88,11 @@ export default {
      chart that cannot reproduce the number printed beside it is digitised
      wrong, and test/charts.test.mjs fails the build over it. */
   verify: [
-    { config: { inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { engine: "c47b", inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 676 }, source: "BHT-407-FM-1 fig 4-1" },
-    { config: { inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { engine: "c47e4", inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 682 }, source: "BHT-407-FMS-3 fig 4-1" },
-    { config: { inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { engine: "c47e4", inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 722 }, source: "BHT-407-FMS-4 fig 4-1" },
   ],
 };
