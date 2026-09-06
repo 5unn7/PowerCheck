@@ -32,24 +32,25 @@ export const CSS = `
 .reg::placeholder{color:#c3ced2;}
 .dt{width:132px;font-size:14px;letter-spacing:0;}
 
-.lede{margin:0;padding:20px 20px 4px;font-size:14px;color:var(--ink-2);max-width:58ch;}
 .fleet{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line);
-  border-bottom:1px solid var(--line);margin-top:20px;}
+  border-bottom:1px solid var(--line);}
 @media(min-width:640px){.fleet{grid-template-columns:1fr 1fr;}}
-.card{display:flex;flex-direction:column;align-items:stretch;gap:7px;text-align:left;font:inherit;
-  background:var(--paper);border:0;padding:20px;cursor:pointer;transition:background .18s;}
+.card{display:flex;flex-direction:column;align-items:stretch;gap:5px;text-align:left;font:inherit;
+  background:var(--paper);border:0;padding:22px 20px;cursor:pointer;transition:background .18s;
+  -webkit-tap-highlight-color:transparent;}
 .card:hover{background:#fafcfc;}
+.card:active{background:#f2f6f7;}
 .card-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-.card-head b{font-family:'Barlow Semi Condensed',sans-serif;font-size:25px;font-weight:600;
+.card-head b{font-family:'Barlow Semi Condensed',sans-serif;font-size:26px;font-weight:600;
   letter-spacing:-.01em;line-height:1.1;color:var(--ink);}
 .card-head em{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:var(--ink-3);border:1px solid var(--line);padding:2px 7px;}
-.card-eng{font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--ink-2);}
-.card-blurb{font-size:13px;color:var(--ink-3);line-height:1.5;max-width:46ch;}
-.card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;}
-.chip{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
-.card-go{color:var(--ink-3);transition:transform .22s,color .18s;}
-.card:hover .card-go{transform:translateX(3px);color:var(--ink);}
+.card-eng{font-size:13px;color:var(--ink-3);}
+.card-cta{display:inline-flex;align-items:center;gap:7px;margin-top:9px;
+  font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink);}
+.card-cta svg{display:block;transition:transform .22s;}
+.card:hover .card-cta svg{transform:translateX(3px);}
 
 .tabs{display:flex;gap:26px;background:var(--paper);border-bottom:1px solid var(--line);padding:0 20px;}
 .tab{font:inherit;font-size:14px;font-weight:500;background:none;border:0;color:var(--ink-3);

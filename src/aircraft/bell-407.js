@@ -10,9 +10,8 @@ import charts from "./bell-407.charts.json" with { type: "json" };
 export default {
   id: "bell-407",
   label: "Bell 407",
-  // shown on the aircraft page, where the type is chosen
+  // named on the aircraft page, where the type is chosen
   engine: "Rolls-Royce 250-C47B",
-  blurb: "In the hover or level flight. Torque and pressure altitude give K, K and OAT give the maximum MGT the day allows.",
   procedure: "torque-k-mgt",
   charts,
 

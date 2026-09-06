@@ -6,7 +6,10 @@ import React from "react";
    changes everything downstream — which charts are read, which readings are
    asked for, which limits apply — and because getting it wrong is silent:
    a 212's numbers typed into the 407's chart still produce a confident
-   margin. Making it the first deliberate act of a check is the point. */
+   margin. Making it the first deliberate act of a check is the point.
+
+   A card is a name, its engine and the action. Anything more is read on the
+   check page a tap later, where it is actually needed. */
 
 export function AircraftSelect({ aircraft, lastId, onPick }) {
   return (
@@ -14,14 +17,9 @@ export function AircraftSelect({ aircraft, lastId, onPick }) {
       <header className="plate">
         <div className="plate-l">
           <span className="badge">POWER ASSURANCE</span>
-          <h1>Which aircraft?</h1>
+          <h1>Select aircraft</h1>
         </div>
       </header>
-
-      <p className="lede">
-        The charts, the readings asked for and the limits all follow from the
-        type. Pick the one on the ramp.
-      </p>
 
       <div className="fleet">
         {aircraft.map((a) => (
@@ -31,15 +29,12 @@ export function AircraftSelect({ aircraft, lastId, onPick }) {
               {a.id === lastId && <em>Last used</em>}
             </span>
             {a.engine && <span className="card-eng">{a.engine}</span>}
-            {a.blurb && <span className="card-blurb">{a.blurb}</span>}
-            <span className="card-foot">
-              <span className="chip">{a.marginLabel}</span>
-              <span className="card-go" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor"
-                  strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 10h11" /><path d="m10.4 5.4 4.6 4.6-4.6 4.6" />
-                </svg>
-              </span>
+            <span className="card-cta">
+              Start check
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"
+                strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 10h11" /><path d="m10.4 5.4 4.6 4.6-4.6 4.6" />
+              </svg>
             </span>
           </button>
         ))}

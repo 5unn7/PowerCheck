@@ -6,8 +6,8 @@ Install it to a phone's home screen and it works with no signal.
 **Live: https://5unn7.github.io/PowerCheck/**
 
 The app opens on the aircraft page: pick the type, and the check that follows
-is read from that type's charts. The header shows which type is selected and
-goes back to the page to change it.
+is read from its charts. The header badge names the type and goes back to
+change it.
 
 Currently carried:
 
