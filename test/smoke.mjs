@@ -100,6 +100,18 @@ for (const air of AIRCRAFT) {
   check("and the check cannot be logged", await page.locator(".save .btn").isDisabled());
 }
 
+console.log("\nchart conditions");
+await selectAircraft(AIRCRAFT[0]);
+const condOpen = () => page.locator(".cond").evaluate((el) => el.open);
+if (await condOpen()) await page.locator(".cond summary").click();
+check("the conditions fold away", !(await condOpen()));
+if (await page.locator(".config .switch").count()) {
+  // a different fit is a different chart, and its conditions unfold themselves
+  await page.locator(".config .switch").click();
+  await page.waitForTimeout(250);
+  check("and unfold when the chart changes", await condOpen());
+}
+
 console.log("\nthe aircraft page");
 await page.locator(".change").click();
 await page.waitForSelector(".fleet .card");

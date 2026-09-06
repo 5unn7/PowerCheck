@@ -50,6 +50,7 @@ export default function App() {
   const [flash, setFlash] = useState("");
   const [tab, setTab] = useState("check");
   const [trendReg, setTrendReg] = useState("");
+  const [condOpen, setCondOpen] = useState(false);
   const fileRef = useRef(null);
 
   const say = (msg, ms = 4000) => { setFlash(msg); setTimeout(() => setFlash(""), ms); };
@@ -70,6 +71,7 @@ export default function App() {
           setLastId(a.id);
           if (v.reg) setReg(v.reg);
           if (v.trendReg) setTrendReg(v.trendReg);
+          if (typeof v.condOpen === "boolean") setCondOpen(v.condOpen);
           // v.inlet / v.snow are the pre-registry shape of the same thing
           setConfig(v.config ? { ...defaultConfig(a), ...v.config }
             : { ...defaultConfig(a), ...(v.inlet ? { inlet: v.inlet } : {}), ...(typeof v.snow === "boolean" ? { snow: v.snow } : {}) });
@@ -81,8 +83,8 @@ export default function App() {
 
   useEffect(() => {
     if (loading) return;
-    window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg })).catch(() => {});
-  }, [aircraftId, reg, config, trendReg, loading]);
+    window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg, condOpen })).catch(() => {});
+  }, [aircraftId, reg, config, trendReg, condOpen, loading]);
 
   /* Coming back to the page and choosing the same type again keeps the
      readings already typed; choosing a different one cannot, since the
@@ -98,7 +100,18 @@ export default function App() {
     setTab("check");
   }
 
-  const { chart, meta } = chartFor(aircraft, config);
+  const { chart, meta, variant } = chartFor(aircraft, config);
+
+  /* The conditions stay folded away until the chart being read changes —
+     the snow deflector supplement is level flight only where the basic chart
+     allows a hover, and that is not something to find folded up. */
+  const knownVariant = useRef(false);
+  useEffect(() => {
+    if (loading) return;
+    if (!knownVariant.current) { knownVariant.current = true; return; }
+    setCondOpen(true);
+  }, [variant, loading]);
+
   const frame = frameFor(aircraft);
   const nums = useMemo(
     () => Object.fromEntries(aircraft.inputs.map((i) => [i.key, num(values[i.key])])),
@@ -374,10 +387,19 @@ export default function App() {
           </div>
 
           {meta && (
-            <div className="cond">
-              <b>{meta.src}</b>
-              <span>{meta.cond}</span>
-            </div>
+            <details className="cond" open={condOpen} onToggle={(e) => setCondOpen(e.currentTarget.open)}>
+              <summary>
+                <b>{meta.src}</b>
+                <span className="cond-more">
+                  Conditions
+                  <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor"
+                    strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m5 8 5 5 5-5" />
+                  </svg>
+                </span>
+              </summary>
+              <p>{meta.cond}</p>
+            </details>
           )}
 
           <div className="inputs">
