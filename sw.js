@@ -2,10 +2,10 @@
 
    The whole app is one HTML file, so precaching it is the entire job: once
    installed the aircraft can be out of coverage and the check still works.
-   2e299e4c8844 is replaced at build time with a hash of index.html, so a
+   14ca04536ac9 is replaced at build time with a hash of index.html, so a
    deploy produces a new cache and the old one is dropped on activate. */
 
-const CACHE = "powercheck-2e299e4c8844";
+const CACHE = "powercheck-14ca04536ac9";
 const SHELL = [
   "./",
   "./index.html",
@@ -16,11 +16,20 @@ const SHELL = [
   "./icons/apple-touch-icon.png",
 ];
 
+/* Precache straight from the network.
+
+   GitHub Pages serves the page with max-age=600, so a plain cache.add() is
+   answered out of the browser's HTTP cache and precaches the page the worker
+   is meant to be replacing — the cache name changes, the content does not, and
+   the install looks like it worked. "reload" bypasses that cache, and without
+   it an installed app can sit on a stale version indefinitely. */
+const fresh = (url) => new Request(url, { cache: "reload" });
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE)
       // one missing file must not fail the whole install
-      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(u))))
+      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(fresh(u)))))
       .then(() => self.skipWaiting()));
 });
 

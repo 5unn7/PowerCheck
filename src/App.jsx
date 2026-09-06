@@ -45,6 +45,7 @@ export default function App() {
   const [flash, setFlash] = useState("");
   const [tab, setTab] = useState("check");
   const [trendReg, setTrendReg] = useState("");
+  const [updated, setUpdated] = useState(false);
   const fileRef = useRef(null);
 
   const say = (msg, ms = 4000) => { setFlash(msg); setTimeout(() => setFlash(""), ms); };
@@ -71,6 +72,15 @@ export default function App() {
       } catch (e) { /* first run */ }
       setLoading(false);
     })();
+  }, []);
+
+  // A launch runs whatever is already on the device; a newer version installs
+  // behind it and takes effect on the next one. Say so rather than reloading
+  // underneath a check being typed.
+  useEffect(() => {
+    const onUpdate = () => setUpdated(true);
+    window.addEventListener("app-updated", onUpdate);
+    return () => window.removeEventListener("app-updated", onUpdate);
   }, []);
 
   useEffect(() => {
@@ -300,6 +310,13 @@ export default function App() {
         </div>
       </header>
 
+      {updated && (
+        <div className="updated" role="status">
+          <span>A newer version is installed and will be used next time the app is opened.</span>
+          <button onClick={() => window.location.reload()}>Restart now</button>
+        </div>
+      )}
+
       <nav className="tabs">
         <button className={tab === "check" ? "tab on" : "tab"} onClick={() => setTab("check")}>Check</button>
         <button className={tab === "trend" ? "tab on" : "tab"} onClick={() => setTab("trend")}>
@@ -503,7 +520,10 @@ export default function App() {
 
       {flash && <p className="flash">{flash}</p>}
 
-      <footer className="foot">{aircraft.footer}</footer>
+      <footer className="foot">
+        {aircraft.footer}
+        <span className="build">build {__BUILD__}</span>
+      </footer>
     </div>
   );
 }

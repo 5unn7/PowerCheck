@@ -63,8 +63,21 @@ offline use once installed.
   It has to be Safari; iOS does not let other browsers install a PWA.
 
 The service worker precaches the whole app on first load, so after that it
-opens and computes with no network at all. A new version is picked up the next
-time it is opened with signal.
+opens and computes with no network at all.
+
+Updates work like this. A launch always runs the version already on the device —
+that is what makes it work with no signal. If there is a connection, the app
+checks for a new version in the background on every launch; when one installs,
+a bar appears offering **Restart now**, and if it is ignored the new version is
+used the next time the app is opened. It never reloads on its own, which would
+throw away a check being typed. The footer carries a build id, so a version can
+be read back off a phone.
+
+Precaching deliberately bypasses the browser's HTTP cache. GitHub Pages serves
+the page with `max-age=600`, and without that bypass the new worker re-caches
+the page it was meant to replace: the cache name changes, the content does not,
+and an installed app can sit on a stale version indefinitely. That is not
+theoretical — it is what this app did until it was tested.
 
 ## Where the log lives
 
