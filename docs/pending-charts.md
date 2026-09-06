@@ -146,8 +146,28 @@ respect.
 
 Points **A, B and C** are marked on all three sheets and carry no numbers.
 A sits on the left axis at 4000 ft, B on an OAT curve, C on the PSI axis
-below it — the shape of the walk, but not a checkable answer. One worked set
-per chart is still needed.
+below it — the shape of the walk, but not a checkable answer.
+
+### What was measured off these scans
+
+The plot geometry was calibrated from the gridlines themselves rather than
+estimated. On BHT-205A1-FM-3 (the largest scan, 1275×1651):
+
+- **20.08 px per PSI**, x = 22 PSI at px 368, 54 PSI at px 1010.5
+- **40.25 px per 1000 ft**, y = 0 ft at px 1426.5, 20,000 ft at px 621.5
+- the OAT curves are **straight lines** over almost their whole length, not
+  the crowded curved families of the 407 nomogram
+- FM-1 and FM-2 are **genuinely different charts**, not one chart issued
+  under two serial ranges — they differ well beyond scan registration
+
+So the geometry is measurable, and at that scale a line centre can be located
+to well under a tenth of a PSI. What defeated an automated trace was not the
+lines but everything printed over them: residual grid fragments, the curve
+labels lying across their own curves, the OAT operating limit and transmission
+torque limit boundaries crossing the family, and the A–B–C construction
+itself. A row that should yield nine crossings yields thirty.
+
+That is solvable with more work. It does not change the fact below.
 
 ## What is blocking
 
