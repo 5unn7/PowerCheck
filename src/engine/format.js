@@ -14,16 +14,17 @@ export const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(D
 /* The sign of the margin is a fact: the reading was over the chart's maximum
    or it was not. Anything finer is a judgement, and a judgement belongs to
    one aircraft's approved data — never to a shared default applied to types
-   whose margins are different quantities read off different charts.
+   whose margins are different quantities read off different charts. So an
+   aircraft may supply watchBelow, in its own margin unit, when its manual
+   gives such a figure. Neither of ours does, so neither sets one.
 
-   So an aircraft may supply watchBelow, in its own margin unit, when its
-   manual gives such a figure. Neither of ours does, so neither sets one, and
-   no amber band is invented to fill the gap. */
+   `color` is for the page, `hex` for the shared card: canvas cannot resolve a
+   CSS variable and silently keeps the last fill, which drew every card grey. */
 export function statusOf(margin, aircraft) {
-  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)" };
-  if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)" };
+  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)", hex: "#8b9ba1" };
+  if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)", hex: "#9c211a" };
   const watch = aircraft && aircraft.watchBelow;
   if (Number.isFinite(watch) && margin < watch)
-    return { key: "watch", label: "Low margin", color: "var(--amber)" };
-  return { key: "ok", label: "", color: "var(--green)" };
+    return { key: "watch", label: "Low margin", color: "var(--amber)", hex: "#ad5f0b" };
+  return { key: "ok", label: "", color: "var(--green)", hex: "#0d6a4d" };
 }

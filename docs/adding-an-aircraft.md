@@ -52,6 +52,11 @@ Copy `src/aircraft/bell-407.js` and change what differs: `id`, `label`, the
 `variantFor` mapping those options to a chart key, the `meta` for each chart,
 `kMin` if the engine has an avoid area, and `footer`.
 
+`powerplant` is the line under the type's name on the aircraft page. It is
+optional, and it names the family rather than a model where the model is a
+fitted option — a 407 card reads *Rolls-Royce 250-C47 series*, and which of
+the three is fitted is chosen on the check page.
+
 #### Fitted, or per check?
 
 Every option carries a scope, and getting it wrong is the one mistake here
@@ -139,8 +144,8 @@ deploy past it.
 
 ### 4. Register it
 
-Add it to `AIRCRAFT` in `src/aircraft/index.js`. The picker appears in the UI
-by itself once there is more than one.
+Add it to `AIRCRAFT` in `src/aircraft/index.js`. It appears on the aircraft
+page — the page the app opens on — by itself.
 
 ## A different shape: add a procedure
 

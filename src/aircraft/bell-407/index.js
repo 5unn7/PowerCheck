@@ -11,6 +11,8 @@ import * as check from "./powercheck.js";
 export default {
   id: "bell-407",
   label: "Bell 407",
+  // named on the aircraft page, where the type is chosen
+  powerplant: "Rolls-Royce 250-C47 series",
   check,
   charts,
 
@@ -32,7 +34,7 @@ export default {
      page that does not name it. */
   options: [
     {
-      key: "engine", type: "segmented", default: "c47b",
+      key: "engine", label: "Engine", type: "segmented", default: "c47b",
       choices: [
         { id: "c47b", label: "250-C47B" },
         { id: "c47b8", label: "C47B/8" },
@@ -40,7 +42,7 @@ export default {
       ],
     },
     {
-      key: "inlet", type: "segmented", default: "basic",
+      key: "inlet", label: "Inlet", type: "segmented", default: "basic",
       choices: [
         { id: "basic", label: "Basic / AFS" },
         { id: "ps", label: "Particle separator" },

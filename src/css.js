@@ -17,9 +17,18 @@ export const CSS = `
   background:var(--paper);border-bottom:1px solid var(--line);padding:22px 20px 16px;}
 .badge{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.22em;
   color:var(--ink-3);}
+/* the way back to the aircraft page — a real target, not a caption */
+.change{display:inline-flex;align-items:center;gap:7px;font-family:'Barlow Semi Condensed',sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  background:none;border:1px solid var(--line);padding:6px 11px;margin:0 0 9px -1px;cursor:pointer;
+  transition:border-color .18s,color .18s;-webkit-tap-highlight-color:transparent;}
+.change svg{display:block;}
+.change:hover{border-color:var(--ink-3);color:var(--ink);}
 .plate h1{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;font-size:29px;margin:0;
   letter-spacing:-.015em;line-height:1.05;}
 .plate-r{display:flex;gap:18px;}
+.hfield{display:flex;flex-direction:column;gap:3px;}
+.hfield span{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
 .reg,.dt{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;font-size:17px;border:0;
   border-bottom:1px solid var(--line);background:none;color:var(--ink);padding:3px 0 5px;width:96px;
   letter-spacing:.1em;transition:border-color .2s;}
@@ -28,16 +37,39 @@ export const CSS = `
 .reg::placeholder{color:#c3ced2;}
 .dt{width:132px;font-size:14px;letter-spacing:0;}
 
+.fleet{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);}
+@media(min-width:640px){.fleet{grid-template-columns:1fr 1fr;}}
+.card{display:flex;flex-direction:column;align-items:stretch;gap:5px;text-align:left;font:inherit;
+  background:var(--paper);border:0;padding:22px 20px;cursor:pointer;transition:background .18s;
+  -webkit-tap-highlight-color:transparent;}
+.card:hover{background:#fafcfc;}
+.card:active{background:#f2f6f7;}
+.card-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.card-head b{font-family:'Barlow Semi Condensed',sans-serif;font-size:26px;font-weight:600;
+  letter-spacing:-.01em;line-height:1.1;color:var(--ink);}
+.card-head em{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);padding:2px 7px;}
+.card-eng{font-size:13px;color:var(--ink-3);}
+.card-cta{display:inline-flex;align-items:center;gap:7px;margin-top:9px;
+  font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink);}
+.card-cta svg{display:block;transition:transform .22s;}
+.card:hover .card-cta svg{transform:translateX(3px);}
+
 .tabs{display:flex;gap:26px;background:var(--paper);border-bottom:1px solid var(--line);padding:0 20px;}
 .tab{font:inherit;font-size:14px;font-weight:500;background:none;border:0;color:var(--ink-3);
-  padding:12px 0;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s;}
+  padding:15px 0;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s;}
 .tab.on{color:var(--ink);border-bottom-color:var(--ink);}
 
-.config{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:20px 20px 0;}
+.config{display:flex;gap:16px 22px;flex-wrap:wrap;align-items:flex-end;padding:20px 20px 0;}
 .config .scope{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);flex-basis:100%;margin-bottom:-6px;}
+.optgroup{display:flex;flex-direction:column;gap:6px;}
+.optlbl{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
 .seg{display:inline-flex;}
 .seg button{font:inherit;font-size:13px;font-weight:500;background:none;color:var(--ink-3);cursor:pointer;
-  border:1px solid var(--line);border-right:0;padding:7px 15px;transition:all .18s;}
+  border:1px solid var(--line);border-right:0;padding:10px 16px;transition:all .18s;
+  -webkit-tap-highlight-color:transparent;}
 .seg button:last-child{border-right:1px solid var(--line);}
 .seg button.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
 .wrapseg{flex-wrap:wrap;margin-bottom:18px;}
@@ -66,10 +98,19 @@ export const CSS = `
 .share:disabled{color:#c3ced2;border-color:var(--line-2);cursor:default;}
 .share svg{display:block;}
 
-.cond{padding:18px 20px 0;}
-.cond b{display:block;font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);}
-.cond span{display:block;font-size:11.5px;color:var(--ink-3);line-height:1.45;margin-top:2px;max-width:70ch;}
-.cond .rev{color:var(--ink-2);font-weight:500;}
+.cond{padding:16px 20px 0;}
+.cond summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  list-style:none;cursor:pointer;padding:4px 0 6px;-webkit-tap-highlight-color:transparent;}
+.cond summary::-webkit-details-marker{display:none;}
+.cond b{font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);}
+.cond-more{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);white-space:nowrap;transition:color .18s;}
+.cond-more svg{display:block;transition:transform .22s;}
+.cond[open] .cond-more svg{transform:rotate(180deg);}
+.cond summary:hover .cond-more{color:var(--ink);}
+.cond p{margin:0;padding-bottom:2px;font-size:11.5px;color:var(--ink-3);line-height:1.45;max-width:70ch;}
+.cond-id{display:block;}
+.cond .rev{display:block;font-size:10.5px;font-weight:500;color:var(--ink-2);margin-top:1px;}
 
 .inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:18px 0 0;
   border-top:1px solid var(--line);background:var(--paper);}
@@ -93,8 +134,11 @@ export const CSS = `
   font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;font-variant-numeric:tabular-nums;}
 .big span{font-size:76px;line-height:.82;letter-spacing:-.03em;}
 .big i{font-size:23px;font-style:normal;}
+.hero-side{display:flex;flex-direction:column;gap:1px;}
 .hero-side b{font-family:'Barlow Semi Condensed',sans-serif;font-size:15px;font-weight:600;
-  color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;}
+  color:var(--accent);letter-spacing:.1em;text-transform:uppercase;}
+.hero-side span{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
+.waiting{margin:20px 0 0;font-size:13px;color:var(--ink-3);}
 
 .gauge{position:relative;margin:26px 0 8px;}
 .gauge-bar{position:relative;display:flex;height:3px;}
@@ -115,8 +159,14 @@ export const CSS = `
 
 .alert{font-size:13px;color:var(--red);border-left:2px solid var(--red);padding:2px 0 2px 12px;margin:18px 0 0;}
 
-.chartscroll{margin:26px -20px 0;padding:20px 0 4px;border-top:1px solid var(--line);
-  overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.chartwrap{position:relative;margin:26px -20px 0;border-top:1px solid var(--line);}
+.chartscroll{padding:20px 0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+/* every chart is drawn 720 units wide, so below this the panel cannot hold it
+   and the fade says so — above it the chart fits and there is nothing to hint */
+@media(max-width:759px){
+  .chartwrap::after{content:"";position:absolute;top:1px;right:0;bottom:0;width:34px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,0),var(--paper));}
+}
 .chart{display:block;margin:0 20px;}
 .c-grid{stroke:#eef2f3;stroke-width:.7;}
 .c-frame{fill:none;stroke:#c2ced2;stroke-width:1;}
@@ -124,6 +174,7 @@ export const CSS = `
 .c-live{fill:none;stroke:var(--accent);stroke-width:1.8;}
 .c-trace line{stroke:var(--accent);stroke-width:1.4;stroke-dasharray:5 3.5;}
 .c-trace circle{fill:var(--accent);}
+.c-trace circle.c-obs{fill:var(--paper);stroke:var(--accent);stroke-width:1.8;}
 .c-head{font-family:'Barlow Semi Condensed',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.1em;fill:var(--ink-3);}
 .c-right{text-anchor:end;}
 .c-tick{font-size:9px;fill:var(--ink-3);font-variant-numeric:tabular-nums;}
@@ -147,6 +198,7 @@ export const CSS = `
 .btn.ghost:disabled{color:#c3ced2;}
 .flash{font-size:13px;color:var(--green);margin:0;padding:14px 20px 0;}
 .quiet{color:var(--ink-3);font-size:14px;margin:2px 0 16px;}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
 
 .tchart{margin:0 -8px;}
 .tablewrap{overflow-x:auto;margin-top:14px;}
@@ -154,7 +206,7 @@ table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:ta
 th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
   border-bottom:1px solid var(--line);padding:0 12px 7px 0;white-space:nowrap;}
 td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line-2);white-space:nowrap;}
-.x{background:none;border:0;color:#c3ced2;font-size:17px;cursor:pointer;padding:0 4px;line-height:1;}
+.x{background:none;border:0;color:#c3ced2;font-size:17px;cursor:pointer;padding:6px 10px;line-height:1;}
 .x:hover{color:var(--red);}
 .io{display:flex;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
 .offchart{display:block;margin:0 0 22px;padding:13px 15px;background:#fdf6ec;

@@ -5,6 +5,10 @@ Install it to a phone's home screen and it works with no signal.
 
 **Live: https://5unn7.github.io/PowerCheck/**
 
+The app opens on the aircraft page: pick the type, and the check that follows
+is read from its charts. The header badge names the type and goes back to
+change it.
+
 Currently carried:
 
 **Bell 407** — Rolls-Royce 250-C47B. Torque, MGT, OAT and pressure altitude are
@@ -149,4 +153,5 @@ src/engine/       interpolation, atmosphere, formatting — no aircraft in here
 src/procedures/   one per chart shape; index.js reads, view.jsx draws
 src/aircraft/     one per type: digitised charts and what is fitted
 src/App.jsx       the UI, which knows about none of the above specifically
+src/pick.jsx      the aircraft page the app opens on
 ```

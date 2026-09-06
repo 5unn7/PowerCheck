@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { AIRCRAFT, byId, checkFor, chartFor, frameFor, defaultConfig,
   fittedOptions, checkOptions, seriesKey, seriesLabel } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
+import { AircraftSelect } from "./pick.jsx";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
 import { CSS } from "./css.js";
 
@@ -28,6 +29,10 @@ function decodeConfig(aircraft, s) {
 }
 
 export default function App() {
+  // The app opens on the aircraft page and only then shows the check, so a
+  // check is never read against whichever type happened to be selected last.
+  const [picked, setPicked] = useState(false);
+  const [lastId, setLastId] = useState("");
   const [aircraftId, setAircraftId] = useState(AIRCRAFT[0].id);
   const aircraft = byId(aircraftId);
   const proc = checkFor(aircraft);
@@ -46,6 +51,7 @@ export default function App() {
   const [flash, setFlash] = useState("");
   const [tab, setTab] = useState("check");
   const [trendReg, setTrendReg] = useState("");
+  const [condOpen, setCondOpen] = useState(false);
   const [updated, setUpdated] = useState(false);
   const fileRef = useRef(null);
 
@@ -64,8 +70,10 @@ export default function App() {
           const v = JSON.parse(p.value);
           const a = byId(v.aircraft || "bell-407");
           setAircraftId(a.id);
+          setLastId(a.id);
           if (v.reg) setReg(v.reg);
           if (v.trendReg) setTrendReg(v.trendReg);
+          if (typeof v.condOpen === "boolean") setCondOpen(v.condOpen);
           // v.inlet / v.snow are the pre-registry shape of the same thing
           setConfig(v.config ? { ...defaultConfig(a), ...v.config }
             : { ...defaultConfig(a), ...(v.inlet ? { inlet: v.inlet } : {}), ...(typeof v.snow === "boolean" ? { snow: v.snow } : {}) });
@@ -86,18 +94,37 @@ export default function App() {
 
   useEffect(() => {
     if (loading) return;
-    window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg })).catch(() => {});
-  }, [aircraftId, reg, config, trendReg, loading]);
+    window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg, condOpen })).catch(() => {});
+  }, [aircraftId, reg, config, trendReg, condOpen, loading]);
 
   const setOption = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
+  /* Coming back to the page and choosing the same type again keeps the
+     readings already typed; choosing a different one cannot, since the
+     readings and the fitted options are that aircraft's. */
   function pickAircraft(id) {
-    setAircraftId(id);
-    setConfig(defaultConfig(byId(id)));
-    setValues({});
+    if (id !== aircraftId) {
+      setAircraftId(id);
+      setConfig(defaultConfig(byId(id)));
+      setValues({});
+    }
+    setLastId(id);
+    setPicked(true);
+    setTab("check");
   }
 
-  const { chart, meta } = chartFor(aircraft, config);
+  const { chart, meta, variant } = chartFor(aircraft, config);
+
+  /* The conditions stay folded away until the chart being read changes —
+     the snow deflector supplement is level flight only where the basic chart
+     allows a hover, and that is not something to find folded up. */
+  const knownVariant = useRef(false);
+  useEffect(() => {
+    if (loading) return;
+    if (!knownVariant.current) { knownVariant.current = true; return; }
+    setCondOpen(true);
+  }, [variant, loading]);
+
   const frame = frameFor(aircraft);
   const nums = useMemo(
     () => Object.fromEntries(aircraft.inputs.map((i) => [i.key, num(values[i.key])])),
@@ -111,6 +138,11 @@ export default function App() {
     ? proc.compute({ chart, aircraft, ...nums })
     : null;
   const status = statusOf(result ? result.margin : NaN, aircraft);
+
+  /* Which readings are still to come — shown once entry has started, so a
+     half-filled check reads as unfinished rather than as broken. */
+  const waiting = complete || !aircraft.inputs.some((i) => Number.isFinite(nums[i.key])) ? []
+    : aircraft.inputs.filter((i) => !Number.isFinite(nums[i.key])).map((i) => i.label);
 
   async function persist(next) {
     setRecords(next);
@@ -137,7 +169,7 @@ export default function App() {
     let blob;
     try {
       blob = await view.drawCard({
-        aircraft, chart, frame, meta, result, accent: status.color,
+        aircraft, chart, frame, meta, result, accent: status.hex, status: status.label,
         title: `${aircraft.label.toUpperCase()}  ·  POWER ASSURANCE CHECK`,
         readings: [
           ...aircraft.inputs.map((i) => `${i.label} ${fmt(nums[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}${i.unit ? " " + i.unit : ""}`),
@@ -306,6 +338,15 @@ export default function App() {
 
   /* ------------------------------- render ------------------------------- */
 
+  if (!picked) {
+    return (
+      <div className="wrap">
+        <style>{CSS}</style>
+        <AircraftSelect aircraft={AIRCRAFT} lastId={lastId} onPick={pickAircraft} />
+      </div>
+    );
+  }
+
   // each point is coloured by the aircraft whose margin it is
   const dot = ({ cx, cy, payload }) => (
     <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin, byId(payload.aircraft)).color}
@@ -320,12 +361,24 @@ export default function App() {
 
       <header className="plate">
         <div className="plate-l">
-          <span className="badge">{aircraft.label.toUpperCase()}</span>
+          <button className="change" onClick={() => setPicked(false)} aria-label="Change aircraft">
+            {aircraft.label}
+            <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor"
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m5 8 5 5 5-5" />
+            </svg>
+          </button>
           <h1>Power assurance</h1>
         </div>
         <div className="plate-r">
-          <input className="reg" value={reg} placeholder="SIGN" onChange={(e) => setReg(e.target.value.toUpperCase())} />
-          <input className="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <label className="hfield">
+            <span>Reg</span>
+            <input className="reg" value={reg} onChange={(e) => setReg(e.target.value.toUpperCase())} />
+          </label>
+          <label className="hfield">
+            <span>Date</span>
+            <input className="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </label>
         </div>
       </header>
 
@@ -337,24 +390,16 @@ export default function App() {
       )}
 
       <nav className="tabs">
-        <button className={tab === "check" ? "tab on" : "tab"} onClick={() => setTab("check")}>Check</button>
-        <button className={tab === "trend" ? "tab on" : "tab"} onClick={() => setTab("trend")}>
+        <button className={tab === "check" ? "tab on" : "tab"} aria-current={tab === "check" ? "page" : undefined}
+          onClick={() => setTab("check")}>Check</button>
+        <button className={tab === "trend" ? "tab on" : "tab"} aria-current={tab === "trend" ? "page" : undefined}
+          onClick={() => setTab("trend")}>
           Trend{records.length ? ` · ${records.length}` : ""}
         </button>
       </nav>
 
       {tab === "check" && (
         <>
-          {AIRCRAFT.length > 1 && (
-            <div className="fleet">
-              <div className="seg wrapseg">
-                {AIRCRAFT.map((a) => (
-                  <button key={a.id} className={a.id === aircraft.id ? "on" : ""} onClick={() => pickAircraft(a.id)}>{a.label}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* What is fitted, then what this check applies to. They are drawn
               apart because they are not the same kind of choice: the first
               is set once for the aircraft, the second every check. */}
@@ -364,11 +409,22 @@ export default function App() {
           )}
 
           {meta && (
-            <div className="cond">
-              <b>{meta.src}</b>
-              <span className="rev">{meta.rev || "Revision not recorded — confirm against the manual on board."}</span>
-              <span>{meta.cond}</span>
-            </div>
+            <details className="cond" open={condOpen} onToggle={(e) => setCondOpen(e.currentTarget.open)}>
+              <summary>
+                <span className="cond-id">
+                  <b>{meta.src}</b>
+                  <span className="rev">{meta.rev || "Revision not recorded — confirm against the manual on board."}</span>
+                </span>
+                <span className="cond-more">
+                  Conditions
+                  <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor"
+                    strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m5 8 5 5 5-5" />
+                  </svg>
+                </span>
+              </summary>
+              <p>{meta.cond}</p>
+            </details>
           )}
 
           <div className="inputs">
@@ -404,7 +460,8 @@ export default function App() {
                   <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit}</i>
                 </div>
                 <div className="hero-side">
-                  <b>{aircraft.marginLabel}</b>
+                  <b>{result ? status.label : aircraft.marginLabel}</b>
+                  {result && <span>{aircraft.marginLabel}</span>}
                 </div>
                 <button className="share" onClick={shareCard} disabled={!result} aria-label="Share this check as an image">
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor"
@@ -416,6 +473,10 @@ export default function App() {
                 </button>
               </div>
 
+              {waiting.length > 0 && offChart.length === 0 && (
+                <p className="waiting">Enter {waiting.join(", ")}</p>
+              )}
+
               {result && <Gauge aircraft={aircraft} margin={result.margin} />}
 
               <div className="stats">
@@ -425,8 +486,10 @@ export default function App() {
 
               {(result ? result.notes : []).map((a, i) => <p key={i} className="alert">{a}</p>)}
 
-              <div className="chartscroll">
-                <Chart chart={chart} frame={frame} readings={nums} result={result} />
+              <div className="chartwrap">
+                <div className="chartscroll">
+                  <Chart chart={chart} frame={frame} readings={nums} result={result} />
+                </div>
               </div>
 
               <div className="save">
@@ -442,7 +505,10 @@ export default function App() {
       {tab === "trend" && (
         <section className="panel">
           {loading ? <p className="quiet">Loading</p> : groups.length === 0 ? (
-            <p className="quiet">Nothing logged yet.</p>
+            <div className="empty">
+              <p className="quiet">No checks logged yet.</p>
+              <button className="btn" onClick={() => setTab("check")}>Log a check</button>
+            </div>
           ) : (
             <>
               <div className="seg wrapseg">
@@ -552,6 +618,12 @@ function Gauge({ aircraft, margin }) {
     </div>
   );
 }
+/* A segmented control is captioned with what it chooses — "Inlet" over
+   Basic / AFS — unless every choice already says it, which would print
+   "Engine" over Engine 1 and Engine 2. */
+const groupLabel = (opt) =>
+  opt.label && !opt.choices.every((c) => c.label.toLowerCase().startsWith(opt.label.toLowerCase()))
+    ? opt.label : null;
 
 /* Segmented pickers and switches for one scope of options. */
 function Options({ opts, config, set, caption }) {
@@ -560,11 +632,15 @@ function Options({ opts, config, set, caption }) {
     <div className="config">
       {caption && <span className="scope">{caption}</span>}
       {opts.map((opt) => opt.type === "segmented" ? (
-        <div className="seg" key={opt.key}>
-          {opt.choices.map((c) => (
-            <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
-              onClick={() => set(opt.key, c.id)}>{c.label}</button>
-          ))}
+        <div className="optgroup" key={opt.key}>
+          {groupLabel(opt) && <span className="optlbl">{groupLabel(opt)}</span>}
+          <div className="seg" role="group" aria-label={opt.label || opt.key}>
+            {opt.choices.map((c) => (
+              <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
+                aria-pressed={config[opt.key] === c.id}
+                onClick={() => set(opt.key, c.id)}>{c.label}</button>
+            ))}
+          </div>
         </div>
       ) : (
         <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"

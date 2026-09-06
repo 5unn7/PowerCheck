@@ -14,6 +14,8 @@ import * as check from "./powercheck.js";
 export default {
   id: "bell-212-pt6t3",
   label: "Bell 212 · PT6T-3",
+  // named on the aircraft page, where the type is chosen
+  powerplant: "Pratt & Whitney PT6T-3 Twin-Pac",
   check,
   charts,
 
