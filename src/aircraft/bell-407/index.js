@@ -1,4 +1,5 @@
-import charts from "./bell-407.charts.json" with { type: "json" };
+import charts from "./charts.json" with { type: "json" };
+import * as check from "./powercheck.js";
 
 /* Bell 407, Rolls-Royce 250-C47B.
 
@@ -12,7 +13,7 @@ export default {
   label: "Bell 407",
   // named on the aircraft page, where the type is chosen
   powerplant: "Rolls-Royce 250-C47 series",
-  procedure: "torque-k-mgt",
+  check,
   charts,
 
   // what the crew reads off the panel
@@ -68,14 +69,17 @@ export default {
   meta: {
     basic: {
       src: "BHT-407-FM-1 fig 4-1 · basic inlet, read for AFS",
+      rev: "TC approved · Rev 14, 28 MAR 2014 · page 4-7",
       cond: "Hover or level flight 85–105 KIAS, not above VNE · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
     },
     ps: {
       src: "BHT-407-FMS-3 fig 4-1 · particle separator kit",
+      rev: "TC approved · Rev 1, 16 JAN 2018 · page 3",
       cond: "Hover or level flight 85–105 KIAS, not above VNE · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
     },
     psb: {
       src: "BHT-407-FMS-4 fig 4-1 · snow deflector kit",
+      rev: "TC approved · Rev 1, 16 JAN 2018 · page 4",
       cond: "Level flight only, 85–105 KIAS, not above VNE · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
     },
   },
@@ -83,6 +87,14 @@ export default {
   // minimum K below which the chart is not read — the C47B avoid area
   kMin: (oat) => ((oat + 32.5) * 12.25) / 78.5,
 
+  /* The axes BHT-407-FM-1 fig 4-1 is drawn on, and the range the margin
+     dial spans. The dial range is presentation, chosen so this aircraft's
+     margins sit legibly on it — it is not from the manual, and it is stated
+     here rather than shared so no other type inherits a °C scale. */
+  frame: { tq: [35, 100], mgt: [390, 790], k: [-2, 102], tqTick: 5, mgtTick: 25, kTick: 10 },
+  gauge: [-10, 80],
+
+  marginUnit: "°C",
   marginLabel: "MGT margin",
   footer: "Charts digitised from BHT-407-FM-1 (fig 4-1, 4-2), FMS-3 and FMS-4. Trending aid — the flight manual is the authority.",
 

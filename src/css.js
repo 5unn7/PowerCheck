@@ -109,6 +109,8 @@ export const CSS = `
 .cond[open] .cond-more svg{transform:rotate(180deg);}
 .cond summary:hover .cond-more{color:var(--ink);}
 .cond p{margin:0;padding-bottom:2px;font-size:11.5px;color:var(--ink-3);line-height:1.45;max-width:70ch;}
+.cond-id{display:block;}
+.cond .rev{display:block;font-size:10.5px;font-weight:500;color:var(--ink-2);margin-top:1px;}
 
 .inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:18px 0 0;
   border-top:1px solid var(--line);background:var(--paper);}
@@ -141,8 +143,7 @@ export const CSS = `
 .gauge{position:relative;margin:26px 0 8px;}
 .gauge-bar{position:relative;display:flex;height:3px;}
 .z{display:block;height:100%;}
-.zr{width:11.1%;background:var(--red);}
-.za{width:11.1%;background:var(--amber);}
+.zr{background:var(--red);}
 .zg{flex:1;background:var(--green);}
 .pin{position:absolute;top:-5px;width:1px;height:13px;background:var(--ink);}
 .gauge-ticks{position:relative;height:14px;}

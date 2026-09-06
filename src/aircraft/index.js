@@ -1,25 +1,26 @@
-import bell407 from "./bell-407.js";
-import bell212 from "./bell-212-pt6t3.js";
-import * as torqueKMgt from "../procedures/torque-k-mgt/index.js";
-import * as setTorqueOatLimits from "../procedures/set-torque-oat-limits/index.js";
+import bell407 from "./bell-407/index.js";
+import bell212 from "./bell-212-pt6t3/index.js";
 
-/* Adding an aircraft is two steps: digitise its charts into a .charts.json,
-   and add a definition module next to bell-407.js describing its inputs,
-   its fitted options and its published examples. Register both here.
+/* One folder per aircraft, and everything about that aircraft is inside it:
+   its digitised charts, the power check as its own flight manual walks it,
+   the drawing of that chart, and the definition tying them together.
 
-   An aircraft whose flight manual walks a different chart — Ng and TOT
-   rather than torque and MGT — also needs a procedure module, which is the
-   only place that knows the shape of the walk. Nothing in the app does. */
+   Nothing is shared between types. Two aircraft whose charts happen to have
+   the same shape still get a check apiece, because a change made for one
+   must not reach the other — each manual has its own way of doing things,
+   and the next revision of one of them may diverge.
 
-export const PROCEDURES = {
-  "torque-k-mgt": torqueKMgt,
-  "set-torque-oat-limits": setTorqueOatLimits,
-};
+   What is shared is arithmetic with no aircraft in it: interpolation and
+   number formatting, in src/engine.
+
+   Adding an aircraft is a new folder here plus one line below. See
+   docs/adding-an-aircraft.md. */
 
 export const AIRCRAFT = [bell407, bell212];
 
 export const byId = (id) => AIRCRAFT.find((a) => a.id === id) || AIRCRAFT[0];
-export const procedureFor = (aircraft) => PROCEDURES[aircraft.procedure];
+/* The power check as this aircraft's own manual walks it. */
+export const checkFor = (aircraft) => aircraft.check;
 
 /* The chart a set of fitted options selects, plus the frame it is drawn on. */
 export function chartFor(aircraft, config) {
@@ -27,8 +28,10 @@ export function chartFor(aircraft, config) {
   return { variant, chart: aircraft.charts[variant], meta: aircraft.meta[variant] };
 }
 
+/* An aircraft's own axes. There is deliberately no fallback: inheriting
+   another type's scales is how one aircraft's data reaches another's screen. */
 export function frameFor(aircraft) {
-  return aircraft.frame || procedureFor(aircraft).DEFAULT_FRAME;
+  return aircraft.frame;
 }
 
 /* Defaults for an aircraft's fitted options. */

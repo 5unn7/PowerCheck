@@ -1,5 +1,4 @@
 import { interp, bracket, span, clamp } from "../../engine/interp.js";
-import { densityAlt } from "../../engine/atmosphere.js";
 import { fmt } from "../../engine/format.js";
 
 /* ============================ torque -> K -> MGT ============================
@@ -17,26 +16,29 @@ import { fmt } from "../../engine/format.js";
      mgtK  for each oat, the curve as [max MGT °C, K] points
 
    An aircraft using a different walk — Ng and TOT, say — is a different
-   procedure module, not a variation of this one. It supplies the same four
+   own powercheck.js, not a variation of this one. It supplies the same four
    exports and the app does not need to know the difference.            */
 
-export const DEFAULT_FRAME = {
-  tq: [35, 100], mgt: [390, 790], k: [-2, 102],
-  tqTick: 5, mgtTick: 25, kTick: 10,
-};
+/* No default frame lives here. The axes a chart is drawn on are that
+   chart's, and a second aircraft on this same walk would silently inherit
+   the 407's scales if this module carried them. Each aircraft states its
+   own, and the test suite requires it. */
 
 /* --------------------------- reading the chart --------------------------- */
 
+/* No density altitude here. BHT-407-FM-1 fig 4-1 is walked on *pressure*
+   altitude and does not use it, and the standard-atmosphere model that would
+   produce it was checked against the 212's own fig 4-3 — another type's
+   chart, which is not evidence about this one. */
 export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
   const K = interp(d.pa.map((p, i) => [p, interp(d.tqK[i], tq)]), pa);
   const maxMGT = interp(d.oat.map((o, i) => [o, interp(d.mgtK[i], K, 1, 0)]), oat);
   const kMin = aircraft.kMin(oat);
   return {
-    K, maxMGT, kMin, margin: maxMGT - mgt, da: densityAlt(pa, oat),
+    K, maxMGT, kMin, margin: maxMGT - mgt,
     stats: [
       { label: "Max MGT °C", value: fmt(maxMGT, 0) },
       { label: "K factor", value: fmt(K, 1) },
-      { label: "Density alt ft", value: fmt(densityAlt(pa, oat), 0) },
     ],
     notes: K < kMin
       ? [`K ${fmt(K, 1)} is under the ${fmt(kMin, 1)} minimum for this OAT — avoid area, repeat at higher torque.`]

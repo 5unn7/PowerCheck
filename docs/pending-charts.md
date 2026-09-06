@@ -1,24 +1,97 @@
-# Charts received, not yet digitised
+# The pages received, and what each one still needs
 
-The rules below are transcribed from the pages as sent — they are exact, and
-they are the part that gets lost. What is missing in every case is the curve
-data, which a scan of a nomogram does not give up. See **What is actually
-blocking** at the end.
+Eighteen manual pages across four types, re-read page by page. Revisions,
+conditions and rules below are transcribed exactly — they are the part that
+gets lost. What is missing in almost every case is the curve coordinates,
+which a scan of a nomogram does not give up. See **What is blocking** at the
+end.
 
-## Done
+## Inventory
 
-| Chart | Status |
-|---|---|
-| BHT-407-FM-1 / FMS-3 / FMS-4 fig 4-1 | digitised, verified against all three published examples |
-| BHT-212VFR-FM-1 fig 4-2 · PT6T-3 ground | transcribed from the printed tables, verified against the page's example |
-| BHT-212VFR-FM-1 fig 4-3 · density altitude | no data needed — computed analytically, and it reproduces the page's example (−15 °C at 6000 ft → 3847 ft against a chart read to the nearest 1000) |
+| # | Page | Type | Status |
+|---|---|---|---|
+| 1 | BHT-407-FM-1 fig 4-1 · basic inlet · TC · Rev 14, 28 MAR 2014 · p 4-7 | 407 | **in**, verified 676 °C |
+| 2 | BHT-407-FMS-3 fig 4-1 · particle separator · TC · Rev 1, 16 JAN 2018 · p 3 | 407 | **in**, verified 682 °C |
+| 3 | BHT-407-FMS-4 fig 4-1 · snow deflector · TC · Rev 1, 16 JAN 2018 · p 4 | 407 | **in**, verified 722 °C |
+| 4 | BHT-212VFR-FM-1 fig 4-2 · PT6T-3 ground · FAA · Rev 5, 17 OCT 2011 · p 4-11 | 212 | **in**, all 49 printed values re-verified |
+| 5 | BHT-212VFR-FM-1 fig 4-3 · density altitude · FAA · p 4-12 | 212 | **in**, computed; reproduces the page's example |
+| 6 | BHT-212VFR-FM-1 fig 4-1 sh 1/4 · PT6T-3B hover · gage −101 · FAA · Rev 9, 24 MAY 2022 · p 4-7 | 212 | curves needed, **no printed answer** |
+| 7 | fig 4-1 sh 2/4 · PT6T-3B in-flight · gage −101 · p 4-8 | 212 | curves needed, **no printed answer** |
+| 8 | fig 4-1 sh 3/4 · PT6T-3B hover · gage −113 · p 4-9 | 212 | curves needed, **no printed answer** |
+| 9 | fig 4-1 sh 4/4 · PT6T-3B in-flight · gage −113 · p 4-10 | 212 | curves needed, **no printed answer** |
+| 10 | BHT-206L4-FM-1 fig 4-1 · base · TC · Rev 2, 22 AUG 2008 · p 4-7 | 206L4 | curves needed — **answer now established, see below** |
+| 11 | BHT-206L4-FMS-7 fig 4-1 sh 1/2 · snow deflector · TC · 19 OCT 2011 · p 4 | 206L4 | curves needed, **no printed answer** |
+| 12 | BHT-206L4-FMS-7 fig 4-1 sh 2/2 · snow deflector + particle separator, purge on · TC · 19 OCT 2011 · p 5 | 206L4 | curves needed, **no printed answer** |
+| 13 | BHT-206L4-FMS-3 §4-6 · TC · 26 AUG 2011 · p 4 | 206L4 | **rule captured** — see below |
+| 14 | BHT-205A1-FM-1 · SN 30001–30052 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
+| 15 | BHT-205A1-FM-2 · SN 30053–30127 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
+| 16 | BHT-205A1-FM-3 · SN 30128 and subs · FAA · Rev 13 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
+| 17–18 | AFS-BH206L3L4-IBF-KIT-FMS §4 pp 9–10 of 11 · FAA · Rev C, 04 NOV 2008 | 206L series | **rules captured** — see below |
+
+Pages 17 and 18 arrived as one image, which is why there are seventeen files
+and eighteen pages.
+
+## Bell 206L4 — the one chart whose answer is now established
+
+BHT-206L4-FM-1 fig 4-1 prints an example box giving only the **inputs**:
+
+> OAT 25 °C · TOT 720 °C · Hp 12,000 feet
+
+The **answer** is printed in a different document. BHT-206L4-FMS-3 §4-6 opens
+its own worked example with:
+
+> Minimum torque available (as read from Power Assurance Check chart example)
+> **65%**
+
+Together those are a complete published example, so this chart *can* prove
+itself once digitised. It is the only one of the eleven outstanding sheets
+that can. It is now blocked on curve coordinates alone.
+
+Walk: enter OAT, up to indicated TOT, right across, down to Hp, read minimum
+torque available. The check **passes when actual torque is equal to or
+greater** than the figure read — inverted from the 407 — so the margin is in
+percent torque, not °C.
+
+Conditions, FM-1: level flight · N2 100% · DC load 17.5% · 85 to 105 KIAS not
+above VNE · engine anti-ice off · heater/ECS off.
+The FMS-7 sheets are the same except **90 to 100 KIAS**, and sheet 2 of 2 adds
+**particle separator purge on**.
+
+All three sheets cover **Model 206L4, or 206L1+ and 206L3+ with the IGW
+upgrade kit**, and all three print **"avoid this area (possible bleed valve
+open area)"** as a marked region the gate must refuse inside.
+
+Chart bounds: OAT −50 to 100 °C · indicated TOT curves 460 to 768 · Hp sea
+level to 16,000 ft · minimum torque available 40 to 100%.
+
+### The torque corrections, and that they are alternatives
+
+| Kit | Correction | Source |
+|---|---|---|
+| Particle separator, purge on | **−5%** torque | BHT-206L4-FMS-3 §4-6, worked: 65% → 60% |
+| Inlet Barrier Filter | **−3%** torque | AFS-BH206L3L4-IBF-KIT-FMS, worked: 76% → 73% |
+
+Rules from the IBF supplement, verbatim in substance:
+
+- With **snow deflectors** fitted, an IBF aircraft uses the *basic inlet with
+  snow deflector* PAC chart — BHT-206L4-FMS-7 for the 206L-4.
+- Otherwise IBF operators use the latest **"particle separator purge off"**
+  charts from BHT-206L4-FMS-3.
+- The IBF and the particle separator are **alternatives, not additive**. The
+  UI must never offer both corrections at once.
+- Pass condition, IBF: *actual torque indication after the 3% deduction is the
+  same or greater than the required chart torque.*
+
+The IBF supplement covers **Bell 206L-1, 206L-3 and 206L-4 only**. It says
+nothing about any other type.
 
 ## Bell 212 · PT6T-3B — BHT-212VFR-FM-1 fig 4-1, four sheets
 
-A nomogram, unlike the PT6T-3's tables. Four sheets, and they are **not
-interchangeable** — the gas producer gage part number changes the N1 scale:
+A nomogram, unlike the PT6T-3's tables, and a different engine model from the
+ground check already implemented. Four sheets, **not interchangeable** — the
+gas producer gage part number changes the N1 scale:
 
-| Sheet | Check | Gas producer gage P/N | N1 scale | N1 ceiling |
+| Sheet | Check | Gage P/N | N1 scale | N1 ceiling |
 |---|---|---|---|---|
 | 1 of 4 | hover | 212-075-037-101 | 85–105 | 100.8% |
 | 2 of 4 | in-flight | 212-075-037-101 | 85–105 | 100.8% |
@@ -26,100 +99,57 @@ interchangeable** — the gas producer gage part number changes the N1 scale:
 | 4 of 4 | in-flight | 212-075-037-113 | 86–106 | 101.8% |
 
 Walk: enter at indicated engine torque, up to Hp, right to OAT, up to read
-maximum allowable ITT and maximum allowable N1.
+maximum allowable ITT **and** maximum allowable N1.
 
-Common to all four: N2 97%, heater/ECU off, do not exceed 810 °C ITT or 63.9%
-engine torque. Hover sheets run the other engine at idle and call for
-collective increase past 700 °C ITT; in-flight sheets want level flight above
-1000 ft AGL at 100 KIAS or Vne, test engine throttle full open. Stabilise one
-minute, and four minutes if a limit is exceeded before repeating.
+Common to all four: N2 97% · heater/ECU off · test engine throttle full open,
+frictioned · do not exceed 810 °C ITT or 63.9% engine torque · stabilise power
+one minute, then record Hp, OAT, torque, ITT and N1 · if a limit is exceeded,
+repeat stabilising **four** minutes · repeat the check on the other engine.
 
-These are a separate aircraft entry from the PT6T-3 already shipped — a
-different engine model — with `mode` as a check-scope option (hover /
-in-flight) and the gage part number as a fitted one. Two axes, four sheets.
-See **Fitted, or per check?** in `docs/adding-an-aircraft.md`.
+Hover sheets: other engine at idle · collective increased to greater than
+700 °C ITT · throttles full open before takeoff.
+In-flight sheets: level flight above 1000 ft AGL · 100 KIAS or VNE if less ·
+other engine decreased slowly until the test engine torque is in range.
 
-Procedure shape: **torque + Hp + OAT → (max ITT, max N1)**. A third shape —
-neither the 407's nor the PT6T-3's. Chart bounds visible: torque 40–90%,
-ITT 500–800, plus "bleed valve opens" boundaries and MAXIMUM FOR TAKEOFF /
-MAXIMUM CONTINUOUS cutoffs that the gate will need to respect.
+Chart bounds: torque 40–90% · ITT 500–800 · N1 per the table above, with
+**"bleed valve opens"** boundaries at both ends and **maximum for takeoff** /
+**maximum continuous** cutoffs the gate must respect.
 
-No worked example is printed — the sheets carry trace arrows but no numbers,
-so there is nothing to verify a digitising against. **Send one worked set of
-numbers per sheet** (any torque/Hp/OAT and the ITT and N1 it reads) or these
-cannot be accepted under the rule that every chart proves itself.
-
-## Bell 206L4 · Rolls-Royce 250-C30P
-
-Three charts, and the walk is **inverted from the 407**: the chart yields a
-*minimum torque available*, and the engine passes when the actual torque
-indication is equal to or greater than it. The margin is in percent torque,
-not °C.
-
-| Chart | Configuration |
-|---|---|
-| BHT-206L4-FM-1 fig 4-1 | base, no kit |
-| BHT-206L4-FMS-7 fig 4-1 sheet 1 of 2 | snow deflector |
-| BHT-206L4-FMS-7 fig 4-1 sheet 2 of 2 | snow deflector + particle separator, purge on |
-
-Walk: enter OAT, up to indicated TOT, right across, down to Hp, read minimum
-torque available. Level flight, N2 100%, DC load 17.5%, anti-ice and heater
-off. 85–105 KIAS on FM-1; 90–100 KIAS on the FMS-7 sheets.
-
-**Constant torque offsets**, applied to the figure read off the chart. These
-are exact and already captured here:
-
-| Kit | Offset | Source |
-|---|---|---|
-| Particle separator (purge on) | **−5%** torque | BHT-206L4-FMS-3 §4-6 |
-| Inlet Barrier Filter (IBF) | **−3%** torque | AFS supplement AFS-BH206L3L4-IBF-KIT-FMS |
-
-FMS-3 example: 65% read, −5% → 60% minimum torque available with purge on.
-IBF example: 76% read, −3% → 73%.
-
-Two rules that must not be lost when this is built:
-
-- With **snow deflectors** fitted, an IBF aircraft uses the *basic inlet with
-  snow deflector* PAC chart from FMS-7, not the base chart.
-- IBF operators otherwise use the latest **"particle separator purge off"**
-  charts from FMS-3. The IBF and the particle separator are alternatives, not
-  additive — do not let the UI offer both offsets at once.
-
-Chart bounds: OAT −50 to 100 °C, TOT curves 460–768, Hp sea level to 16,000 ft,
-torque 40–100%. There is an **"avoid this area (possible bleed valve open
-area)"** region the gate must refuse inside, the same way the 407 refuses under
-its K minimum.
-
-Published example, on FM-1 only: OAT 25 °C, TOT 720 °C, Hp 12,000 ft →
-**65% minimum torque available**. The two FMS-7 sheets carry no example, so
-they need one each.
+Each sheet carries trace arrows but **no numbers on them**, so there is
+nothing to check a digitising against. One worked set per sheet — any
+torque/Hp/OAT and the ITT and N1 it reads — or these cannot be accepted.
 
 ## Bell 205A-1 · Lycoming T53
 
 Maximum power (torquemeter pressure) check. Three charts, split by **serial
-number** — the app will need serial range as the configuration that picks the
-chart, which no aircraft has needed so far:
+number**, which no aircraft in the app has needed yet:
 
-| Chart | Serial numbers |
-|---|---|
-| BHT-205A1-FM-1 | 30001 through 30052 |
-| BHT-205A1-FM-2 | 30053 through 30127 |
-| BHT-205A1-FM-3 | 30128 and subsequent |
+| Chart | Serial numbers | Revision |
+|---|---|---|
+| BHT-205A1-FM-1 | 30001 through 30052 | Rev 11 |
+| BHT-205A1-FM-2 | 30053 through 30127 | Rev 11 |
+| BHT-205A1-FM-3 | 30128 and subsequent | Rev 13 |
 
 Walk: pressure altitude and OAT give an engine torquemeter pressure in PSI.
-Separately, recorded N1 must be within ±0.5% of the placarded maximum gas
-producer speed for takeoff power (N1 topping) — a second, independent pass
+Separately, **recorded N1 must be within ±0.5% of the placarded maximum gas
+producer speed for takeoff power** (N1 topping) — a second, independent pass
 condition rather than a margin.
 
-Chart bounds: torquemeter pressure 22–54 PSI, pressure altitude 0–20,000 ft,
+Printed on all three, verbatim: *"If this check is satisfactory, it can be
+concluded that the installed engine is at least as good as a minimum
+specification engine and that full power can be obtained."*
+
+Chart bounds: torquemeter pressure 22–54 PSI · pressure altitude 0–20,000 ft ·
 OAT curves 53 °C down to −20/−54 °C, with an **OAT operating limit** boundary
 and a **transmission torque limit** boundary, both of which the gate must
 respect.
 
-Points A, B and C are marked on all three sheets but carry no numbers, so
-again: **one worked set per chart** before these can be accepted.
+Points **A, B and C** are marked on all three sheets and carry no numbers.
+A sits on the left axis at 4000 ft, B on an OAT curve, C on the PSI axis
+below it — the shape of the walk, but not a checkable answer. One worked set
+per chart is still needed.
 
-## What is actually blocking
+## What is blocking
 
 Not the rules, and not the procedures — those are a day's work each once the
 data exists. It is the curve coordinates.
@@ -130,10 +160,14 @@ That did not come from looking at a scan; the interpolation in
 `FORECAST(x, OFFSET(knownY, MATCH(x, knownX, 1) - 1, 0, 2), ...)`. **Wherever
 those points came from is the fastest path for these charts too** — send that
 workbook, or the traced points in any form, and each of these becomes a
-`.charts.json` plus a definition module.
+`charts.json` plus a definition module in its own folder.
 
 Tracing curves off a 2550×1650 scan by eye is the alternative, and it is not
-one I will do for flight data: the grid lines, the labels lying across the
+one to take for flight data: the grid lines, the labels lying across the
 curves and the crossing families all bias a tracing, and with no published
-example on most of these sheets there would be nothing to catch the error.
+answer on most of these sheets there would be nothing to catch the error.
 A chart that cannot prove itself against a printed answer does not go in.
+
+The 206L4 base chart is now the exception on verifiability only — its answer
+is established. Its curves are still a tracing, and still need to come from
+the same place the 407's did.

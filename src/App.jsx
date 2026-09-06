@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig,
+import { AIRCRAFT, byId, checkFor, chartFor, frameFor, defaultConfig,
   fittedOptions, checkOptions, seriesKey, seriesLabel } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
 import { AircraftSelect } from "./pick.jsx";
@@ -35,8 +35,8 @@ export default function App() {
   const [lastId, setLastId] = useState("");
   const [aircraftId, setAircraftId] = useState(AIRCRAFT[0].id);
   const aircraft = byId(aircraftId);
-  const proc = procedureFor(aircraft);
-  const view = VIEWS[aircraft.procedure];
+  const proc = checkFor(aircraft);
+  const view = VIEWS[aircraft.id];
 
   const [reg, setReg] = useState("");
   const [date, setDate] = useState(todayISO());
@@ -159,7 +159,7 @@ export default function App() {
   const result = complete && chart && offChart.length === 0
     ? proc.compute({ chart, aircraft, ...nums })
     : null;
-  const status = statusOf(result ? result.margin : NaN);
+  const status = statusOf(result ? result.margin : NaN, aircraft);
 
   /* Which readings are still to come — shown once entry has started, so a
      half-filled check reads as unfinished rather than as broken. */
@@ -182,7 +182,7 @@ export default function App() {
     const ok = await persist([...records, rec]);
     // show the line this check joined, which may not be the one on screen
     setTrendReg(seriesKey(rec));
-    say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} ${aircraft.marginUnit || "°C"}` : "Not saved — storage is unavailable.");
+    say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} ${aircraft.marginUnit}` : "Not saved — storage is unavailable.");
     setNote("");
   }
 
@@ -324,7 +324,7 @@ export default function App() {
 
         const nums = Object.fromEntries(ac.inputs.map((i) => [i.key, num(at(c, i.key))]));
         const { chart } = chartFor(ac, config);
-        const p = procedureFor(ac);
+        const p = checkFor(ac);
 
         // A row is only worth keeping if it can be recomputed from its own
         // readings — a margin column is taken on trust otherwise, and a stale
@@ -369,8 +369,10 @@ export default function App() {
     );
   }
 
+  // each point is coloured by the aircraft whose margin it is
   const dot = ({ cx, cy, payload }) => (
-    <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin).color} stroke="var(--paper)" strokeWidth={1.5} />
+    <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin, byId(payload.aircraft)).color}
+      stroke="var(--paper)" strokeWidth={1.5} />
   );
   const setValue = (k, v) => setValues((s) => ({ ...s, [k]: v }));
   const Chart = view.Chart;
@@ -431,7 +433,10 @@ export default function App() {
           {meta && (
             <details className="cond" open={condOpen} onToggle={(e) => setCondOpen(e.currentTarget.open)}>
               <summary>
-                <b>{meta.src}</b>
+                <span className="cond-id">
+                  <b>{meta.src}</b>
+                  <span className="rev">{meta.rev || "Revision not recorded — confirm against the manual on board."}</span>
+                </span>
                 <span className="cond-more">
                   Conditions
                   <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor"
@@ -474,7 +479,7 @@ export default function App() {
 
               <div className="hero">
                 <div className="big">
-                  <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit || "°C"}</i>
+                  <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit}</i>
                 </div>
                 <div className="hero-side">
                   <b>{result ? status.label : aircraft.marginLabel}</b>
@@ -494,20 +499,7 @@ export default function App() {
                 <p className="waiting">Enter {waiting.join(", ")}</p>
               )}
 
-              {result && (
-                <div className="gauge">
-                  <div className="gauge-bar">
-                    <span className="z zr" /><span className="z za" /><span className="z zg" />
-                    <i className="pin" style={{ left: `${Math.max(0, Math.min(100, ((result.margin + 10) / 90) * 100))}%` }} />
-                  </div>
-                  <div className="gauge-ticks">
-                    <span style={{ left: "0%" }}>−10</span>
-                    <span style={{ left: "11.1%" }}>0</span>
-                    <span style={{ left: "22.2%" }}>10</span>
-                    <span style={{ left: "100%" }}>80</span>
-                  </div>
-                </div>
-              )}
+              {result && <Gauge aircraft={aircraft} margin={result.margin} />}
 
               <div className="stats">
                 {(result ? result.stats : proc.compute({ chart, aircraft, oat: NaN, pa: NaN, tq: NaN, mgt: NaN }).stats)
@@ -550,9 +542,9 @@ export default function App() {
 
               <div className="stats tstats">
                 <div>
-                  <b style={{ color: statusOf(series[series.length - 1].margin).color }}>
+                  <b style={{ color: statusOf(series[series.length - 1].margin, seriesAircraft).color }}>
                     {(series[series.length - 1].margin > 0 ? "+" : "") + fmt(series[series.length - 1].margin)}
-                  </b><span>Latest {seriesAircraft.marginUnit || "°C"}</span>
+                  </b><span>Latest {seriesAircraft.marginUnit}</span>
                 </div>
                 <div><b>{series.length}</b><span>Checks</span></div>
                 <div>
@@ -571,7 +563,7 @@ export default function App() {
                       tick={{ fontSize: 11, fill: "var(--ink-3)" }} stroke="var(--rule)" />
                     <YAxis tick={{ fontSize: 11, fill: "var(--ink-3)" }} stroke="var(--rule)" width={42} />
                     <Tooltip contentStyle={{ borderRadius: 2, border: "1px solid var(--rule)", fontSize: 12 }}
-                      formatter={(v) => [fmt(v) + " " + (seriesAircraft.marginUnit || "°C"), "Margin"]} />
+                      formatter={(v) => [fmt(v) + " " + (seriesAircraft.marginUnit), "Margin"]} />
                     <ReferenceLine y={0} stroke="var(--red)" />
                     <ReferenceLine y={10} stroke="var(--amber)" strokeDasharray="4 4" />
                     <Line type="linear" dataKey="margin" stroke="var(--ink)" strokeWidth={1.6} dot={dot} isAnimationActive={false} />
@@ -596,7 +588,7 @@ export default function App() {
                         {seriesAircraft.inputs.map((i) => (
                           <td key={i.key}>{fmt(r[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}</td>
                         ))}
-                        <td style={{ color: statusOf(r.margin).color, fontWeight: 600 }}>
+                        <td style={{ color: statusOf(r.margin, seriesAircraft).color, fontWeight: 600 }}>
                           {(r.margin > 0 ? "+" : "") + fmt(r.margin)}
                         </td>
                         <td><button className="x" onClick={() => persist(records.filter((q) => q.id !== r.id))}>×</button></td>
@@ -625,6 +617,29 @@ export default function App() {
   );
 }
 
+/* The margin on this aircraft's own dial. Zero is the only marked point,
+   because it is the only one the chart gives: at or past it the reading was
+   over the chart's maximum. A band short of zero would be a judgement, and
+   an aircraft states one only where its own manual does. */
+function Gauge({ aircraft, margin }) {
+  const [from, to] = aircraft.gauge;
+  const at = (v) => `${((v - from) / (to - from)) * 100}%`;
+  const unit = aircraft.marginUnit;
+  return (
+    <div className="gauge">
+      <div className="gauge-bar">
+        <span className="z zr" style={{ width: at(0) }} />
+        <span className="z zg" />
+        <i className="pin" style={{ left: at(Math.max(from, Math.min(to, margin))) }} />
+      </div>
+      <div className="gauge-ticks">
+        <span style={{ left: at(from) }}>{from < 0 ? "−" + Math.abs(from) : from}</span>
+        <span style={{ left: at(0) }}>0</span>
+        <span style={{ left: at(to) }}>{to} {unit}</span>
+      </div>
+    </div>
+  );
+}
 /* A segmented control is captioned with what it chooses — "Inlet" over
    Basic / AFS — unless every choice already says it, which would print
    "Engine" over Engine 1 and Engine 2. */
