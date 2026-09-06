@@ -150,6 +150,10 @@ suite enforces both. Do not add a shared default threshold.
 - `docs/adding-an-aircraft.md` — the full recipe for a new type, including the chart JSON shape
 - `docs/pending-charts.md` — the eighteen manual pages received, what each still needs, and the rules transcribed from them
 - `docs/engineering-review.md` — the self-audit against the manuals, and the operator engineer's rulings on the open items
+- `DESIGN.md` — the visual system as the code actually uses it: palette and what each color is allowed to claim, the type scale, why there are rules and no shadows, and the measured accessibility gaps
+
+The `ui-ux` skill in `.claude/skills/` reads `DESIGN.md` before any interface
+work, so extend the tokens there rather than inventing new ones.
 
 Comments in this codebase record *why* rather than what, often naming the bug
 that motivated a line. Match that when editing.
