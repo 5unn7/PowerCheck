@@ -181,19 +181,60 @@ Torquemeter pressure 22–54 PSI · pressure altitude 0–20,000 ft · OAT curve
 both of which the gate must respect. Hotter air sits to the left: at any
 altitude the curves run 53 °C leftmost to −20/−54 °C rightmost.
 
-### Scan quality differs sharply between the three
+### Tracing these charts — tested against the printed answer
 
-Measured, not guessed:
+The method is measurement, not eyeballing: the axis is calibrated from the
+chart's own gridlines, horizontal and vertical line structure is removed by
+run length, what remains is segmented into fragments, and fragments are
+chained end to end into curves. It was tested against the one number the
+manual prints.
 
-| Sheet | Scan | Gridlines |
-|---|---|---|
-| FM-3 | 1275×1651 | clean — 20.08 px per PSI, 40.25 px per 1000 ft, every gridline found |
-| FM-1, FM-2 | 825×1275 at 108 ppi | faint and broken; only three columns reach half density |
+| Source | PSI at PA 4000 ft, OAT 30 °C |
+|---|---|
+| **BHT-205A1-FM-1 page 5-6, printed** | **43.1** |
+| The A–B–C construction line drawn on the chart, measured | 43.35 |
+| Trace of FM-1 | **43.36** |
+| Trace of FM-2 | 43.48 |
+| Trace of FM-3 | 43.44 |
 
-The PDF received is a 108 ppi raster of FM-1 Section 5 with no text layer and
-no vector art, so there is no exact extraction to be had from it — the curves
-must still be traced. What changed is that a trace of FM-1 now has a printed
-answer to prove itself against.
+The trace reproduces the line the draughtsman actually drew to **0.01 PSI**.
+The remaining **0.25 PSI** is the gap between the manual's own drawing and
+its own printed number, and no tracing can do better than that — it is the
+accuracy floor of the document, not of the method.
+
+Calibration was verified independently: on FM-1 the vertical gridlines read
+40.08, 42.06, 46.04, 50.08, 52.06 and 54.05 against printed 40, 42, 46, 50,
+52 and 54 — within **0.06 PSI**.
+
+**Worth weighing:** in the manual's own example the margin is 44.5 − 43.1 =
+1.4 PSI, so 0.25 PSI is about a sixth of it.
+
+### The three sheets appear to be the same chart
+
+Traced on their own calibrations, all three agree to **0.12 PSI** across the
+altitude range. An earlier note here said FM-1 and FM-2 were "genuinely
+different charts" on the strength of a raw pixel comparison — that was wrong.
+The difference was scan registration: FM-2's plot origin sits 21 px higher
+than FM-1's. Corrected, they read the same.
+
+That is a statement about this method's accuracy, not a finding about the
+type certificate. Three serial ranges have three manuals for reasons that may
+have nothing to do with this chart, and whether one chart may serve all three
+is an engineering judgement, not a measurement.
+
+### What is still missing from the trace
+
+Seven objects come out where there should be about ten — the nine OAT curves
+plus the OAT operating limit. The **53 °C and 50 °C stubs** at the bottom of
+the chart are short and are not being picked up, and the two boundaries
+(**OAT operating limit**, **transmission torque limit**) are not yet extracted
+as gates. Curve identity is assigned by left-to-right order, corroborated at
+the single example point.
+
+Scan quality, measured: FM-3 is 1275×1651 with every gridline detectable;
+FM-1 and FM-2 are 825×1275 at 108 ppi with fainter grid. It made little
+difference to the result — the three traces agree — so resolution is not
+what is limiting here.
 
 ## What is blocking
 
