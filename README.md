@@ -79,6 +79,21 @@ the page it was meant to replace: the cache name changes, the content does not,
 and an installed app can sit on a stale version indefinitely. That is not
 theoretical — it is what this app did until it was tested.
 
+## What a trend line may join
+
+A trend is only meaningful across checks that are the same measurement of the
+same thing, so the log splits on anything that makes them different: the tail
+number, which engine was measured, and how the check was flown. Two engines
+on one line averages two engines' deterioration into a slope belonging to
+neither; a hover check plotted onto a level-flight line moves the slope
+without the engine having moved.
+
+What is *fitted* — the inlet, snow deflectors — does not split the line. That
+is a step in one engine's life, not a different engine.
+
+Checks logged before the app recorded flight state stand in their own group
+labelled *not recorded*, rather than being merged into a guess.
+
 ## Where the log lives
 
 Checks are stored in the browser's `localStorage`, per browser and per device —
