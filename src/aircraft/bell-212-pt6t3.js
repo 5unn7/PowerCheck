@@ -23,10 +23,17 @@ export default {
     { key: "itt", label: "ITT", unit: "°C", placeholder: "710" },
   ],
 
-  // the manual's check is run one engine at a time, so which one is logged
+  /* The manual's check is run one engine at a time, so which one is being
+     logged is chosen every check — never remembered, and it splits the
+     trend. Two engines on one line is two engines' deterioration averaged
+     into a slope belonging to neither.
+
+     The PT6T-3B's fig 4-1 adds hover and in-flight sheets, and those
+     belong on their own entry: a different engine model, and a check
+     flown a different way. See docs/pending-charts.md. */
   options: [
     {
-      key: "engine", type: "segmented", default: "1",
+      key: "engine", scope: "check", type: "segmented", label: "Engine", default: "1",
       choices: [{ id: "1", label: "Engine 1" }, { id: "2", label: "Engine 2" }],
     },
   ],

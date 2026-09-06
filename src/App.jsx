@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig } from "./aircraft/index.js";
+import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig,
+  fittedOptions, checkOptions, choicesFor, normalizeConfig, seriesKey, seriesLabel } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
 import { CSS } from "./css.js";
@@ -88,6 +89,12 @@ export default function App() {
     window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg })).catch(() => {});
   }, [aircraftId, reg, config, trendReg, loading]);
 
+  /* Changing what is fitted can withdraw a flight state — snow deflectors
+     take hover away — so the check-scope options are snapped back to
+     something the manual allows rather than left on a stale choice. */
+  const setOption = (key, value) =>
+    setConfig((c) => normalizeConfig(aircraft, { ...c, [key]: value }));
+
   function pickAircraft(id) {
     setAircraftId(id);
     setConfig(defaultConfig(byId(id)));
@@ -123,7 +130,8 @@ export default function App() {
       K: result.K, maxMGT: result.maxMGT, margin: result.margin, note: note.trim(),
     };
     const ok = await persist([...records, rec]);
-    if (!trendReg) setTrendReg(rec.reg);
+    // show the line this check joined, which may not be the one on screen
+    setTrendReg(seriesKey(rec));
     say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} ${aircraft.marginUnit || "°C"}` : "Not saved — storage is unavailable.");
     setNote("");
   }
@@ -162,12 +170,26 @@ export default function App() {
 
   /* ------------------------------- trend ------------------------------- */
 
-  const regs = useMemo(() => Array.from(new Set(records.map((r) => r.reg))).sort(), [records]);
-  const activeReg = trendReg && regs.includes(trendReg) ? trendReg : regs[0] || "";
-  const series = useMemo(() => records
-    .filter((r) => r.reg === activeReg)
+  /* One line per tail *and* per check-scope option: engine 1 and engine 2,
+     or a hover check and a level-flight one, are different measurements.
+     Fitting a slope across them reads the step between two procedures as
+     engine deterioration, which is the one thing this screen exists to
+     measure honestly. */
+  const groups = useMemo(() => {
+    const m = new Map();
+    for (const r of records) {
+      const k = seriesKey(r);
+      if (!m.has(k)) m.set(k, { key: k, label: seriesLabel(r), rows: [] });
+      m.get(k).rows.push(r);
+    }
+    return [...m.values()].sort((a, b) => (a.label < b.label ? -1 : 1));
+  }, [records]);
+
+  const active = groups.find((g) => g.key === trendReg) || groups[0] || null;
+  const series = useMemo(() => (active ? active.rows : [])
+    .slice()
     .sort((a, b) => (a.date < b.date ? -1 : 1))
-    .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [records, activeReg]);
+    .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [active]);
   const useHours = series.length > 1 && series.every((r) => Number.isFinite(r.hours));
   // a tail number is one aircraft, so its log reads in that aircraft's terms
   const seriesAircraft = byId(series.length ? series[0].aircraft : aircraft.id);
@@ -336,28 +358,18 @@ export default function App() {
             </div>
           )}
 
-          <div className="config">
-            {aircraft.options.map((opt) => opt.type === "segmented" ? (
-              <div className="seg" key={opt.key}>
-                {opt.choices.map((c) => (
-                  <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
-                    onClick={() => setConfig({ ...config, [opt.key]: c.id })}>{c.label}</button>
-                ))}
-              </div>
-            ) : (
-              <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"
-                aria-checked={!!config[opt.key]} aria-label={opt.label}
-                onClick={() => setConfig({ ...config, [opt.key]: !config[opt.key] })}>
-                <span className="track"><span className="knob" /></span>
-                <span className="switch-lbl">{opt.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* What is fitted, then how this one was flown. They are drawn
+              apart because they are not the same kind of choice: the first
+              is set once for the aircraft, the second every check. */}
+          <Options opts={fittedOptions(aircraft)} config={config} set={setOption} />
+          {checkOptions(aircraft).length > 0 && (
+            <Options opts={checkOptions(aircraft)} config={config} set={setOption} caption="This check" />
+          )}
 
           {meta && (
             <div className="cond">
               <b>{meta.src}</b>
-              <span>{meta.cond}</span>
+              <span>{typeof meta.cond === "function" ? meta.cond(config) : meta.cond}</span>
             </div>
           )}
 
@@ -441,13 +453,14 @@ export default function App() {
 
       {tab === "trend" && (
         <section className="panel">
-          {loading ? <p className="quiet">Loading</p> : regs.length === 0 ? (
+          {loading ? <p className="quiet">Loading</p> : groups.length === 0 ? (
             <p className="quiet">Nothing logged yet.</p>
           ) : (
             <>
               <div className="seg wrapseg">
-                {regs.map((r) => (
-                  <button key={r} className={activeReg === r ? "on" : ""} onClick={() => setTrendReg(r)}>{r}</button>
+                {groups.map((g) => (
+                  <button key={g.key} className={active && active.key === g.key ? "on" : ""}
+                    onClick={() => setTrendReg(g.key)}>{g.label}</button>
                 ))}
               </div>
 
@@ -524,6 +537,33 @@ export default function App() {
         {aircraft.footer}
         <span className="build">build {__BUILD__}</span>
       </footer>
+    </div>
+  );
+}
+
+/* Segmented pickers and switches for one scope of options. A choice the
+   fitted configuration rules out is not rendered at all: the manual does
+   not offer it, so neither does this. */
+function Options({ opts, config, set, caption }) {
+  if (!opts.length) return null;
+  return (
+    <div className="config">
+      {caption && <span className="scope">{caption}</span>}
+      {opts.map((opt) => opt.type === "segmented" ? (
+        <div className="seg" key={opt.key}>
+          {choicesFor(opt, config).map((c) => (
+            <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
+              onClick={() => set(opt.key, c.id)}>{c.label}</button>
+          ))}
+        </div>
+      ) : (
+        <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"
+          aria-checked={!!config[opt.key]} aria-label={opt.label}
+          onClick={() => set(opt.key, !config[opt.key])}>
+          <span className="track"><span className="knob" /></span>
+          <span className="switch-lbl">{opt.label}</span>
+        </button>
+      ))}
     </div>
   );
 }

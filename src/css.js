@@ -33,7 +33,8 @@ export const CSS = `
   padding:12px 0;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s;}
 .tab.on{color:var(--ink);border-bottom-color:var(--ink);}
 
-.config{display:flex;gap:20px;flex-wrap:wrap;align-items:center;padding:20px 20px 0;}
+.config{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:20px 20px 0;}
+.config .scope{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);flex-basis:100%;margin-bottom:-6px;}
 .seg{display:inline-flex;}
 .seg button{font:inherit;font-size:13px;font-weight:500;background:none;color:var(--ink-3);cursor:pointer;
   border:1px solid var(--line);border-right:0;padding:7px 15px;transition:all .18s;}

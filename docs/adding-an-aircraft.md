@@ -52,6 +52,45 @@ Copy `src/aircraft/bell-407.js` and change what differs: `id`, `label`, the
 `variantFor` mapping those options to a chart key, the `meta` for each chart,
 `kMin` if the engine has an avoid area, and `footer`.
 
+#### Fitted, or per check?
+
+Every option carries a scope, and getting it wrong is the one mistake here
+that produces a wrong answer quietly rather than loudly.
+
+| `scope` | Is | Examples |
+|---|---|---|
+| *(omitted)* — fitted | a property of the airframe, set once and remembered | inlet, snow deflectors, gas producer gage P/N, serial range |
+| `"check"` | a property of *this* check, chosen every time | how it was flown (ground / hover / in-flight), which engine was measured |
+
+They look the same on screen and both can select a chart, but they behave
+differently where it counts: **check-scope options partition the trend.** A
+trend line may only join the same measurement of the same thing, so a hover
+check never joins a level-flight one and engine 1 never joins engine 2 —
+otherwise the step between two procedures is fitted as a slope and read as
+engine deterioration. A fitted option changing is a step in one engine's
+life, so it does *not* split the line.
+
+A choice can be withdrawn by what is fitted. The 407's FMS-4 chart is level
+flight only, so hover declares itself unavailable with snow deflectors on:
+
+```js
+{ key: "mode", scope: "check", type: "segmented", label: "Flown", default: "level",
+  choices: [
+    { id: "hover", label: "Hover", when: ({ snow }) => !snow },
+    { id: "level", label: "Level flight" },
+  ] },
+```
+
+`when` is checked against the fitted configuration, and a selection it rules
+out is snapped back to the first legal choice. Make sure `default` is legal
+under the default fitted config — `npm test` asserts it.
+
+A check flown a different way often needs a *different chart*, and sometimes a
+different aircraft entry entirely: the 212's PT6T-3 ground check and PT6T-3B
+hover/in-flight sheets are different engine models, so they are two entries,
+not one entry with three modes. Use a mode when one aircraft's own manual
+offers the same check flown more than one way.
+
 If the printed scale differs from the 407's — a torque axis that runs to 110%,
 an MGT axis starting at 300 — add a `frame`:
 

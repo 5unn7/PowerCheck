@@ -95,6 +95,55 @@ for (const air of AIRCRAFT) {
   check("and the check cannot be logged", await page.locator(".save .btn").isDisabled());
 }
 
+/* The reason the scopes were separated: the log must not average two
+   different checks into one slope. Driven through the real UI, because
+   the partition is only as good as what the buttons actually record. */
+console.log("\ntwo different checks never share a line");
+{
+  const b212 = AIRCRAFT.find((a) => a.id === "bell-212-pt6t3");
+  const v = b212.verify[0];
+  await selectAircraft(b212);
+  for (const engine of ["Engine 1", "Engine 2"]) {
+    await page.locator(".config .seg button", { hasText: engine }).first().click();
+    await enter(b212, v);
+    await page.locator(".save .btn").click();
+    await page.waitForTimeout(300);
+  }
+  await page.locator(".tabs .tab", { hasText: "Trend" }).click();
+  await page.waitForTimeout(300);
+  const lines = await page.locator(".panel .wrapseg button").allInnerTexts();
+  check("engine 1 and engine 2 are offered as separate lines",
+        lines.some((l) => /Engine 1/.test(l)) && lines.some((l) => /Engine 2/.test(l)),
+        lines.join(" | "));
+  check("each line holds its own check only",
+        (await page.locator(".tstats div b").nth(1).innerText()).trim() === "1");
+  await page.locator(".tabs .tab", { hasText: "Check" }).click();
+  await page.waitForTimeout(200);
+}
+
+console.log("\nwhat is fitted decides what may be flown");
+{
+  const b407 = AIRCRAFT.find((a) => a.id === "bell-407");
+  await selectAircraft(b407);
+  await applyConfig(b407, { inlet: "basic", snow: false, mode: "level" });
+  const hover = page.locator(".config .seg button", { hasText: "Hover" });
+  check("hover is offered on the basic inlet", (await hover.count()) === 1);
+
+  await page.locator(".config .switch").click();
+  await page.waitForTimeout(250);
+  check("snow deflectors withdraw hover — FMS-4 is level flight only",
+        (await hover.count()) === 0);
+  const cond = await page.locator(".cond span").innerText();
+  check("and the conditions say level flight only", /level flight only/i.test(cond), cond.slice(0, 40));
+
+  await page.locator(".config .switch").click();
+  await page.waitForTimeout(250);
+  await hover.click();
+  await page.waitForTimeout(250);
+  check("choosing hover changes the conditions on screen",
+        /^hover/i.test((await page.locator(".cond span").innerText()).trim()));
+}
+
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

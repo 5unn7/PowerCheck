@@ -1,7 +1,8 @@
 /* Every chart must reproduce the example printed beside it in the manual, and
    must refuse to answer off its own grid. Run with `npm test`. */
 
-import { AIRCRAFT, procedureFor, chartFor, defaultConfig } from "../src/aircraft/index.js";
+import { AIRCRAFT, byId, procedureFor, chartFor, defaultConfig,
+  checkOptions, choicesFor, normalizeConfig, seriesKey, seriesLabel } from "../src/aircraft/index.js";
 
 // how close a digitised chart has to sit to the manual's own printed answer
 const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, default: 1 };
@@ -74,6 +75,66 @@ for (const aircraft of AIRCRAFT) {
   console.log("\nthe reason the gate exists");
   check("extrapolating torque would have read generous", wild.margin > 1000,
         `withheld margin would have been +${wild.margin.toFixed(0)} °C`);
+}
+
+/* A trend line may only join the same measurement of the same thing. Two
+   engines, or a hover check and a level-flight one, are neither — and the
+   failure is silent, so it is asserted rather than trusted. */
+console.log("\nthe log never joins two different checks");
+{
+  const at = (aircraftId, config) => ({ aircraft: aircraftId, reg: "9M-ABC", config });
+
+  const b212 = byId("bell-212-pt6t3");
+  check("engine 1 and engine 2 are different lines",
+        seriesKey(at("bell-212-pt6t3", { engine: "1" }))
+          !== seriesKey(at("bell-212-pt6t3", { engine: "2" })));
+
+  const b407 = byId("bell-407");
+  const base = { inlet: "basic", snow: false };
+  check("a hover check and a level-flight check are different lines",
+        seriesKey(at("bell-407", { ...base, mode: "hover" }))
+          !== seriesKey(at("bell-407", { ...base, mode: "level" })));
+  check("two checks flown the same way on the same tail are one line",
+        seriesKey(at("bell-407", { ...base, mode: "level" }))
+          === seriesKey(at("bell-407", { ...base, mode: "level" })));
+  check("a different tail is a different line",
+        seriesKey({ ...at("bell-407", { ...base, mode: "level" }), reg: "9M-XYZ" })
+          !== seriesKey(at("bell-407", { ...base, mode: "level" })));
+
+  // a fitted change is a step in one engine's life, not a different engine
+  check("changing what is fitted does not split the line",
+        seriesKey(at("bell-407", { inlet: "basic", snow: false, mode: "level" }))
+          === seriesKey(at("bell-407", { inlet: "ps", snow: true, mode: "level" })));
+
+  // logged before the option existed: its own group, not merged into a guess
+  check("a check with no flight state recorded stands apart",
+        seriesKey(at("bell-407", base)) !== seriesKey(at("bell-407", { ...base, mode: "level" })));
+  check("and says so", seriesLabel(at("bell-407", base)).includes("not recorded"));
+
+  check("the label names the tail and how it was flown",
+        seriesLabel(at("bell-407", { ...base, mode: "hover" })) === "9M-ABC · Hover");
+
+  /* Fitted options constrain flight state: FMS-4 is level flight only. */
+  console.log("\nwhat is fitted decides what may be flown");
+  const mode = b407.options.find((o) => o.key === "mode");
+  check("hover is offered on the basic inlet",
+        choicesFor(mode, { inlet: "basic", snow: false }).some((c) => c.id === "hover"));
+  check("snow deflectors withdraw hover — FMS-4 is level flight only",
+        !choicesFor(mode, { inlet: "basic", snow: true }).some((c) => c.id === "hover"));
+  check("selecting hover then fitting snow deflectors snaps back to level",
+        normalizeConfig(b407, { inlet: "basic", snow: true, mode: "hover" }).mode === "level");
+  check("fitting snow deflectors leaves a level-flight check alone",
+        normalizeConfig(b407, { inlet: "basic", snow: true, mode: "level" }).mode === "level");
+
+  /* Scope is a property every option must declare deliberately. */
+  console.log("\nevery option knows its scope");
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: every check-scope option has a default that is legal`,
+          checkOptions(a).every((o) =>
+            o.type !== "segmented" || choicesFor(o, defaultConfig(a)).some((c) => c.id === o.default)));
+    check(`${a.label}: defaults are already normalised`,
+          JSON.stringify(normalizeConfig(a, defaultConfig(a))) === JSON.stringify(defaultConfig(a)));
+  }
 }
 
 console.log(`\n${ran - failed}/${ran} passed`);

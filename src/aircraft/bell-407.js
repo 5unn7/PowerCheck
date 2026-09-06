@@ -21,7 +21,12 @@ export default {
     { key: "pa", label: "Press alt", unit: "ft", placeholder: "4000" },
   ],
 
-  // what is fitted, and which chart that selects
+  /* What is fitted picks the chart; how it was flown does not, on this
+     aircraft — FM-1 and FMS-3 are both read in the hover or in level
+     flight. It is still recorded and still partitions the trend: the two
+     are different measurements, and a hover reading plotted onto a
+     level-flight line moves the slope without the engine having changed.
+     FMS-4 is level flight only, so the snow deflectors withdraw hover. */
   options: [
     {
       key: "inlet", type: "segmented", default: "basic",
@@ -31,17 +36,24 @@ export default {
       ],
     },
     { key: "snow", type: "switch", label: "Snow deflectors", default: false },
+    {
+      key: "mode", scope: "check", type: "segmented", label: "Flown", default: "level",
+      choices: [
+        { id: "hover", label: "Hover", when: ({ snow }) => !snow },
+        { id: "level", label: "Level flight" },
+      ],
+    },
   ],
   variantFor: ({ inlet, snow }) => (snow ? "psb" : inlet),
 
   meta: {
     basic: {
       src: "BHT-407-FM-1 fig 4-1 · basic inlet, read for AFS",
-      cond: "Hover or level flight 85–105 KIAS · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
+      cond: ({ mode }) => `${mode === "hover" ? "Hover" : "Level flight 85–105 KIAS"} · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off`,
     },
     ps: {
       src: "BHT-407-FMS-3 fig 4-1 · particle separator kit",
-      cond: "Hover or level flight 85–105 KIAS · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
+      cond: ({ mode }) => `${mode === "hover" ? "Hover" : "Level flight 85–105 KIAS"} · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off`,
     },
     psb: {
       src: "BHT-407-FMS-4 fig 4-1 · snow deflector kit",
