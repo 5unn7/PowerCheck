@@ -1,4 +1,5 @@
-import charts from "./bell-212-pt6t3.charts.json" with { type: "json" };
+import charts from "./charts.json" with { type: "json" };
+import * as check from "./powercheck.js";
 
 /* Bell 212, Pratt & Whitney PT6T-3 Twin-Pac — ground power assurance check.
 
@@ -13,7 +14,7 @@ import charts from "./bell-212-pt6t3.charts.json" with { type: "json" };
 export default {
   id: "bell-212-pt6t3",
   label: "Bell 212 · PT6T-3",
-  procedure: "set-torque-oat-limits",
+  check,
   charts,
 
   inputs: [
@@ -43,11 +44,19 @@ export default {
   meta: {
     ground: {
       src: "BHT-212VFR-FM-1 fig 4-2 · PT6T-3 power assurance check (ground)",
+      rev: "FAA approved · Rev 5, 17 OCT 2011 · page 4-11",
       cond: "On ground, other engine at idle · 97% N2 · stabilise 4 minutes minimum at chart A torque · heater off",
     },
   },
 
   kMin: () => -Infinity,
+  /* This type's own axes and its own dial range, in °C of ITT margin. See
+     the note in bell-407.js: the dial range is presentation, not manual
+     data, and each type states its own so none inherits another's. */
+  frame: { oat: [-60, 55], itt: [500, 830], n1: [84, 102] },
+  gauge: [-20, 60],
+
+  marginUnit: "°C",
   marginLabel: "ITT margin",
   footer: "Tables transcribed from BHT-212VFR-FM-1 fig 4-2. Check each engine in turn, and hover IGE to confirm torque needle split is no greater than 4%. Trending aid — the flight manual is the authority.",
 

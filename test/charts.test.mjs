@@ -1,8 +1,9 @@
 /* Every chart must reproduce the example printed beside it in the manual, and
    must refuse to answer off its own grid. Run with `npm test`. */
 
-import { AIRCRAFT, byId, procedureFor, chartFor, defaultConfig,
+import { AIRCRAFT, byId, checkFor, chartFor, defaultConfig, frameFor,
   checkOptions, seriesKey, seriesLabel } from "../src/aircraft/index.js";
+import { statusOf } from "../src/engine/format.js";
 
 // how close a digitised chart has to sit to the manual's own printed answer
 const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, default: 1 };
@@ -20,8 +21,8 @@ const readingsOf = (aircraft, v) =>
   Object.fromEntries(aircraft.inputs.map((i) => [i.key, v[i.key] ?? 0]));
 
 for (const aircraft of AIRCRAFT) {
-  const proc = procedureFor(aircraft);
-  console.log(`\n${aircraft.label} (${aircraft.procedure})`);
+  const proc = checkFor(aircraft);
+  console.log(`\n${aircraft.label}`);
 
   console.log(" published examples");
   for (const v of aircraft.verify) {
@@ -69,7 +70,7 @@ for (const aircraft of AIRCRAFT) {
    the torque curve and read generous, not conservative. */
 {
   const air = AIRCRAFT.find((a) => a.id === "bell-407");
-  const proc = procedureFor(air);
+  const proc = checkFor(air);
   const { chart } = chartFor(air, defaultConfig(air));
   const wild = proc.compute({ chart, aircraft: air, oat: 10, pa: 6000, tq: 700, mgt: 600 });
   console.log("\nthe reason the gate exists");
@@ -126,7 +127,7 @@ console.log("\nthe log never joins two different checks");
 console.log("\nno configuration reads a chart that does not name it");
 {
   const air = byId("bell-407");
-  const proc = procedureFor(air);
+  const proc = checkFor(air);
   const ENGINES = ["c47b", "c47b8", "c47e4"];
   const reading = { oat: 10, pa: 6000, tq: 70, mgt: 600 };
 
@@ -159,6 +160,45 @@ console.log("\nno configuration reads a chart that does not name it");
     });
     check(`the engine model does not change the ${inlet} answer`,
           mgts.every((m) => Math.abs(m - mgts[0]) < 1e-9), mgts.map((m) => m.toFixed(1)).join(" / "));
+  }
+}
+
+/* One aircraft's data must never reach another's screen. Scales, dials and
+   thresholds are per type — a margin in °C of MGT off a 407 nomogram and a
+   margin in °C of ITT off a 212 table are not the same quantity, and a
+   shared default is how one silently gets drawn on the other's axes. */
+console.log("\nnothing is shared between types");
+{
+  const seen = new Map();
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: states its own chart axes`, !!frameFor(a));
+    check(`${a.label}: states its own dial range`,
+          Array.isArray(a.gauge) && a.gauge.length === 2 && a.gauge[0] < 0 && a.gauge[1] > 0);
+    check(`${a.label}: names its own margin unit and label`,
+          !!a.marginLabel && !!a.marginUnit);
+
+    for (const [k, v] of [["frame", frameFor(a)], ["gauge", a.gauge]]) {
+      const other = seen.get(k);
+      check(`${a.label}: its ${k} is its own object, not another type's`,
+            !other || other.obj !== v, other ? `also held by ${other.label}` : "");
+      if (!other) seen.set(k, { obj: v, label: a.label });
+    }
+
+    // every chart must say which revision it was digitised from, or say it cannot
+    for (const [variant, m] of Object.entries(a.meta)) {
+      check(`${a.label} · ${variant}: records the manual revision, or records that it does not`,
+            "rev" in m, m.rev || "not recorded");
+    }
+  }
+
+  /* A judgement band belongs to one manual. Neither of ours publishes one,
+     so neither may carry one — and no shared default may fill the gap. */
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: invents no margin threshold`, a.watchBelow === undefined);
+    check(`${a.label}: a positive margin is not called serviceable`,
+          statusOf(50, a).label === "");
+    check(`${a.label}: a negative margin states the fact`,
+          statusOf(-5, a).label === "Over the chart maximum");
   }
 }
 

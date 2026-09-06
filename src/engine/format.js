@@ -11,9 +11,19 @@ export const todayISO = () => {
 };
 export const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 
-export function statusOf(margin) {
+/* The sign of the margin is a fact: the reading was over the chart's maximum
+   or it was not. Anything finer is a judgement, and a judgement belongs to
+   one aircraft's approved data — never to a shared default applied to types
+   whose margins are different quantities read off different charts.
+
+   So an aircraft may supply watchBelow, in its own margin unit, when its
+   manual gives such a figure. Neither of ours does, so neither sets one, and
+   no amber band is invented to fill the gap. */
+export function statusOf(margin, aircraft) {
   if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)" };
-  if (margin < 0) return { key: "fail", label: "Over the limit", color: "var(--red)" };
-  if (margin < 10) return { key: "watch", label: "Low margin", color: "var(--amber)" };
-  return { key: "ok", label: "Serviceable", color: "var(--green)" };
+  if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)" };
+  const watch = aircraft && aircraft.watchBelow;
+  if (Number.isFinite(watch) && margin < watch)
+    return { key: "watch", label: "Low margin", color: "var(--amber)" };
+  return { key: "ok", label: "", color: "var(--green)" };
 }

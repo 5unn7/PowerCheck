@@ -19,7 +19,6 @@ import { fmt } from "../../engine/format.js";
    alongside it, and a gas producer over its limit fails the check on its own
    however much room ITT has.                                              */
 
-export const DEFAULT_FRAME = { oat: [-60, 55], itt: [500, 830], n1: [84, 102] };
 
 export function compute({ chart: d, aircraft, oat, pa, n1, itt }) {
   const setTq = interp(d.torque.pa.map((p, i) => [p, d.torque.tq[i]]), pa);
@@ -37,7 +36,7 @@ export function compute({ chart: d, aircraft, oat, pa, n1, itt }) {
   }
 
   return {
-    setTq, maxN1, maxITT, margin, n1Margin, da: densityAlt(pa, oat),
+    setTq, maxN1, maxITT, margin, n1Margin, da: densityAlt(pa, oat),  // fig 4-3 is this type's own chart
     stats: [
       { label: "Set torque %", value: fmt(setTq, 1) },
       { label: "Max ITT °C", value: fmt(maxITT, 0) },

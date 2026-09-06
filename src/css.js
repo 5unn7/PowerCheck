@@ -69,6 +69,7 @@ export const CSS = `
 .cond{padding:18px 20px 0;}
 .cond b{display:block;font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);}
 .cond span{display:block;font-size:11.5px;color:var(--ink-3);line-height:1.45;margin-top:2px;max-width:70ch;}
+.cond .rev{color:var(--ink-2);font-weight:500;}
 
 .inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:18px 0 0;
   border-top:1px solid var(--line);background:var(--paper);}
@@ -98,8 +99,7 @@ export const CSS = `
 .gauge{position:relative;margin:26px 0 8px;}
 .gauge-bar{position:relative;display:flex;height:3px;}
 .z{display:block;height:100%;}
-.zr{width:11.1%;background:var(--red);}
-.za{width:11.1%;background:var(--amber);}
+.zr{background:var(--red);}
 .zg{flex:1;background:var(--green);}
 .pin{position:absolute;top:-5px;width:1px;height:13px;background:var(--ink);}
 .gauge-ticks{position:relative;height:14px;}
