@@ -124,50 +124,76 @@ torque/Hp/OAT and the ITT and N1 it reads — or these cannot be accepted.
 Maximum power (torquemeter pressure) check. Three charts, split by **serial
 number**, which no aircraft in the app has needed yet:
 
-| Chart | Serial numbers | Revision |
+| Chart | Serial numbers | Revision | Worked example |
+|---|---|---|---|
+| BHT-205A1-FM-1 | 30001 through 30052 | Rev 11 | **yes — see below** |
+| BHT-205A1-FM-2 | 30053 through 30127 | Rev 11 | page 5-6 not yet received |
+| BHT-205A1-FM-3 | 30128 and subsequent | Rev 13 | page 5-6 not yet received |
+
+### BHT-205A1-FM-1 — the published example, from page 5-6
+
+The chart page (5-7) prints only the lettered construction. **Page 5-6 prints
+the numbers**, and this is the acceptance test for the digitising:
+
+| Read and record | Example |
+|---|---|
+| Pressure altitude | **4000 ft** |
+| Ambient air temperature (OAT) | **30 °C** |
+| Torquemeter pressure (observed) | 44.5 PSI |
+| Gas producer speed (N1) | 96.6% |
+
+> Enter chart at pressure altitude (Point A), proceed horizontally to ambient
+> air temperature (Point B), and then proceed vertically down and read chart
+> torquemeter pressure (Point C). **Example: 43.1 PSI**
+
+So: **PA 4000 ft, OAT 30 °C → 43.1 PSI.**
+
+The pass rule is printed in the same words that must reach the crew:
+
+> …example (44.5 PSI) is no less than the chart maximum torquemeter pressure
+> (43.1 PSI) the maximum torquemeter pressure available is satisfactory.
+
+**Observed ≥ chart** passes. The margin is in PSI, and its sign is the answer.
+
+### The procedure and the limits, from page 5-6
+
+- The minimum specification engine delivers 1400 shp; as installed it is
+  derated to **1250 shp**, so the power limitation is **54.0 PSI torquemeter
+  pressure** and the check must be flown where full throttle produces no more
+  than that.
+- **Do not exceed 54 PSI torque at any time.**
+- Initiate a climb at best climb speed and 100% N2.
+- Maintain the climb and increase collective, not exceeding 54 PSI, until N2
+  drops to **98%** with the governor RPM switch beeped to full increase.
+- **Recorded N1 must be within ±0.5% of the placarded maximum gas producer
+  speed for takeoff power** (N1 topping) — a second, independent pass
+  condition, not a margin.
+
+> If this check is satisfactory, it can be concluded that the installed engine
+> is at least as good as a minimum specification engine and that full power
+> can be obtained.
+
+### Chart bounds and boundaries
+
+Torquemeter pressure 22–54 PSI · pressure altitude 0–20,000 ft · OAT curves
+53 °C, 50, 40, 30, 20, 10, 0, −10 and a single **−20 to −54 °C** curve, with an
+**OAT operating limit** boundary and a **transmission torque limit** boundary,
+both of which the gate must respect. Hotter air sits to the left: at any
+altitude the curves run 53 °C leftmost to −20/−54 °C rightmost.
+
+### Scan quality differs sharply between the three
+
+Measured, not guessed:
+
+| Sheet | Scan | Gridlines |
 |---|---|---|
-| BHT-205A1-FM-1 | 30001 through 30052 | Rev 11 |
-| BHT-205A1-FM-2 | 30053 through 30127 | Rev 11 |
-| BHT-205A1-FM-3 | 30128 and subsequent | Rev 13 |
+| FM-3 | 1275×1651 | clean — 20.08 px per PSI, 40.25 px per 1000 ft, every gridline found |
+| FM-1, FM-2 | 825×1275 at 108 ppi | faint and broken; only three columns reach half density |
 
-Walk: pressure altitude and OAT give an engine torquemeter pressure in PSI.
-Separately, **recorded N1 must be within ±0.5% of the placarded maximum gas
-producer speed for takeoff power** (N1 topping) — a second, independent pass
-condition rather than a margin.
-
-Printed on all three, verbatim: *"If this check is satisfactory, it can be
-concluded that the installed engine is at least as good as a minimum
-specification engine and that full power can be obtained."*
-
-Chart bounds: torquemeter pressure 22–54 PSI · pressure altitude 0–20,000 ft ·
-OAT curves 53 °C down to −20/−54 °C, with an **OAT operating limit** boundary
-and a **transmission torque limit** boundary, both of which the gate must
-respect.
-
-Points **A, B and C** are marked on all three sheets and carry no numbers.
-A sits on the left axis at 4000 ft, B on an OAT curve, C on the PSI axis
-below it — the shape of the walk, but not a checkable answer.
-
-### What was measured off these scans
-
-The plot geometry was calibrated from the gridlines themselves rather than
-estimated. On BHT-205A1-FM-3 (the largest scan, 1275×1651):
-
-- **20.08 px per PSI**, x = 22 PSI at px 368, 54 PSI at px 1010.5
-- **40.25 px per 1000 ft**, y = 0 ft at px 1426.5, 20,000 ft at px 621.5
-- the OAT curves are **straight lines** over almost their whole length, not
-  the crowded curved families of the 407 nomogram
-- FM-1 and FM-2 are **genuinely different charts**, not one chart issued
-  under two serial ranges — they differ well beyond scan registration
-
-So the geometry is measurable, and at that scale a line centre can be located
-to well under a tenth of a PSI. What defeated an automated trace was not the
-lines but everything printed over them: residual grid fragments, the curve
-labels lying across their own curves, the OAT operating limit and transmission
-torque limit boundaries crossing the family, and the A–B–C construction
-itself. A row that should yield nine crossings yields thirty.
-
-That is solvable with more work. It does not change the fact below.
+The PDF received is a 108 ppi raster of FM-1 Section 5 with no text layer and
+no vector art, so there is no exact extraction to be had from it — the curves
+must still be traced. What changed is that a trace of FM-1 now has a printed
+answer to prove itself against.
 
 ## What is blocking
 
