@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
 import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig,
-  fittedOptions, checkOptions, choicesFor, normalizeConfig, seriesKey, seriesLabel } from "./aircraft/index.js";
+  fittedOptions, checkOptions, seriesKey, seriesLabel } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
 import { CSS } from "./css.js";
@@ -89,11 +89,7 @@ export default function App() {
     window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg })).catch(() => {});
   }, [aircraftId, reg, config, trendReg, loading]);
 
-  /* Changing what is fitted can withdraw a flight state — snow deflectors
-     take hover away — so the check-scope options are snapped back to
-     something the manual allows rather than left on a stale choice. */
-  const setOption = (key, value) =>
-    setConfig((c) => normalizeConfig(aircraft, { ...c, [key]: value }));
+  const setOption = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
   function pickAircraft(id) {
     setAircraftId(id);
@@ -170,11 +166,10 @@ export default function App() {
 
   /* ------------------------------- trend ------------------------------- */
 
-  /* One line per tail *and* per check-scope option: engine 1 and engine 2,
-     or a hover check and a level-flight one, are different measurements.
-     Fitting a slope across them reads the step between two procedures as
-     engine deterioration, which is the one thing this screen exists to
-     measure honestly. */
+  /* One line per tail *and* per check-scope option. The 212's check is run
+     one engine at a time, and fitting a slope across both averages two
+     engines' deterioration into a slope belonging to neither — which is
+     the one thing this screen exists to measure honestly. */
   const groups = useMemo(() => {
     const m = new Map();
     for (const r of records) {
@@ -358,7 +353,7 @@ export default function App() {
             </div>
           )}
 
-          {/* What is fitted, then how this one was flown. They are drawn
+          {/* What is fitted, then what this check applies to. They are drawn
               apart because they are not the same kind of choice: the first
               is set once for the aircraft, the second every check. */}
           <Options opts={fittedOptions(aircraft)} config={config} set={setOption} />
@@ -369,7 +364,7 @@ export default function App() {
           {meta && (
             <div className="cond">
               <b>{meta.src}</b>
-              <span>{typeof meta.cond === "function" ? meta.cond(config) : meta.cond}</span>
+              <span>{meta.cond}</span>
             </div>
           )}
 
@@ -541,9 +536,7 @@ export default function App() {
   );
 }
 
-/* Segmented pickers and switches for one scope of options. A choice the
-   fitted configuration rules out is not rendered at all: the manual does
-   not offer it, so neither does this. */
+/* Segmented pickers and switches for one scope of options. */
 function Options({ opts, config, set, caption }) {
   if (!opts.length) return null;
   return (
@@ -551,7 +544,7 @@ function Options({ opts, config, set, caption }) {
       {caption && <span className="scope">{caption}</span>}
       {opts.map((opt) => opt.type === "segmented" ? (
         <div className="seg" key={opt.key}>
-          {choicesFor(opt, config).map((c) => (
+          {opt.choices.map((c) => (
             <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
               onClick={() => set(opt.key, c.id)}>{c.label}</button>
           ))}

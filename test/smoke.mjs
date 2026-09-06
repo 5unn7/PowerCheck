@@ -121,29 +121,6 @@ console.log("\ntwo different checks never share a line");
   await page.waitForTimeout(200);
 }
 
-console.log("\nwhat is fitted decides what may be flown");
-{
-  const b407 = AIRCRAFT.find((a) => a.id === "bell-407");
-  await selectAircraft(b407);
-  await applyConfig(b407, { inlet: "basic", snow: false, mode: "level" });
-  const hover = page.locator(".config .seg button", { hasText: "Hover" });
-  check("hover is offered on the basic inlet", (await hover.count()) === 1);
-
-  await page.locator(".config .switch").click();
-  await page.waitForTimeout(250);
-  check("snow deflectors withdraw hover — FMS-4 is level flight only",
-        (await hover.count()) === 0);
-  const cond = await page.locator(".cond span").innerText();
-  check("and the conditions say level flight only", /level flight only/i.test(cond), cond.slice(0, 40));
-
-  await page.locator(".config .switch").click();
-  await page.waitForTimeout(250);
-  await hover.click();
-  await page.waitForTimeout(250);
-  check("choosing hover changes the conditions on screen",
-        /^hover/i.test((await page.locator(".cond span").innerText()).trim()));
-}
-
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

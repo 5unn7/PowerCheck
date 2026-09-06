@@ -82,17 +82,18 @@ theoretical — it is what this app did until it was tested.
 ## What a trend line may join
 
 A trend is only meaningful across checks that are the same measurement of the
-same thing, so the log splits on anything that makes them different: the tail
-number, which engine was measured, and how the check was flown. Two engines
-on one line averages two engines' deterioration into a slope belonging to
-neither; a hover check plotted onto a level-flight line moves the slope
-without the engine having moved.
+same thing, so the log splits on the tail number and on anything the flight
+manual itself treats as a separate check. The 212's power assurance is run one
+engine at a time and logged per engine, so engine 1 and engine 2 are separate
+lines — plotting both as one averages two engines' deterioration into a slope
+belonging to neither.
 
 What is *fitted* — the inlet, snow deflectors — does not split the line. That
 is a step in one engine's life, not a different engine.
 
-Checks logged before the app recorded flight state stand in their own group
-labelled *not recorded*, rather than being merged into a guess.
+The 407 splits on nothing but the tail. Its chart is headed *hover or level
+flight*, so both are the same check read off the same chart, and the app does
+not invent a distinction the manual does not make.
 
 ## Where the log lives
 
