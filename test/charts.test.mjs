@@ -121,48 +121,6 @@ console.log("\nthe log never joins two different checks");
   }
 }
 
-/* Which engine is installed never changes an answer — one chart serves all
-   three models wherever it covers them — but it decides whether a chart
-   applies. A configuration with no chart must say so, never go blank. */
-console.log("\nno configuration reads a chart that does not name it");
-{
-  const air = byId("bell-407");
-  const proc = checkFor(air);
-  const ENGINES = ["c47b", "c47b8", "c47e4"];
-  const reading = { oat: 10, pa: 6000, tq: 70, mgt: 600 };
-
-  for (const engine of ENGINES) {
-    for (const inlet of ["basic", "ps"]) {
-      for (const snow of [false, true]) {
-        const config = { engine, inlet, snow };
-        const { chart } = chartFor(air, config);
-        const why = air.noChart(config);
-        check(`${engine} · ${inlet}${snow ? " · snow" : ""}: a chart, or a reason`,
-              !!chart !== !!why, chart ? "chart" : why ? "refused with a reason" : "BLANK");
-      }
-    }
-  }
-
-  check("the C47E/4 is refused on the basic inlet — FM-1 does not name it",
-        !chartFor(air, { engine: "c47e4", inlet: "basic", snow: false }).chart);
-  check("and the reason names the page",
-        /FM-1/.test(air.noChart({ engine: "c47e4", inlet: "basic", snow: false })));
-  check("the C47E/4 reads FMS-3 with a particle separator",
-        chartFor(air, { engine: "c47e4", inlet: "ps", snow: false }).variant === "ps");
-  check("and FMS-4 with snow deflectors",
-        chartFor(air, { engine: "c47e4", inlet: "basic", snow: true }).variant === "psb");
-
-  // where a chart does cover the model, the model must not move the number
-  for (const inlet of ["ps"]) {
-    const mgts = ENGINES.map((engine) => {
-      const { chart } = chartFor(air, { engine, inlet, snow: false });
-      return proc.compute({ chart, aircraft: air, ...reading }).maxMGT;
-    });
-    check(`the engine model does not change the ${inlet} answer`,
-          mgts.every((m) => Math.abs(m - mgts[0]) < 1e-9), mgts.map((m) => m.toFixed(1)).join(" / "));
-  }
-}
-
 /* One aircraft's data must never reach another's screen. Scales, dials and
    thresholds are per type — a margin in °C of MGT off a 407 nomogram and a
    margin in °C of ITT off a 212 table are not the same quantity, and a
@@ -194,12 +152,21 @@ console.log("\nnothing is shared between types");
   /* A judgement band belongs to one manual. Neither of ours publishes one,
      so neither may carry one — and no shared default may fill the gap. */
   for (const a of AIRCRAFT) {
-    check(`${a.label}: invents no margin threshold`, a.watchBelow === undefined);
     check(`${a.label}: a positive margin is not called serviceable`,
           statusOf(50, a).label === "");
     check(`${a.label}: a negative margin states the fact`,
           statusOf(-5, a).label === "Over the chart maximum");
+    check(`${a.label}: any margin band it carries says whose figure it is`,
+          a.watchBelow === undefined || !!a.watchNote);
   }
+  // the 407 carries one; it is the operator's, and the app says so
+  const b407 = byId("bell-407");
+  check("the 407 amber band is 10 °C", b407.watchBelow === 10);
+  check("and it is attributed to the operator, not the manual",
+        /practice/i.test(b407.watchNote) && /not a flight manual/i.test(b407.watchNote));
+  check("a margin inside it reads low, not failed", statusOf(5, b407).key === "watch");
+  check("a margin outside it reads clear", statusOf(15, b407).key === "ok");
+  check("the 212 carries no band of its own", byId("bell-212-pt6t3").watchBelow === undefined);
 }
 
 /* The 407 avoid area came from the source template, not from this app, and

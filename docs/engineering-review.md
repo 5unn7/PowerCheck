@@ -8,8 +8,10 @@ not signed, and nothing in it releases anything to service.
 It exists so that a reviewer can spend their time deciding, not discovering.
 Each finding names the file, the source page, and what would close it.
 
-Reviewer, please work top down. Items 1–4 are open questions about the
-approved data itself and should be settled before this reaches a pilot.
+Items 1, 3 and 4 have since been ruled on by the operator's licensed
+engineer and are closed; item 2 is traced to source with one question left.
+They are kept here with their answers rather than deleted, because why a
+thing is the way it is outlives the decision.
 
 ---
 
@@ -29,21 +31,20 @@ Eleven further charts are held but not implemented — see `pending-charts.md`.
 
 ---
 
-## 1 · The app renders an airworthiness verdict
+## 1 · Airworthiness language — **closed**
 
-`src/engine/format.js` → `statusOf()`
+"Serviceable" is gone. A positive margin now carries no verdict at all, and a
+negative one says **"Over the chart maximum"**, which is a statement about the
+chart rather than about the aircraft.
 
-A margin of 10 °C or more is labelled **"Serviceable"**. A negative margin is
-labelled **"Over the limit"**.
+The 10 °C amber band is **shop practice, ruled by the operator's licensed
+engineer**, and is now carried that way: it belongs to the 407 alone, it is
+not applied to any other type, and whenever it fires the screen says
+*"10 °C is this operator's practice, not a flight manual figure."*
 
-Two problems. *Serviceable* is release-to-service language, and this tool has
-no business using it — a power assurance margin is one input to that decision,
-not the decision. And the 10 °C amber threshold cites nothing: it is not on
-any of the three 407 pages, and it silently applies to the 212 as well, where
-the margin is in a different quantity read off a different chart.
-
-**To close:** replace the verdict with a neutral statement of the number, or
-supply the source for a threshold and scope it per aircraft.
+Confirmed against the source: the workbook's only margin rule is
+`cellIs lessThan 0` — red below zero and nothing else. The band was added on
+top of that by the operator, and the app now reflects exactly that split.
 
 ## 2 · The avoid-area gate — **traced to source, one question left**
 
@@ -72,52 +73,35 @@ say which and it can be cited. If they were judgement, the app should say so
 where it refuses to answer, because at present it refuses in the manual's
 voice rather than in yours.
 
-## 3 · Engine model — **partly closed, one question still open**
-
-Read the titles:
+## 3 · Engine model — **closed, by removal**
 
 | Page | Engines covered |
 |---|---|
 | BHT-407-FM-1 fig 4-1 (basic inlet) | 250-C47B **or** 250-C47B/8 |
-| BHT-407-FMS-3 fig 4-1 (particle separator) | 250-C47B, 250-C47B/8 **or 250-C47E/4** |
-| BHT-407-FMS-4 fig 4-1 (snow deflector) | 250-C47B, 250-C47B/8 **or 250-C47E/4** |
+| BHT-407-FMS-3 fig 4-1 (particle separator) | C47B, C47B/8 **or 250-C47E/4** |
+| BHT-407-FMS-4 fig 4-1 (snow deflector) | C47B, C47B/8 **or 250-C47E/4** |
 
-The basic inlet chart does not cover the **250-C47E/4**.
+The basic inlet chart does not name the **250-C47E/4**. The operator has no
+C47E/4, ruled by their licensed engineer, so the engine picker has been
+removed: every model in this fleet is covered by every chart carried here,
+and a control that can only ever have one answer is noise.
 
-**Done:** the tool now asks the engine model as a fitted option, and a
-250-C47E/4 on a basic inlet is **refused** — it names BHT-407-FM-1, says the
-page is titled for the C47B and C47B/8 only, and offers no number and no way
-to log a check. The same engine reads FMS-3 with a particle separator and
-FMS-4 with snow deflectors, both of which do name it.
+**Carry forward:** if a C47E/4 ever joins the fleet, FM-1 does not cover it on
+a basic inlet, and the app will no longer say so — it would read FM-1 without
+comment. Reinstating the picker is a short change; the shape of it is in the
+git history at `ae134b3`.
 
-The model never changes an answer — one chart serves all three wherever it
-covers them — so this gates coverage only. The test suite asserts both: that
-every engine × inlet × deflector combination yields either a chart or a
-stated reason and never a blank screen, and that the model does not move the
-computed maximum MGT where a chart applies.
+## 4 · AFS inlet barrier filter — **closed**
 
-**Still open, and needs a reviewer:** *is there a basic-inlet power assurance
-chart for the 250-C47E/4?* If one exists it is a fourth chart and the refusal
-should become a fourth entry. If none exists, confirm the refusal is the
-correct behaviour rather than there being some other approved means.
+The app reads the plain basic-inlet chart for AFS-fitted aircraft. **Ruled
+correct by the operator's licensed engineer: the 407 AFS is the same as
+basic**, with no correction.
 
-## 4 · The AFS is read off the basic inlet chart, uncited
-
-`src/aircraft/bell-407.js` labels the first option **"Basic / AFS"** and its
-`meta.src` reads *"basic inlet, read for AFS"*.
-
-No source is given for treating an inlet barrier filter installation as
-equivalent to a basic inlet. The pack's own BHT-206L4 IBF supplement
-(AFS-BH206L3L4-IBF-KIT-FMS) applies a **−3% torque** correction, which is
-direct evidence that IBF installations carry corrections rather than reading
-the base chart unchanged.
-
-If the 407 AFS supplement carries a correction or its own chart, reading the
-basic chart is **non-conservative** — it would report a healthier engine than
-the approved data does.
-
-**To close:** the 407 AFS supplement page. Until then this option should not
-claim AFS coverage.
+Note this is not the 206L arrangement. There, AFS-BH206L3L4-IBF-KIT-FMS takes
+**3% off the torque** and the IBF and particle separator are alternatives
+rather than additive. That supplement covers the 206L-1, 206L-3 and 206L-4
+only and says nothing about the 407 — which is why it could not settle this
+one way or the other, and why an engineer had to.
 
 ---
 
@@ -240,7 +224,4 @@ Stated so a reviewer knows where not to spend time.
    and it converts "verified at one point" into "verified across the sheet".
 2. **What the two avoid-area points were read off** (item 2) — the rule is
    traced to the workbook, but not past it.
-3. **A ruling on AFS** (item 4), and **whether a basic-inlet chart exists for
-   the C47E/4** (item 3). Both are questions about which approved chart
-   applies, and neither can be answered from the pages in hand.
-4. **The 250-C47B family operating limits** (item 7).
+3. **The 250-C47B family operating limits** (item 7) — still open.

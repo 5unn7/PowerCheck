@@ -500,6 +500,9 @@ export default function App() {
               )}
 
               {result && <Gauge aircraft={aircraft} margin={result.margin} />}
+              {status.key === "watch" && aircraft.watchNote && (
+                <p className="quiet watchnote">{aircraft.watchNote}</p>
+              )}
 
               <div className="stats">
                 {(result ? result.stats : proc.compute({ chart, aircraft, oat: NaN, pa: NaN, tq: NaN, mgt: NaN }).stats)

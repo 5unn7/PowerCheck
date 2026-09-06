@@ -26,23 +26,18 @@ export default {
 
   /* What is fitted, and which chart that selects.
 
-     The engine model never changes an answer — one chart serves all three
-     models wherever it covers them — but it decides whether a chart applies
-     at all. FMS-3 and FMS-4 are titled for the C47B, C47B/8 and C47E/4;
-     BHT-407-FM-1 is titled for the C47B and C47B/8 only, so a C47E/4 on a
-     basic inlet has no chart here and is refused rather than read off a
-     page that does not name it. */
+     The AFS inlet barrier filter reads the basic inlet chart unchanged —
+     ruled by the operator's licensed engineer, 2026. It is not the 206L
+     arrangement, where the IBF supplement takes 3% off the torque.
+
+     No engine model is asked. FM-1 is titled for the 250-C47B and C47B/8,
+     and FMS-3 and FMS-4 add the 250-C47E/4; this operator has no C47E/4,
+     so the app does not carry it and every model it does carry is covered
+     by every chart here. If a C47E/4 ever joins the fleet, note that FM-1
+     does not name it — see docs/engineering-review.md item 3. */
   options: [
     {
-      key: "engine", label: "Engine", type: "segmented", default: "c47b",
-      choices: [
-        { id: "c47b", label: "250-C47B" },
-        { id: "c47b8", label: "C47B/8" },
-        { id: "c47e4", label: "C47E/4" },
-      ],
-    },
-    {
-      key: "inlet", label: "Inlet", type: "segmented", default: "basic",
+      key: "inlet", type: "segmented", default: "basic",
       choices: [
         { id: "basic", label: "Basic / AFS" },
         { id: "ps", label: "Particle separator" },
@@ -50,21 +45,7 @@ export default {
     },
     { key: "snow", type: "switch", label: "Snow deflectors", default: false },
   ],
-  variantFor: ({ inlet, snow, engine }) => {
-    if (snow) return "psb";                        // FMS-4 covers all three
-    if (inlet === "ps") return "ps";               // FMS-3 covers all three
-    return engine === "c47e4" ? null : "basic";    // FM-1 does not name the E/4
-  },
-
-  /* Why there is no chart, in the crew's terms. Silence here would leave a
-     blank screen where an answer belongs. This must stay exactly the
-     complement of variantFor — the snow deflector case reads FMS-4, which
-     does name the E/4 — and the test suite asserts that across every
-     combination rather than trusting the two to be read together. */
-  noChart: ({ engine, inlet, snow }) =>
-    engine === "c47e4" && inlet === "basic" && !snow
-      ? "BHT-407-FM-1 fig 4-1 is titled for the 250-C47B and 250-C47B/8 only, so it is not read for a 250-C47E/4. Use the supplement that covers this installation."
-      : null,
+  variantFor: ({ inlet, snow }) => (snow ? "psb" : inlet),
 
   meta: {
     basic: {
@@ -113,6 +94,13 @@ export default {
   frame: { tq: [35, 100], mgt: [390, 790], k: [-2, 102], tqTick: 5, mgtTick: 25, kTick: 10 },
   gauge: [-10, 80],
 
+  /* Shop practice, not a flight manual figure — ruled by the operator's
+     licensed engineer, 2026. The source workbook colours the margin red
+     below zero and nothing else; this band was added by the operator on
+     top of that, so the app shows it and says whose it is. */
+  watchBelow: 10,
+  watchNote: "10 °C is this operator's practice, not a flight manual figure.",
+
   marginUnit: "°C",
   marginLabel: "MGT margin",
   footer: "Charts digitised from BHT-407-FM-1 (fig 4-1, 4-2), FMS-3 and FMS-4. Trending aid — the flight manual is the authority.",
@@ -121,11 +109,11 @@ export default {
      chart that cannot reproduce the number printed beside it is digitised
      wrong, and test/charts.test.mjs fails the build over it. */
   verify: [
-    { config: { engine: "c47b", inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 676 }, source: "BHT-407-FM-1 fig 4-1" },
-    { config: { engine: "c47e4", inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 682 }, source: "BHT-407-FMS-3 fig 4-1" },
-    { config: { engine: "c47e4", inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+    { config: { inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, mgt: 600,
       expect: { maxMGT: 722 }, source: "BHT-407-FMS-4 fig 4-1" },
   ],
 };

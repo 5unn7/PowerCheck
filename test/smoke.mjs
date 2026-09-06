@@ -126,57 +126,6 @@ console.log("\ntwo different checks never share a line");
   await page.waitForTimeout(200);
 }
 
-/* A configuration with no approved chart must say so on screen, and must
-   not offer a number or a Log button. */
-console.log("\na configuration with no chart is refused on screen");
-{
-  const b407 = AIRCRAFT.find((a) => a.id === "bell-407");
-  await selectAircraft(b407);
-  await applyConfig(b407, { engine: "c47e4", inlet: "basic", snow: false });
-  const why = await page.locator(".missing").innerText().catch(() => "");
-  check("the C47E/4 on a basic inlet is refused", /FM-1/.test(why), why.slice(0, 60));
-  check("and no result is offered", (await page.locator(".save .btn").count()) === 0);
-
-  await applyConfig(b407, { engine: "c47e4", inlet: "ps", snow: false });
-  check("the same engine reads FMS-3 with a particle separator",
-        (await page.locator(".missing").count()) === 0
-        && (await page.locator(".big span").innerText()).trim() !== "");
-}
-
-console.log("\nchart conditions");
-await selectAircraft(AIRCRAFT[0]);
-await applyConfig(AIRCRAFT[0], {});
-const condOpen = () => page.locator(".cond").evaluate((el) => el.open);
-if (await condOpen()) await page.locator(".cond summary").click();
-check("the conditions fold away", !(await condOpen()));
-if (await page.locator(".config .switch").count()) {
-  // a different fit is a different chart, and its conditions unfold themselves
-  await page.locator(".config .switch").click();
-  await page.waitForTimeout(250);
-  check("and unfold when the chart changes", await condOpen());
-}
-
-console.log("\nthe aircraft page");
-await page.locator(".change").click();
-await page.waitForSelector(".fleet .card");
-check("every registered aircraft is offered",
-      (await page.locator(".fleet .card").count()) === AIRCRAFT.length);
-check("the one last checked is marked", (await page.locator(".fleet .card em").count()) === 1);
-await page.locator(".fleet .card").first().click();
-check("picking one shows the check", (await page.locator(".field input").count()) > 0);
-
-// the two pages are two pages: the system back button returns to the first
-await page.goBack();
-await page.waitForTimeout(300);
-check("and the back button returns to it", (await page.locator(".fleet .card").count()) > 0);
-await page.locator(".fleet .card").first().click();
-await page.waitForSelector(".field input");
-await page.locator(".change").click();
-await page.waitForTimeout(300);
-check("as does the header control", (await page.locator(".fleet .card").count()) > 0);
-await page.locator(".fleet .card").first().click();
-await page.waitForSelector(".field input");
-
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

@@ -109,6 +109,7 @@ export const CSS = `
 .cond[open] .cond-more svg{transform:rotate(180deg);}
 .cond summary:hover .cond-more{color:var(--ink);}
 .cond p{margin:0;padding-bottom:2px;font-size:11.5px;color:var(--ink-3);line-height:1.45;max-width:70ch;}
+.watchnote{margin:6px 20px 0;font-size:11.5px;color:var(--amber);}
 .cond-id{display:block;}
 .cond .rev{display:block;font-size:10.5px;font-weight:500;color:var(--ink-2);margin-top:1px;}
 
