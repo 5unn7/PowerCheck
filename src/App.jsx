@@ -113,6 +113,11 @@ export default function App() {
     : null;
   const status = statusOf(result ? result.margin : NaN);
 
+  /* Which readings are still to come — shown once entry has started, so a
+     half-filled check reads as unfinished rather than as broken. */
+  const waiting = complete || !aircraft.inputs.some((i) => Number.isFinite(nums[i.key])) ? []
+    : aircraft.inputs.filter((i) => !Number.isFinite(nums[i.key])).map((i) => i.label);
+
   async function persist(next) {
     setRecords(next);
     try { await window.storage.set(STORE_KEY, JSON.stringify(next)); return true; }
@@ -137,7 +142,7 @@ export default function App() {
     let blob;
     try {
       blob = await view.drawCard({
-        aircraft, chart, frame, meta, result, accent: status.color,
+        aircraft, chart, frame, meta, result, accent: status.hex, status: status.label,
         title: `${aircraft.label.toUpperCase()}  ·  POWER ASSURANCE CHECK`,
         readings: [
           ...aircraft.inputs.map((i) => `${i.label} ${fmt(nums[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}${i.unit ? " " + i.unit : ""}`),
@@ -314,9 +319,9 @@ export default function App() {
 
       <header className="plate">
         <div className="plate-l">
-          <button className="badge change" onClick={() => setPicked(false)} aria-label="Change aircraft">
-            {aircraft.label.toUpperCase()}
-            <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor"
+          <button className="change" onClick={() => setPicked(false)} aria-label="Change aircraft">
+            {aircraft.label}
+            <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor"
               strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m5 8 5 5 5-5" />
             </svg>
@@ -324,14 +329,22 @@ export default function App() {
           <h1>Power assurance</h1>
         </div>
         <div className="plate-r">
-          <input className="reg" value={reg} placeholder="SIGN" onChange={(e) => setReg(e.target.value.toUpperCase())} />
-          <input className="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <label className="hfield">
+            <span>Reg</span>
+            <input className="reg" value={reg} onChange={(e) => setReg(e.target.value.toUpperCase())} />
+          </label>
+          <label className="hfield">
+            <span>Date</span>
+            <input className="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </label>
         </div>
       </header>
 
       <nav className="tabs">
-        <button className={tab === "check" ? "tab on" : "tab"} onClick={() => setTab("check")}>Check</button>
-        <button className={tab === "trend" ? "tab on" : "tab"} onClick={() => setTab("trend")}>
+        <button className={tab === "check" ? "tab on" : "tab"} aria-current={tab === "check" ? "page" : undefined}
+          onClick={() => setTab("check")}>Check</button>
+        <button className={tab === "trend" ? "tab on" : "tab"} aria-current={tab === "trend" ? "page" : undefined}
+          onClick={() => setTab("trend")}>
           Trend{records.length ? ` · ${records.length}` : ""}
         </button>
       </nav>
@@ -340,11 +353,15 @@ export default function App() {
         <>
           <div className="config">
             {aircraft.options.map((opt) => opt.type === "segmented" ? (
-              <div className="seg" key={opt.key}>
-                {opt.choices.map((c) => (
-                  <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
-                    onClick={() => setConfig({ ...config, [opt.key]: c.id })}>{c.label}</button>
-                ))}
+              <div className="optgroup" key={opt.key}>
+                {opt.label && <span className="optlbl">{opt.label}</span>}
+                <div className="seg" role="group" aria-label={opt.label || opt.key}>
+                  {opt.choices.map((c) => (
+                    <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
+                      aria-pressed={config[opt.key] === c.id}
+                      onClick={() => setConfig({ ...config, [opt.key]: c.id })}>{c.label}</button>
+                  ))}
+                </div>
               </div>
             ) : (
               <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"
@@ -393,7 +410,8 @@ export default function App() {
                   <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit || "°C"}</i>
                 </div>
                 <div className="hero-side">
-                  <b>{aircraft.marginLabel}</b>
+                  <b>{result ? status.label : aircraft.marginLabel}</b>
+                  {result && <span>{aircraft.marginLabel}</span>}
                 </div>
                 <button className="share" onClick={shareCard} disabled={!result} aria-label="Share this check as an image">
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor"
@@ -404,6 +422,10 @@ export default function App() {
                   Share
                 </button>
               </div>
+
+              {waiting.length > 0 && offChart.length === 0 && (
+                <p className="waiting">Enter {waiting.join(", ")}</p>
+              )}
 
               {result && (
                 <div className="gauge">
@@ -427,8 +449,10 @@ export default function App() {
 
               {(result ? result.notes : []).map((a, i) => <p key={i} className="alert">{a}</p>)}
 
-              <div className="chartscroll">
-                <Chart chart={chart} frame={frame} readings={nums} result={result} />
+              <div className="chartwrap">
+                <div className="chartscroll">
+                  <Chart chart={chart} frame={frame} readings={nums} result={result} />
+                </div>
               </div>
 
               <div className="save">
@@ -444,7 +468,10 @@ export default function App() {
       {tab === "trend" && (
         <section className="panel">
           {loading ? <p className="quiet">Loading</p> : regs.length === 0 ? (
-            <p className="quiet">Nothing logged yet.</p>
+            <div className="empty">
+              <p className="quiet">No checks logged yet.</p>
+              <button className="btn" onClick={() => setTab("check")}>Log a check</button>
+            </div>
           ) : (
             <>
               <div className="seg wrapseg">

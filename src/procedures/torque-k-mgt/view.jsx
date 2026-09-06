@@ -230,7 +230,7 @@ function drawNomogram(x, box, d, frame, tq, pa, oat, res, accent) {
 
 /* ------------------------------ share card ------------------------------ */
 
-export async function drawCard({ aircraft, chart, frame, meta, title, readings, reg, date, hours, oat, pa, tq, result, accent }) {
+export async function drawCard({ aircraft, chart, frame, meta, title, readings, reg, date, hours, oat, pa, tq, result, accent, status }) {
   const W = 1000, H = 780, SC = 2;
   const cv = document.createElement("canvas");
   cv.width = W * SC; cv.height = H * SC;
@@ -251,8 +251,10 @@ export async function drawCard({ aircraft, chart, frame, meta, title, readings, 
   x.fillText(big, 40, 168);
   const bw = x.measureText(big).width;
   x.font = F(600, 26); x.fillText("°C", 46 + bw, 168);
-  x.fillStyle = CARD_INK3; x.font = F(600, 15);
-  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 192);
+  x.fillStyle = accent; x.font = F(600, 15);
+  x.fillText((status || "").toUpperCase(), 42, 192);
+  x.fillStyle = CARD_INK3; x.font = FB(600, 10.5);
+  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 210);
 
   result.stats.forEach((st, i) => {
     const sx = 470 + i * 178;

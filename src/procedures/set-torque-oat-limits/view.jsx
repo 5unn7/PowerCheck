@@ -47,15 +47,18 @@ function Panel({ x0, x1, head, unit, oats, vals, frameY, oat, observed, limit, d
       <path d={path} className="c-curve" />
       <text x={x1 - 6} y={Y(vals[vals.length - 1]) - 7} className="c-lbl" textAnchor="end">MAX {unit}</text>
 
+      {/* the walk, drawn the way the 407's nomogram draws it: up from the
+          day's OAT to the limit curve, then across to the scale. The filled
+          dot is the limit, the ring is what the engine actually made. */}
       {live && (
-        <g>
-          <line x1={X(oat)} y1={PB} x2={X(oat)} y2={Y(limit)} className="c-trace" />
-          <line x1={X(oat)} y1={Y(limit)} x2={x0} y2={Y(limit)} className="c-trace" />
-          <circle cx={X(oat)} cy={Y(limit)} r={3.4} className="c-end" />
+        <g className="c-trace">
+          <line x1={X(oat)} y1={PB} x2={X(oat)} y2={Y(limit)} />
+          <line x1={X(oat)} y1={Y(limit)} x2={x0} y2={Y(limit)} />
+          <circle cx={X(oat)} cy={Y(limit)} r={3.4} />
           {Number.isFinite(observed) && observed >= frameY.lo && observed <= frameY.hi && (
             <>
-              <circle cx={X(oat)} cy={Y(observed)} r={3.4} className="c-live" />
-              <text x={X(oat) + 8} y={Y(observed) + 3.5} className="c-live-lbl">{fmt(observed, d1)}</text>
+              <circle cx={X(oat)} cy={Y(observed)} r={3.8} className="c-obs" />
+              <text x={X(oat) + 9} y={Y(observed) + 3.5} className="c-live-lbl">{fmt(observed, d1)}</text>
             </>
           )}
         </g>
@@ -92,7 +95,7 @@ const CARD_INK = "#15272d", CARD_INK3 = "#7b8f95";
 const F = (w, sz) => `${w} ${sz}px 'Barlow Semi Condensed', system-ui, -apple-system, sans-serif`;
 const FB = (w, sz) => `${w} ${sz}px 'Barlow', system-ui, -apple-system, sans-serif`;
 
-export async function drawCard({ aircraft, meta, title, readings, reg, date, hours, result, accent }) {
+export async function drawCard({ aircraft, meta, title, readings, reg, date, hours, result, accent, status }) {
   const W = 1000, H = 460, SC = 2;
   const cv = document.createElement("canvas");
   cv.width = W * SC; cv.height = H * SC;
@@ -113,8 +116,10 @@ export async function drawCard({ aircraft, meta, title, readings, reg, date, hou
   x.fillText(big, 40, 168);
   const bw = x.measureText(big).width;
   x.font = F(600, 26); x.fillText("°C", 46 + bw, 168);
-  x.fillStyle = CARD_INK3; x.font = F(600, 15);
-  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 192);
+  x.fillStyle = accent; x.font = F(600, 15);
+  x.fillText((status || "").toUpperCase(), 42, 192);
+  x.fillStyle = CARD_INK3; x.font = FB(600, 10.5);
+  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 210);
 
   result.stats.forEach((st, i) => {
     const sx = 470 + i * 178;

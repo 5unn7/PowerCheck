@@ -11,9 +11,11 @@ export const todayISO = () => {
 };
 export const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 
+/* `color` is for the page, `hex` for the shared card: canvas cannot resolve a
+   CSS variable and silently keeps the last fill, which drew every card grey. */
 export function statusOf(margin) {
-  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)" };
-  if (margin < 0) return { key: "fail", label: "Over the limit", color: "var(--red)" };
-  if (margin < 10) return { key: "watch", label: "Low margin", color: "var(--amber)" };
-  return { key: "ok", label: "Serviceable", color: "var(--green)" };
+  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)", hex: "#8b9ba1" };
+  if (margin < 0) return { key: "fail", label: "Over the limit", color: "var(--red)", hex: "#9c211a" };
+  if (margin < 10) return { key: "watch", label: "Low margin", color: "var(--amber)", hex: "#ad5f0b" };
+  return { key: "ok", label: "Serviceable", color: "var(--green)", hex: "#0d6a4d" };
 }

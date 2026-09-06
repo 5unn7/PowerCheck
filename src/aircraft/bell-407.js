@@ -26,7 +26,7 @@ export default {
   // what is fitted, and which chart that selects
   options: [
     {
-      key: "inlet", type: "segmented", default: "basic",
+      key: "inlet", label: "Inlet", type: "segmented", default: "basic",
       choices: [
         { id: "basic", label: "Basic / AFS" },
         { id: "ps", label: "Particle separator" },
