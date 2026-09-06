@@ -109,6 +109,7 @@ export const CSS = `
 .cond[open] .cond-more svg{transform:rotate(180deg);}
 .cond summary:hover .cond-more{color:var(--ink);}
 .cond p{margin:0;padding-bottom:2px;font-size:11.5px;color:var(--ink-3);line-height:1.45;max-width:70ch;}
+.scatter{margin:2px 20px 0;font-size:11.5px;}
 .verdict{margin:10px 20px 0;font-size:13px;line-height:1.45;max-width:70ch;font-weight:500;}
 .verdict.pass{color:var(--green);}
 .verdict.fail{color:var(--red);}

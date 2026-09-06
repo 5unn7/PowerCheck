@@ -36,9 +36,14 @@ export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
   const kMin = aircraft.kMin(oat);
   return {
     K, maxMGT, kMin, margin: maxMGT - mgt,
+    /* The two numbers 4-2 compares: "If actual MGT is less than or equal to
+       chart MGT…". K is not among them — it is the normalised ordinate of
+       the nomogram, an artefact of digitising that appears in no manual, and
+       a crew looking for it would not find it. It stays in the result
+       because the chart is drawn from it, and off the screen. */
     stats: [
-      { label: "Max MGT °C", value: fmt(maxMGT, 0) },
-      { label: "K factor", value: fmt(K, 1) },
+      { label: "Chart MGT °C", value: fmt(maxMGT, 0) },
+      { label: "Actual MGT °C", value: fmt(mgt, 0) },
     ],
     /* The aircraft supplies the wording, because it has to say whose rule
        this is, and that differs by type. */

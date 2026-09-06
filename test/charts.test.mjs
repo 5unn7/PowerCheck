@@ -200,5 +200,28 @@ console.log("\nthe avoid area matches the template it came from");
         air.kMin(40) > air.kMin(0) && air.kMin(0) > air.kMin(-30));
 }
 
+/* What reaches the crew's eyes must be something a manual uses. K is the
+   normalised ordinate of the nomogram and appears in none of them. */
+console.log("\nthe screen shows only what a manual would recognise");
+{
+  for (const a of AIRCRAFT) {
+    const { chart } = chartFor(a, defaultConfig(a));
+    const v = a.verify[0];
+    const r = checkFor(a).compute({ chart, aircraft: a, ...readingsOf(a, v) });
+    const labels = r.stats.map((s) => s.label);
+    check(`${a.label}: no digitising artefact on screen — ${labels.join(", ")}`,
+          !labels.some((l) => /\bK\b|k factor|ordinate/i.test(l)));
+    check(`${a.label}: every stat carries its unit`,
+          r.stats.every((s) => /°C|%|ft|PSI/.test(s.label)));
+  }
+  const b407 = byId("bell-407");
+  const { chart } = chartFor(b407, defaultConfig(b407));
+  const r = checkFor(b407).compute({ chart, aircraft: b407, oat: 10, pa: 6000, tq: 70, mgt: 600 });
+  check("the 407 shows the two numbers 4-2 compares",
+        r.stats.map((s) => s.label).join(" | ") === "Chart MGT °C | Actual MGT °C");
+  check("and K is still computed, because the chart is drawn from it",
+        Number.isFinite(r.K));
+}
+
 console.log(`\n${ran - failed}/${ran} passed`);
 process.exit(failed ? 1 : 0);

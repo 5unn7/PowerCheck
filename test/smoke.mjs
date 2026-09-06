@@ -146,6 +146,49 @@ console.log("\nthe check answers in words, not only in colour");
   check("and no pass notice is shown", (await page.locator(".verdict.pass").count()) === 0);
 }
 
+/* A slope through two points is not a trend. Logged through the real UI. */
+console.log("\nno rate until there are enough checks");
+{
+  const b212 = AIRCRAFT.find((a) => a.id === "bell-212-pt6t3");
+  const v = b212.verify[0];
+  await selectAircraft(b212);
+  await page.locator(".config .seg button", { hasText: "Engine 1" }).first().click();
+  // its own tail number, so this block's records are the only ones on the line
+  await page.locator("input.reg").fill("C-TREND");
+  const rate = async () => (await page.locator(".tstats div b").nth(2).innerText()).trim();
+  const goTrend = async () => {
+    await page.locator(".tabs .tab", { hasText: "Trend" }).click(); await page.waitForTimeout(250); };
+  const goCheck = async () => {
+    await page.locator(".tabs .tab", { hasText: "Check" }).click(); await page.waitForTimeout(200); };
+
+  // checks logged on the same day have no spread in time, so log against
+  // engine hours the way an operator would
+  const hoursBox = page.locator(".field input").nth(b212.inputs.length);
+  const log = async (itt, hrs) => {
+    await enter(b212, { ...v, itt });
+    await hoursBox.fill(String(hrs));
+    await page.waitForTimeout(150);
+    await page.locator(".save .btn").click(); await page.waitForTimeout(250);
+  };
+  for (let i = 0; i < 4; i++) await log(700 + i, 1200 + i * 25);
+  await goTrend();
+  await page.locator(".panel .wrapseg button", { hasText: "C-TREND" }).first().click();
+  await page.waitForTimeout(200);
+  check("four checks give no rate", await rate() === "—", `rate=${await rate()}`);
+  const tile = (await page.locator(".tstats div span").nth(2).innerText()).trim();
+  check("and the tile says how many are needed", /5 checks/i.test(tile), tile);
+  await goCheck();
+
+  await log(704, 1300);
+  await goTrend();
+  await page.locator(".panel .wrapseg button", { hasText: "C-TREND" }).first().click();
+  await page.waitForTimeout(200);
+  check("the fifth gives one", await rate() !== "—", `rate=${await rate()}`);
+  check("with its scatter stated", (await page.locator(".scatter").count()) === 1,
+        (await page.locator(".scatter").innerText().catch(() => "")).trim());
+  await goCheck();
+}
+
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));

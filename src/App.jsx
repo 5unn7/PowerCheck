@@ -8,6 +8,10 @@ import { AircraftSelect } from "./pick.jsx";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
 import { CSS } from "./css.js";
 
+/* Below this many checks no rate is reported. A least-squares slope exists
+   from two points and means nothing until there are several. */
+const MIN_FOR_TREND = 5;
+
 const STORE_KEY = "pc407:records:v1";
 const PREF_KEY = "pc407:prefs:v1";
 
@@ -243,16 +247,25 @@ export default function App() {
   // a tail number is one aircraft, so its log reads in that aircraft's terms
   const seriesAircraft = byId(series.length ? series[0].aircraft : aircraft.id);
 
+  /* Two points always produce a slope, and it was being printed with the
+     same authority as one drawn from twenty. A rate is withheld until there
+     are enough checks for it to mean anything, and the scatter around the
+     fit is shown beside it so a noisy line cannot pass for a clean one. */
   const trend = useMemo(() => {
-    if (series.length < 2) return null;
+    if (series.length < MIN_FOR_TREND) return null;
     const xs = series.map((r) => (useHours ? r.hours : (new Date(r.date) - new Date(series[0].date)) / 864e5));
     const ys = series.map((r) => r.margin);
     const n = xs.length, mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
     let sxy = 0, sxx = 0;
     for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; }
     if (!sxx) return null;
-    const per = (sxy / sxx) * (useHours ? 100 : 30);
-    return { per, unit: useHours ? "per 100 hrs" : "per 30 days" };
+    const slope = sxy / sxx, per = slope * (useHours ? 100 : 30);
+    const b = my - slope * mx;
+    let ss = 0;
+    for (let i = 0; i < n; i++) ss += (ys[i] - (b + slope * xs[i])) ** 2;
+    // residual scatter about the fit, in the margin's own unit
+    const scatter = n > 2 ? Math.sqrt(ss / (n - 2)) : NaN;
+    return { per, scatter, unit: useHours ? "per 100 hrs" : "per 30 days" };
   }, [series, useHours]);
 
   /* -------------------------------- CSV -------------------------------- */
@@ -562,9 +575,16 @@ export default function App() {
                 <div>
                   <b style={{ color: trend && trend.per < 0 ? "var(--amber)" : "var(--green)" }}>
                     {trend ? (trend.per > 0 ? "+" : "") + fmt(trend.per) : "—"}
-                  </b><span>{trend ? trend.unit : "Trend"}</span>
+                  </b><span>{trend ? trend.unit
+                    : `Trend at ${MIN_FOR_TREND} checks`}</span>
                 </div>
               </div>
+
+              {trend && Number.isFinite(trend.scatter) && (
+                <p className="quiet scatter">
+                  Checks sit ±{fmt(trend.scatter)} {seriesAircraft.marginUnit} about this line.
+                </p>
+              )}
 
               <div className="tchart">
                 <ResponsiveContainer width="100%" height={230}>

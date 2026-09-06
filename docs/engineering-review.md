@@ -168,20 +168,23 @@ reliable, and the sample-file provenance makes that gap matter more, not less.
 low-torque corner and a low, hot, high-torque one. About ten minutes with the
 pages. This is now the single most valuable outstanding item in this review.
 
-## 6 · The trend line will fit a slope through two points
+## 6 · The trend line — **fixed**
 
 `src/App.jsx` → `trend`
 
-Ordinary least squares over the logged margins, reported as **"°C per 100
-hrs"** as soon as there are two entries. Two points always produce a slope,
-and it is displayed with the same authority as one drawn from twenty. There
-is no scatter shown, no confidence, and no outlier handling.
+It fitted a slope from two points and printed it as "°C per 100 hrs" with the
+same authority as one drawn from twenty.
 
-A single mis-keyed reading will visibly bend the trend and nothing marks it.
+- **No rate is reported below five checks.** The tile reads *"Trend at 5
+  checks"* until there are enough, rather than showing a number that means
+  nothing.
+- **The scatter about the fit is shown**: *"Checks sit ±N °C about this
+  line."* A noisy line can no longer pass for a clean one.
+- Records with no engine hours already fall back to dates, and same-day
+  checks correctly produce no slope at all.
 
-**To close:** withhold the rate until there are enough points to mean
-something, and show the scatter around the fit. Engineer's call on the
-minimum — 5 or 6 is the usual convention for this kind of watch item.
+Still no outlier rejection — a single mis-keyed reading will bend the line,
+though the scatter figure now makes that visible.
 
 ## 7 · Operating limits — **closed, not applicable**
 
@@ -205,30 +208,26 @@ engine torque"* as a condition of flying the check at all.
 Certified limits remain what they always were — flight limits the crew observe
 on their own gauges, and outside the scope of this tool.
 
-## 8 · "K factor" is shown to the crew but appears in no manual
+## 8 · "K factor" on screen — **fixed**
 
-`src/procedures/torque-k-mgt/index.js` reports **K factor** as one of three
-headline numbers.
+K is the normalised vertical coordinate of the nomogram (0–100), an artefact
+of how the chart was digitised. It appears in no manual, and anyone who went
+looking for it would not find it.
 
-K is not an engineering quantity. It is the normalised vertical coordinate
-of the nomogram (0–100), an artefact of how the chart was digitised. It
-appears nowhere in BHT-407-FM-1. Anyone who goes looking for it in the
-manual will not find it, and may reasonably wonder what else on the screen
-is invented.
+It is off the crew display. The 407 now shows the two numbers §4-2 actually
+compares — **Chart MGT** and **Actual MGT** — and K remains in the computed
+result because the chart drawing needs it. A test asserts no stat label
+carries a digitising artefact, and that every stat carries its unit.
 
-**To close:** remove it from the crew-facing display, or rename it plainly as
-an intermediate.
+## 9 · Density altitude on the 407 — **fixed**
 
-## 9 · Density altitude is shown on the 407, which does not use it
+The 407 walk is torque → **pressure** altitude → OAT → MGT. Density altitude
+plays no part in it, and the value shown came from a standard-atmosphere
+model checked against the **212's** fig 4-3 — another type's chart, which is
+not evidence about this one. It is off the 407.
 
-Same file. The 407 walk is torque → **pressure altitude** → OAT → MGT.
-Density altitude plays no part in it. The value shown is computed from a
-standard-atmosphere approximation, not from any page in the 407 manual.
-
-**To close:** remove it from the 407, or state that it is advisory and
-computed, not read.
-
----
+It remains on the 212, where fig 4-3 is that type's own published chart and
+the model reproduces its printed example.
 
 ## 9b · Published capability the app does not offer
 
