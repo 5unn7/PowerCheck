@@ -183,22 +183,27 @@ A single mis-keyed reading will visibly bend the trend and nothing marks it.
 something, and show the scatter around the fit. Engineer's call on the
 minimum — 5 or 6 is the usual convention for this kind of watch item.
 
-## 7 · No cross-check against the engine's own operating limits
+## 7 · Operating limits — **closed, not applicable**
 
-The tool reports margin against *the chart's* maximum allowable MGT and
-nothing else. At low OAT the 407 chart data runs to **778 °C** maximum
-allowable MGT.
+Ruled by the operator's licensed engineer: **the certified operating limits
+are not part of the power check.**
 
-The chart limit and the engine's certified operating limits are different
-things, and where the chart limit sits above a certified limit the tool will
-report a comfortable positive margin at an MGT the engine should never have
-been taken to.
+The reasoning, recorded so it is not re-raised. The chart's maximum allowable
+MGT is a **reference to compare a reading against**, not a value anyone flies
+to. On the 407 the crew establish the specified flight condition, read
+whatever torque and MGT the engine is making, and compare. That the chart runs
+to 778 °C at low OAT does not mean anyone is taken there — it means an engine
+at minimum specification would be making that much at that torque and
+temperature. This review's earlier concern confused a comparison value with a
+target.
 
-Note the 212 implementation does *not* have this gap — its tables cap at
-810 °C ITT and 100% N1, which are the manual's own stated ceilings.
+Where a manual does want a limit inside the check, it puts it in the chart,
+and those are already carried: the 212's Chart B caps at **810 °C ITT** and
+**100% N1**, and its PT6T-3B sheets add *"do not exceed 810 °C ITT or 63.9%
+engine torque"* as a condition of flying the check at all.
 
-**To close:** confirm the 250-C47B/B8/E4 MGT and torque limits, and display
-them alongside the check limit so the crew sees both.
+Certified limits remain what they always were — flight limits the crew observe
+on their own gauges, and outside the scope of this tool.
 
 ## 8 · "K factor" is shown to the crew but appears in no manual
 
@@ -281,8 +286,6 @@ Stated so a reviewer knows where not to spend time.
 1. **Three readings off each 407 page** at the corners (item 5). The source
    workbook is a sample test file, so the three published examples are the
    only real validation the curves have, and there are only three of them.
-2. **The 250-C47B family operating limits** (item 7) — the engineer has
-   agreed to supply these.
-3. **What the two low-torque cut-off points were read off** (item 2). Nobody
-   currently knows. Until someone does, a pilot is being stopped by a rule
-   with no source.
+2. **What the two low-torque cut-off points were read off** (item 2). Nobody
+   currently knows, and the documents have been exhausted. Until someone does,
+   a pilot is being stopped by a rule with no source.
