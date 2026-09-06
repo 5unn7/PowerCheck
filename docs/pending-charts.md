@@ -24,9 +24,9 @@ only where the sheet prints an answer to check the tracing against. See
 | 11 | BHT-206L4-FMS-7 fig 4-1 sh 1/2 · snow deflector · TC · 19 OCT 2011 · p 4 | 206L4 | curves needed, **no printed answer** |
 | 12 | BHT-206L4-FMS-7 fig 4-1 sh 2/2 · snow deflector + particle separator, purge on · TC · 19 OCT 2011 · p 5 | 206L4 | curves needed, **no printed answer** |
 | 13 | BHT-206L4-FMS-3 §4-6 · TC · 26 AUG 2011 · p 4 | 206L4 | **rule captured** — see below; no chart of its own |
-| 14 | BHT-205A1-FM-1 · SN 30001–30052 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
-| 15 | BHT-205A1-FM-2 · SN 30053–30127 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
-| 16 | BHT-205A1-FM-3 · SN 30128 and subs · FAA · Rev 13 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
+| 14 | BHT-205A1-FM-1 · SN 30001–30052 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed; **answer in hand** (43.1 PSI) |
+| 15 | BHT-205A1-FM-2 · SN 30053–30127 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed; **answer in hand** (43.1 PSI) |
+| 16 | BHT-205A1-FM-3 · SN 30128 and subs · FAA · Rev 13 · p 5-7 | 205A-1 | **part traced**, 7 of 9 curves; answer in hand |
 | 17–18 | AFS-BH206L3L4-IBF-KIT-FMS §4 pp 9–10 of 11 · FAA · Rev C, 04 NOV 2008 | 206L series | **rules captured** — see below |
 
 Pages 17 and 18 arrived as one image, which is why there are seventeen files
@@ -85,6 +85,45 @@ open area)"** as a marked region the gate must refuse inside.
 Chart bounds: OAT −50 to 100 °C · indicated TOT curves 460 to 768 · Hp sea
 level to 16,000 ft · minimum torque available 40 to 100%.
 
+### FMS-7 Section 4 received 06 SEP 2026 — page 3
+
+§4-2, verbatim:
+
+> This supplement contains two Power Assurance Check charts (Figure 4-1). The
+> first chart is to be used for helicopters equipped with snow deflectors. The
+> second chart is to be used for helicopters equipped with snow deflectors and
+> particle separator. **Both charts are used in the same manner as the Power
+> Assurance Check chart in BHT-206L4-FM-1. Instructions for their use can be
+> found at the beginning of Section 4 of BHT-206L4-FM-1.** PARTICLE SEP PRG
+> switch (if installed) shall be ON when performing a power assurance check.
+
+And the §4-1 note, which is an operating recommendation rather than a chart
+rule but belongs on the conditions block:
+
+> Due to reduced performance at higher temperatures, it is recommended that
+> snow deflectors be removed above 20 °C (68 °F).
+
+Three things follow:
+
+1. **Sheet 1 is snow deflectors alone; sheet 2 is snow deflectors *and*
+   particle separator.** The earlier reading of sheet 2's heading was right,
+   and sheet 1 is *not* a purge-off variant of the same fit — it is a
+   different fit. So the 206L4's fitted option is a three-way choice: none,
+   snow deflectors, snow deflectors + particle separator.
+2. **The purge switch is not an option.** It "shall be ON when performing a
+   power assurance check", so it is a condition of the check, not something
+   the crew chooses. Nothing in the app should offer it.
+3. **§4-2 still points at BHT-206L4-FM-1 Section 4 for the procedure** — which
+   is the page still outstanding, and the one that would give the shipped
+   FM-1 chart its `passNote` and `failNote`. It is now wanted twice over:
+   for FM-1 itself and for both FMS-7 sheets.
+
+§4-6 on the same page covers performance variation for hover ceiling and rate
+of climb, not the power check, and is not used here.
+
+**Still no worked example for either FMS-7 sheet.** Corner readings remain the
+route — see `docs/verification-worksheet.md`.
+
 ### The torque corrections, and that they are alternatives
 
 | Kit | Correction | Source |
@@ -136,9 +175,57 @@ Chart bounds: torque 40–90% · ITT 500–800 · N1 per the table above, with
 **"bleed valve opens"** boundaries at both ends and **maximum for takeoff** /
 **maximum continuous** cutoffs the gate must respect.
 
-Each sheet carries trace arrows but **no numbers on them**, so there is
-nothing to check a digitising against. One worked set per sheet — any
-torque/Hp/OAT and the ITT and N1 it reads — or these cannot be accepted.
+### Section 4 received 06 SEP 2026 — page 4-3, and what it settled
+
+§4-2-A, verbatim:
+
+> Power assurance check charts (figure 4-1) are provided to determine if
+> engines can produce installed specification power. A power assurance check
+> should be performed daily. Additional checks should be made if unusual
+> operating conditions or indications arise. Hover check is performed prior to
+> takeoff and in-flight check is provided for periodic in-flight monitoring of
+> engine performance. **Either power assurance check may be selected at
+> discretion of pilot.** It is pilot responsibility to accomplish procedure
+> safely, considering passenger load, terrain being overflown, and
+> qualifications of persons on board to assist in watching for other air
+> traffic and to record power check data.
+>
+> If either engine does not meet requirements of hover or in-flight power
+> assurance check, published performance may not be achievable. Cause of
+> engine power loss, or excessive ITT or GAS PROD RPM (N1) should be
+> determined as soon as practical.
+
+Three things fall out of that sentence in bold, and they decide how these four
+sheets are built when the data arrives:
+
+1. **Hover and in-flight are two checks the pilot chooses between**, not one
+   check flown two ways. So flight state is a **check-scope** option here — it
+   is chosen every check and it splits the trend, exactly like the PT6T-3's
+   engine selector. It is emphatically *not* how the 407 works: that type's
+   chart is headed "HOVER OR LEVEL FLIGHT" as one condition, which is why the
+   407 has no such option and must never grow one.
+2. **The gage part number is a fitted option** — it is a property of the
+   airframe, set once per tail, and it selects between the −101 and −113 pairs.
+3. `failNote` for both is the §4-2-A sentence above, which is the same wording
+   §4-2-B gives the PT6T-3 and is now carried on that type.
+
+§4-1 also applies to every chart in this section:
+
+> Performance data presented herein are derived from engine manufacturer's
+> specification power for engine less installation losses. These data are
+> applicable to basic helicopter without any optional equipment that would
+> appreciably affect lift, drag, or power available.
+
+**What Section 4 did not carry: a worked example.** §4-1 through §4-3 print
+none for figure 4-1, and the sample performance problem at §4-11 (pages
+4-5/4-6) is a weight-altitude-temperature payload problem, not a power check.
+Each sheet carries trace arrows with **no numbers on them**.
+
+So these four are now the clearest case in the whole set: the rules are
+complete, the conditions are complete, the verdict wording is complete, and
+there is still nothing to check a tracing against. **Corner readings are the
+only route left** — see `docs/verification-worksheet.md`, which now covers
+these sheets.
 
 ## Bell 205A-1 · Lycoming T53
 
@@ -147,9 +234,78 @@ number**, which no aircraft in the app has needed yet:
 
 | Chart | Serial numbers | Revision | Worked example |
 |---|---|---|---|
-| BHT-205A1-FM-1 | 30001 through 30052 | Rev 11 | **yes — see below** |
-| BHT-205A1-FM-2 | 30053 through 30127 | Rev 11 | page 5-6 not yet received |
-| BHT-205A1-FM-3 | 30128 and subsequent | Rev 13 | page 5-6 not yet received |
+| BHT-205A1-FM-1 | 30001 through 30052 | Rev 11 | **yes** |
+| BHT-205A1-FM-2 | 30053 through 30127 | Rev 11 | **yes** — page 5-6 received 06 SEP 2026 |
+| BHT-205A1-FM-3 | 30128 and subsequent | Rev 13 | **yes** — page 5-6 received 06 SEP 2026 |
+
+**All three now have a published example, and it is the same example on all
+three**: PA 4000 ft, OAT 30 °C, observed 44.5 PSI, N1 96.6% → chart 43.1 PSI.
+The FM-2 and FM-3 pages carry word-for-word the same text as FM-1, down to the
+1400/1250 shp derate and the 54.0 PSI limitation. FM-3 adds one paragraph the
+others do not:
+
+> The recorded NI RPM shall be plus or minus 0.5 percent of the placarded
+> Maximum Gas Producer Speed for Takeoff Power. (This is NI topping.)
+>
+> If this check is satisfactory, it can be concluded that the installed engine
+> is at least as good as a minimum specification engine and that full power can
+> be obtained. If this check is not satisfactory, there is reason to believe
+> that the engine has deteriorated to the extent that published performance may
+> not be obtained. If this occurs, the cause of the deterioration should be
+> determined.
+
+That second paragraph is the `passNote` and `failNote` for this type, in the
+manual's own words.
+
+### Tracing status, 06 SEP 2026 — FM-3 part-traced, not shipped
+
+Calibration on the FM-3 scan (1275 × 1651) is confirmed to **±0.04 PSI** and
+**±0.04 kft** against all nineteen vertical and all twenty-two horizontal
+printed gridlines:
+
+| | value |
+| --- | --- |
+| x of 22 PSI | 368.0 px |
+| PSI scale | 20.078 px/PSI |
+| y of 0 ft | 1426.5 px |
+| altitude scale | 40.25 px per 1000 ft |
+
+Seven of the nine OAT curves trace cleanly (local median-and-mean smoothing,
+residual 1.0–1.3 px = 0.05–0.07 PSI). The **30 °C curve reads 43.21 PSI at
+4000 ft.**
+
+**And the manual disagrees with itself there, which sets the tolerance.** The
+construction line Bell drew down from point C sits at x = 794–796 px, which is
+**43.27 PSI**. Bell's text says **43.1 PSI**. So the printed drawing and the
+printed number are 0.17 PSI apart — about 3.4 px on this scan, ordinary
+draughting tolerance on a chart drawn in 1968. A trace cannot be more right
+than the paper it comes from, so the acceptance band for this type is the
+0.2 PSI the manual itself spans, not the 0.09% the 206L4 managed.
+
+**Why it is not in yet — two faults, both known:**
+
+1. Above about 10,000 ft the 40 °C, 30 °C and 20 °C traces merge. They
+   converge on the printed page as altitude rises (spacing goes from 4.8 PSI
+   at 4500 ft to 1.2 PSI at 17,500 ft) and the follower, which tracks each
+   curve independently, hops between them. The fix is a tracker that carries
+   the whole family at once and assigns each row's blobs to curves under the
+   constraint that the family cannot cross — the curves are strictly ordered,
+   so that constraint alone resolves it.
+2. The **50 °C and 53 °C** curves are not picked up at all. They are short,
+   sit in the bottom-left corner, and bend sharply, so both the minimum-length
+   and the slope filters reject them. They need their own anchors.
+
+Neither is a data problem. Both are tracer problems, and the chart is the one
+in the whole set with the most independent checks available.
+
+### Still to decide when it is traced
+
+The three sheets cover three serial ranges and carry three separate approvals,
+so they stay three chart data sets and serial range becomes a **fitted**
+option — the first in the app that is neither an inlet nor a gage. An earlier
+pass found the three sheets agreeing to within 0.12 PSI, which is inside the
+manual's own 0.17 PSI self-disagreement, so they may well be the same drawing
+reprinted. That is not a reason to merge them.
 
 ### BHT-205A1-FM-1 — the published example, from page 5-6
 

@@ -47,7 +47,7 @@ export default {
     ground: {
       src: "BHT-212VFR-FM-1 fig 4-2 · PT6T-3 power assurance check (ground)",
       rev: "FAA approved · Rev 5, 17 OCT 2011 · page 4-11",
-      cond: "On ground, other engine at idle · 97% N2 · stabilise 4 minutes minimum at chart A torque · heater off",
+      cond: "On ground prior to takeoff, other engine at idle · 97% N2 · stabilise 4 minutes minimum at chart A torque · heater off. §4-2-B: a check should be performed daily, and additionally if unusual operating conditions or indications arise. §4-1: the data are for the basic helicopter, without optional equipment that would appreciably affect lift, drag or power available.",
     },
   },
 
@@ -61,10 +61,15 @@ export default {
      MUST BE LESS THAN CHART GAS PROD (N1) RPM AND ITT FOR OBSERVED OAT." */
   passNote: "Observed gas producer speed and ITT are both below the chart figures for this OAT.",
 
-  /* BHT-212VFR-FM-1 fig 4-2 step 10: "If OBSERVED GAS PROD (N1) RPM AND/OR
-     ITT ARE GREATER THAN CHART B ... FOR OBSERVED OAT, STEPS SHOULD BE TAKEN
-     TO DETERMINE CAUSE OF POWER LOSS." */
-  failNote: "Steps should be taken to determine the cause of power loss.",
+  /* BHT-212VFR-FM-1 §4-2-B, which is fuller than fig 4-2 step 10 and says the
+     airworthiness-relevant part out loud: "If either engine does not meet
+     requirements of ground power assurance check, published performance may
+     not be achievable. Cause of engine power loss, or excessive ITT or GAS
+     PROD RPM (NI), should be determined as soon as practical."
+
+     Step 10 on the figure itself says the same thing shorter: "STEPS SHOULD
+     BE TAKEN TO DETERMINE CAUSE OF POWER LOSS." */
+  failNote: "Published performance may not be achievable. Cause of engine power loss, or excessive ITT or gas producer speed, should be determined as soon as practical.",
 
   marginUnit: "°C",
   marginLabel: "ITT margin",
