@@ -67,8 +67,37 @@ offline use once installed.
   It has to be Safari; iOS does not let other browsers install a PWA.
 
 The service worker precaches the whole app on first load, so after that it
-opens and computes with no network at all. A new version is picked up the next
-time it is opened with signal.
+opens and computes with no network at all.
+
+Updates work like this. A launch always runs the version already on the device —
+that is what makes it work with no signal. If there is a connection, the app
+checks for a new version in the background on every launch; when one installs,
+a bar appears offering **Restart now**, and if it is ignored the new version is
+used the next time the app is opened. It never reloads on its own, which would
+throw away a check being typed. The footer carries a build id, so a version can
+be read back off a phone.
+
+Precaching deliberately bypasses the browser's HTTP cache. GitHub Pages serves
+the page with `max-age=600`, and without that bypass the new worker re-caches
+the page it was meant to replace: the cache name changes, the content does not,
+and an installed app can sit on a stale version indefinitely. That is not
+theoretical — it is what this app did until it was tested.
+
+## What a trend line may join
+
+A trend is only meaningful across checks that are the same measurement of the
+same thing, so the log splits on the tail number and on anything the flight
+manual itself treats as a separate check. The 212's power assurance is run one
+engine at a time and logged per engine, so engine 1 and engine 2 are separate
+lines — plotting both as one averages two engines' deterioration into a slope
+belonging to neither.
+
+What is *fitted* — the inlet, snow deflectors — does not split the line. That
+is a step in one engine's life, not a different engine.
+
+The 407 splits on nothing but the tail. Its chart is headed *hover or level
+flight*, so both are the same check read off the same chart, and the app does
+not invent a distinction the manual does not make.
 
 ## Where the log lives
 

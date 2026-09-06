@@ -52,8 +52,71 @@ Copy `src/aircraft/bell-407.js` and change what differs: `id`, `label`, the
 `variantFor` mapping those options to a chart key, the `meta` for each chart,
 `kMin` if the engine has an avoid area, and `footer`.
 
-`engine` is the powerplant, named under the type on the aircraft page. It is
-optional.
+`powerplant` is the line under the type's name on the aircraft page. It is
+optional, and it names the family rather than a model where the model is a
+fitted option — a 407 card reads *Rolls-Royce 250-C47 series*, and which of
+the three is fitted is chosen on the check page.
+
+#### Fitted, or per check?
+
+Every option carries a scope, and getting it wrong is the one mistake here
+that produces a wrong answer quietly rather than loudly.
+
+| `scope` | Is | Examples |
+|---|---|---|
+| *(omitted)* — fitted | a property of the airframe, set once and remembered | inlet, snow deflectors, gas producer gage P/N, serial range |
+| `"check"` | a property of *this* check, chosen every time | which engine was measured |
+
+They look the same on screen and both can select a chart, but they behave
+differently where it counts: **check-scope options partition the trend.** A
+trend line may only join the same measurement of the same thing, so engine 1
+never joins engine 2. A fitted option changing is a step in one engine's
+life, so it does *not* split the line.
+
+```js
+{ key: "engine", scope: "check", type: "segmented", label: "Engine", default: "1",
+  choices: [{ id: "1", label: "Engine 1" }, { id: "2", label: "Engine 2" }] },
+```
+
+**Only put something here that the manual itself distinguishes.** The 407's
+chart is headed *hover or level flight* — one check, either way of flying it —
+so how it was flown is a condition of the chart, and belongs in `cond`, not in
+`options`. The 212's check is run one engine at a time and logged per engine,
+so the engine does. If the manual prints one chart, it is one check.
+
+Where a manual *does* print separate sheets for a check flown differently —
+the 212's PT6T-3B has hover and in-flight sheets — those are different charts.
+If they also come from a different engine model, they are a different aircraft
+entry, not a mode on an existing one.
+
+#### When no chart applies
+
+`variantFor` may return `null`, meaning the approved data in hand does not
+cover this configuration. Say why in `noChart`, in the crew's terms and
+naming the page:
+
+```js
+variantFor: ({ inlet, snow, engine }) => {
+  if (snow) return "psb";
+  if (inlet === "ps") return "ps";
+  return engine === "c47e4" ? null : "basic";   // FM-1 does not name the E/4
+},
+noChart: ({ engine, inlet, snow }) =>
+  engine === "c47e4" && inlet === "basic" && !snow
+    ? "BHT-407-FM-1 fig 4-1 is titled for the 250-C47B and 250-C47B/8 only…"
+    : null,
+```
+
+The tool then refuses: no number, no Log button, and the reason on screen.
+That is the right outcome — reading a chart that does not name the
+installation is how a tool reports a healthier engine than the approved data
+does.
+
+`noChart` must be the exact complement of `variantFor` returning `null`, and
+`npm test` asserts it across every combination of an aircraft's options
+rather than trusting the two to be kept in step by hand. Keeping them
+separate is deliberate: the reason belongs in the crew's words, not in a
+chart key.
 
 If the printed scale differs from the 407's — a torque axis that runs to 110%,
 an MGT axis starting at 300 — add a `frame`:

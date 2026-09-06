@@ -34,6 +34,11 @@ collective increase past 700 °C ITT; in-flight sheets want level flight above
 1000 ft AGL at 100 KIAS or Vne, test engine throttle full open. Stabilise one
 minute, and four minutes if a limit is exceeded before repeating.
 
+These are a separate aircraft entry from the PT6T-3 already shipped — a
+different engine model — with `mode` as a check-scope option (hover /
+in-flight) and the gage part number as a fitted one. Two axes, four sheets.
+See **Fitted, or per check?** in `docs/adding-an-aircraft.md`.
+
 Procedure shape: **torque + Hp + OAT → (max ITT, max N1)**. A third shape —
 neither the 407's nor the PT6T-3's. Chart bounds visible: torque 40–90%,
 ITT 500–800, plus "bleed valve opens" boundaries and MAXIMUM FOR TAKEOFF /

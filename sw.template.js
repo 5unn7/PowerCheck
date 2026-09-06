@@ -16,11 +16,20 @@ const SHELL = [
   "./icons/apple-touch-icon.png",
 ];
 
+/* Precache straight from the network.
+
+   GitHub Pages serves the page with max-age=600, so a plain cache.add() is
+   answered out of the browser's HTTP cache and precaches the page the worker
+   is meant to be replacing — the cache name changes, the content does not, and
+   the install looks like it worked. "reload" bypasses that cache, and without
+   it an installed app can sit on a stale version indefinitely. */
+const fresh = (url) => new Request(url, { cache: "reload" });
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE)
       // one missing file must not fail the whole install
-      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(u))))
+      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(fresh(u)))))
       .then(() => self.skipWaiting()));
 });
 

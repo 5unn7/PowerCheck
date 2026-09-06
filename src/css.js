@@ -62,7 +62,8 @@ export const CSS = `
   padding:15px 0;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .2s;}
 .tab.on{color:var(--ink);border-bottom-color:var(--ink);}
 
-.config{display:flex;gap:20px 24px;flex-wrap:wrap;align-items:flex-end;padding:20px 20px 0;}
+.config{display:flex;gap:16px 22px;flex-wrap:wrap;align-items:flex-end;padding:20px 20px 0;}
+.config .scope{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);flex-basis:100%;margin-bottom:-6px;}
 .optgroup{display:flex;flex-direction:column;gap:6px;}
 .optlbl{font-size:10px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
 .seg{display:inline-flex;}
@@ -212,5 +213,11 @@ td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line-2);white-space:nowr
 .offchart b{display:block;font-size:12.5px;font-weight:600;color:var(--ink);
   letter-spacing:.02em;margin-bottom:5px;}
 .offchart span{display:block;font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:3px;}
+.updated{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 20px;
+  background:var(--ink);color:#e8eef0;font-size:12.5px;}
+.updated span{flex:1;min-width:200px;}
+.updated button{font:inherit;font-weight:600;color:var(--ink);background:#e8eef0;
+  border:0;padding:6px 12px;cursor:pointer;}
 .foot{padding:16px 20px 0;font-size:11.5px;color:var(--ink-3);}
+.build{display:block;margin-top:6px;font-variant-numeric:tabular-nums;color:#b3c1c5;}
 `;

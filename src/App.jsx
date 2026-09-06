@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig } from "./aircraft/index.js";
+import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig,
+  fittedOptions, checkOptions, seriesKey, seriesLabel } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
 import { AircraftSelect } from "./pick.jsx";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
@@ -51,6 +52,7 @@ export default function App() {
   const [tab, setTab] = useState("check");
   const [trendReg, setTrendReg] = useState("");
   const [condOpen, setCondOpen] = useState(false);
+  const [updated, setUpdated] = useState(false);
   const fileRef = useRef(null);
 
   const say = (msg, ms = 4000) => { setFlash(msg); setTimeout(() => setFlash(""), ms); };
@@ -81,10 +83,21 @@ export default function App() {
     })();
   }, []);
 
+  // A launch runs whatever is already on the device; a newer version installs
+  // behind it and takes effect on the next one. Say so rather than reloading
+  // underneath a check being typed.
+  useEffect(() => {
+    const onUpdate = () => setUpdated(true);
+    window.addEventListener("app-updated", onUpdate);
+    return () => window.removeEventListener("app-updated", onUpdate);
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg, condOpen })).catch(() => {});
   }, [aircraftId, reg, config, trendReg, condOpen, loading]);
+
+  const setOption = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
   /* Coming back to the page and choosing the same type again keeps the
      readings already typed; choosing a different one cannot, since the
@@ -145,7 +158,8 @@ export default function App() {
       K: result.K, maxMGT: result.maxMGT, margin: result.margin, note: note.trim(),
     };
     const ok = await persist([...records, rec]);
-    if (!trendReg) setTrendReg(rec.reg);
+    // show the line this check joined, which may not be the one on screen
+    setTrendReg(seriesKey(rec));
     say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} ${aircraft.marginUnit || "°C"}` : "Not saved — storage is unavailable.");
     setNote("");
   }
@@ -184,12 +198,25 @@ export default function App() {
 
   /* ------------------------------- trend ------------------------------- */
 
-  const regs = useMemo(() => Array.from(new Set(records.map((r) => r.reg))).sort(), [records]);
-  const activeReg = trendReg && regs.includes(trendReg) ? trendReg : regs[0] || "";
-  const series = useMemo(() => records
-    .filter((r) => r.reg === activeReg)
+  /* One line per tail *and* per check-scope option. The 212's check is run
+     one engine at a time, and fitting a slope across both averages two
+     engines' deterioration into a slope belonging to neither — which is
+     the one thing this screen exists to measure honestly. */
+  const groups = useMemo(() => {
+    const m = new Map();
+    for (const r of records) {
+      const k = seriesKey(r);
+      if (!m.has(k)) m.set(k, { key: k, label: seriesLabel(r), rows: [] });
+      m.get(k).rows.push(r);
+    }
+    return [...m.values()].sort((a, b) => (a.label < b.label ? -1 : 1));
+  }, [records]);
+
+  const active = groups.find((g) => g.key === trendReg) || groups[0] || null;
+  const series = useMemo(() => (active ? active.rows : [])
+    .slice()
     .sort((a, b) => (a.date < b.date ? -1 : 1))
-    .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [records, activeReg]);
+    .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [active]);
   const useHours = series.length > 1 && series.every((r) => Number.isFinite(r.hours));
   // a tail number is one aircraft, so its log reads in that aircraft's terms
   const seriesAircraft = byId(series.length ? series[0].aircraft : aircraft.id);
@@ -353,6 +380,13 @@ export default function App() {
         </div>
       </header>
 
+      {updated && (
+        <div className="updated" role="status">
+          <span>A newer version is installed and will be used next time the app is opened.</span>
+          <button onClick={() => window.location.reload()}>Restart now</button>
+        </div>
+      )}
+
       <nav className="tabs">
         <button className={tab === "check" ? "tab on" : "tab"} aria-current={tab === "check" ? "page" : undefined}
           onClick={() => setTab("check")}>Check</button>
@@ -364,27 +398,13 @@ export default function App() {
 
       {tab === "check" && (
         <>
-          <div className="config">
-            {aircraft.options.map((opt) => opt.type === "segmented" ? (
-              <div className="optgroup" key={opt.key}>
-                {opt.label && <span className="optlbl">{opt.label}</span>}
-                <div className="seg" role="group" aria-label={opt.label || opt.key}>
-                  {opt.choices.map((c) => (
-                    <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
-                      aria-pressed={config[opt.key] === c.id}
-                      onClick={() => setConfig({ ...config, [opt.key]: c.id })}>{c.label}</button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"
-                aria-checked={!!config[opt.key]} aria-label={opt.label}
-                onClick={() => setConfig({ ...config, [opt.key]: !config[opt.key] })}>
-                <span className="track"><span className="knob" /></span>
-                <span className="switch-lbl">{opt.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* What is fitted, then what this check applies to. They are drawn
+              apart because they are not the same kind of choice: the first
+              is set once for the aircraft, the second every check. */}
+          <Options opts={fittedOptions(aircraft)} config={config} set={setOption} />
+          {checkOptions(aircraft).length > 0 && (
+            <Options opts={checkOptions(aircraft)} config={config} set={setOption} caption="This check" />
+          )}
 
           {meta && (
             <details className="cond" open={condOpen} onToggle={(e) => setCondOpen(e.currentTarget.open)}>
@@ -416,7 +436,10 @@ export default function App() {
 
           {!chart ? (
             <section className="panel gap">
-              <p className="missing">No chart digitised for this fit yet.</p>
+              <p className="missing">
+                {(aircraft.noChart && aircraft.noChart(config))
+                  || "No chart digitised for this fit yet."}
+              </p>
             </section>
           ) : (
             <section className="panel">
@@ -489,7 +512,7 @@ export default function App() {
 
       {tab === "trend" && (
         <section className="panel">
-          {loading ? <p className="quiet">Loading</p> : regs.length === 0 ? (
+          {loading ? <p className="quiet">Loading</p> : groups.length === 0 ? (
             <div className="empty">
               <p className="quiet">No checks logged yet.</p>
               <button className="btn" onClick={() => setTab("check")}>Log a check</button>
@@ -497,8 +520,9 @@ export default function App() {
           ) : (
             <>
               <div className="seg wrapseg">
-                {regs.map((r) => (
-                  <button key={r} className={activeReg === r ? "on" : ""} onClick={() => setTrendReg(r)}>{r}</button>
+                {groups.map((g) => (
+                  <button key={g.key} className={active && active.key === g.key ? "on" : ""}
+                    onClick={() => setTrendReg(g.key)}>{g.label}</button>
                 ))}
               </div>
 
@@ -571,7 +595,46 @@ export default function App() {
 
       {flash && <p className="flash">{flash}</p>}
 
-      <footer className="foot">{aircraft.footer}</footer>
+      <footer className="foot">
+        {aircraft.footer}
+        <span className="build">build {__BUILD__}</span>
+      </footer>
+    </div>
+  );
+}
+
+/* A segmented control is captioned with what it chooses — "Inlet" over
+   Basic / AFS — unless every choice already says it, which would print
+   "Engine" over Engine 1 and Engine 2. */
+const groupLabel = (opt) =>
+  opt.label && !opt.choices.every((c) => c.label.toLowerCase().startsWith(opt.label.toLowerCase()))
+    ? opt.label : null;
+
+/* Segmented pickers and switches for one scope of options. */
+function Options({ opts, config, set, caption }) {
+  if (!opts.length) return null;
+  return (
+    <div className="config">
+      {caption && <span className="scope">{caption}</span>}
+      {opts.map((opt) => opt.type === "segmented" ? (
+        <div className="optgroup" key={opt.key}>
+          {groupLabel(opt) && <span className="optlbl">{groupLabel(opt)}</span>}
+          <div className="seg" role="group" aria-label={opt.label || opt.key}>
+            {opt.choices.map((c) => (
+              <button key={c.id} className={config[opt.key] === c.id ? "on" : ""}
+                aria-pressed={config[opt.key] === c.id}
+                onClick={() => set(opt.key, c.id)}>{c.label}</button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <button key={opt.key} className={config[opt.key] ? "switch on" : "switch"} role="switch"
+          aria-checked={!!config[opt.key]} aria-label={opt.label}
+          onClick={() => set(opt.key, !config[opt.key])}>
+          <span className="track"><span className="knob" /></span>
+          <span className="switch-lbl">{opt.label}</span>
+        </button>
+      ))}
     </div>
   );
 }

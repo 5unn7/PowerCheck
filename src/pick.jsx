@@ -28,7 +28,7 @@ export function AircraftSelect({ aircraft, lastId, onPick }) {
               <b>{a.label}</b>
               {a.id === lastId && <em>Last used</em>}
             </span>
-            {a.engine && <span className="card-eng">{a.engine}</span>}
+            {a.powerplant && <span className="card-eng">{a.powerplant}</span>}
             <span className="card-cta">
               Start check
               <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"

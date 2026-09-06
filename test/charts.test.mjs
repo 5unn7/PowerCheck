@@ -1,7 +1,8 @@
 /* Every chart must reproduce the example printed beside it in the manual, and
    must refuse to answer off its own grid. Run with `npm test`. */
 
-import { AIRCRAFT, procedureFor, chartFor, defaultConfig } from "../src/aircraft/index.js";
+import { AIRCRAFT, byId, procedureFor, chartFor, defaultConfig,
+  checkOptions, seriesKey, seriesLabel } from "../src/aircraft/index.js";
 
 // how close a digitised chart has to sit to the manual's own printed answer
 const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, default: 1 };
@@ -74,6 +75,91 @@ for (const aircraft of AIRCRAFT) {
   console.log("\nthe reason the gate exists");
   check("extrapolating torque would have read generous", wild.margin > 1000,
         `withheld margin would have been +${wild.margin.toFixed(0)} °C`);
+}
+
+/* A trend line may only join the same measurement of the same thing. The
+   212's check is run one engine at a time and logged per engine, and the
+   failure is silent, so it is asserted rather than trusted. */
+console.log("\nthe log never joins two different checks");
+{
+  const at = (aircraftId, config, reg = "9M-ABC") => ({ aircraft: aircraftId, reg, config });
+
+  check("engine 1 and engine 2 are different lines",
+        seriesKey(at("bell-212-pt6t3", { engine: "1" }))
+          !== seriesKey(at("bell-212-pt6t3", { engine: "2" })));
+  check("two checks on the same engine are one line",
+        seriesKey(at("bell-212-pt6t3", { engine: "1" }))
+          === seriesKey(at("bell-212-pt6t3", { engine: "1" })));
+  check("a different tail is a different line",
+        seriesKey(at("bell-212-pt6t3", { engine: "1" }, "9M-XYZ"))
+          !== seriesKey(at("bell-212-pt6t3", { engine: "1" })));
+
+  // a fitted change is a step in one engine's life, not a different engine
+  check("changing what is fitted does not split the line",
+        seriesKey(at("bell-407", { inlet: "basic", snow: false }))
+          === seriesKey(at("bell-407", { inlet: "ps", snow: true })));
+
+  // logged before the option existed: its own group, not merged into a guess
+  check("a check missing a check-scope value stands apart",
+        seriesKey(at("bell-212-pt6t3", {})) !== seriesKey(at("bell-212-pt6t3", { engine: "1" })));
+  check("and says so", seriesLabel(at("bell-212-pt6t3", {})).includes("not recorded"));
+
+  check("the label names the tail and what was measured",
+        seriesLabel(at("bell-212-pt6t3", { engine: "2" })) === "9M-ABC · Engine 2");
+
+  /* Only what a manual itself distinguishes may be a check-scope option.
+     The 407's chart is headed "hover or level flight" — one check, either
+     way of flying it — so nothing about the 407 splits its trend. */
+  console.log("\nonly what the manual distinguishes");
+  check("the 407 has no check-scope option — its chart covers hover and level flight",
+        checkOptions(byId("bell-407")).length === 0);
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: every check-scope option has a legal default`,
+          checkOptions(a).every((o) =>
+            o.type !== "segmented" || o.choices.some((c) => c.id === o.default)));
+  }
+}
+
+/* Which engine is installed never changes an answer — one chart serves all
+   three models wherever it covers them — but it decides whether a chart
+   applies. A configuration with no chart must say so, never go blank. */
+console.log("\nno configuration reads a chart that does not name it");
+{
+  const air = byId("bell-407");
+  const proc = procedureFor(air);
+  const ENGINES = ["c47b", "c47b8", "c47e4"];
+  const reading = { oat: 10, pa: 6000, tq: 70, mgt: 600 };
+
+  for (const engine of ENGINES) {
+    for (const inlet of ["basic", "ps"]) {
+      for (const snow of [false, true]) {
+        const config = { engine, inlet, snow };
+        const { chart } = chartFor(air, config);
+        const why = air.noChart(config);
+        check(`${engine} · ${inlet}${snow ? " · snow" : ""}: a chart, or a reason`,
+              !!chart !== !!why, chart ? "chart" : why ? "refused with a reason" : "BLANK");
+      }
+    }
+  }
+
+  check("the C47E/4 is refused on the basic inlet — FM-1 does not name it",
+        !chartFor(air, { engine: "c47e4", inlet: "basic", snow: false }).chart);
+  check("and the reason names the page",
+        /FM-1/.test(air.noChart({ engine: "c47e4", inlet: "basic", snow: false })));
+  check("the C47E/4 reads FMS-3 with a particle separator",
+        chartFor(air, { engine: "c47e4", inlet: "ps", snow: false }).variant === "ps");
+  check("and FMS-4 with snow deflectors",
+        chartFor(air, { engine: "c47e4", inlet: "basic", snow: true }).variant === "psb");
+
+  // where a chart does cover the model, the model must not move the number
+  for (const inlet of ["ps"]) {
+    const mgts = ENGINES.map((engine) => {
+      const { chart } = chartFor(air, { engine, inlet, snow: false });
+      return proc.compute({ chart, aircraft: air, ...reading }).maxMGT;
+    });
+    check(`the engine model does not change the ${inlet} answer`,
+          mgts.every((m) => Math.abs(m - mgts[0]) < 1e-9), mgts.map((m) => m.toFixed(1)).join(" / "));
+  }
 }
 
 console.log(`\n${ran - failed}/${ran} passed`);
