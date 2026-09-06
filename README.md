@@ -56,6 +56,9 @@ Torque entered as `700` instead of `70` would otherwise read a confident
 re-digitising a chart moves them with it — including the torque span, which
 narrows at high pressure altitude where the printed curves stop short of 100%.
 
+The notice names the reading that is off, and the box it was typed in is
+marked as well, so it does not have to be found by reading back up the page.
+
 ## Installing it on a phone
 
 There is no app store build. It installs as a PWA, which on both platforms
@@ -136,8 +139,11 @@ npm run check      # build, verify the charts, then drive the page in a browser
 | `npm run smoke` | loads the built page in Chromium and drives it |
 | `npm run icons` | re-renders the PNG icons from `icons/icon.svg` |
 
-`index.html` is the whole site — React, Recharts, the chart data and the app all
-inlined, no CDN and no server. `entry.jsx` is the build entry: it supplies
+`index.html` is the whole site — React, Recharts, the chart data, the type and
+the app all inlined, no CDN and no server. That includes the type on purpose:
+a font pulled from a CDN is the one thing on the page that cannot arrive with
+no signal, so the app is set in the faces the phone already has, and the smoke
+test fails if anything asks the network for anything. `entry.jsx` is the build entry: it supplies
 `window.storage`, the async key/value store the app persists through, backed by
 `localStorage`. Browsers do not provide one, so building `src/App.jsx` directly
 gives a page that renders but never saves a log.
@@ -146,12 +152,28 @@ The build is reproducible, and CI fails if the committed `index.html` does not
 match a fresh build — so a source change without a rebuild cannot reach the
 site.
 
+### How it is drawn
+
+Every chart is drawn to the width it is shown at rather than scrolled
+sideways: an aircraft's view carries two layouts, a wide one and a narrow
+one, and the narrow one is not the wide one shrunk — it is drawn in fewer
+units so the type comes out the same size on the glass, and it carries fewer
+labels, because that is what fits. `npm run smoke` drives both widths and
+fails if any part of a chart, or of the page, is off the side of the screen.
+
+The result is said in words as well as in colour, and the shareable card
+carries the same words: the verdict list is built once, in
+`src/engine/format.js`, so a card cannot say less than the screen it came
+from.
+
 ### Layout
 
 ```
-src/engine/       interpolation, atmosphere, formatting — no aircraft in here
-src/procedures/   one per chart shape; index.js reads, view.jsx draws
-src/aircraft/     one per type: digitised charts and what is fitted
+src/engine/       interpolation, atmosphere, formatting, card drawing —
+                  no aircraft in here
+src/aircraft/     one folder per type: its charts, its check as its own
+                  manual walks it, and its drawing
 src/App.jsx       the UI, which knows about none of the above specifically
 src/pick.jsx      the aircraft page the app opens on
+src/css.js        the whole stylesheet
 ```

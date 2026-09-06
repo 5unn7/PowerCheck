@@ -8,8 +8,8 @@ import React from "react";
    a 212's numbers typed into the 407's chart still produce a confident
    margin. Making it the first deliberate act of a check is the point.
 
-   A card is a name, its engine and the action. Anything more is read on the
-   check page a tap later, where it is actually needed. */
+   A card is a name and its engine. The whole row is the button, so it does
+   not also need to say "start check" in every row. */
 
 export function AircraftSelect({ aircraft, lastId, onPick }) {
   return (
@@ -24,18 +24,17 @@ export function AircraftSelect({ aircraft, lastId, onPick }) {
       <div className="fleet">
         {aircraft.map((a) => (
           <button key={a.id} className="card" onClick={() => onPick(a.id)}>
-            <span className="card-head">
-              <b>{a.label}</b>
-              {a.id === lastId && <em>Last used</em>}
+            <span className="card-txt">
+              <span className="card-head">
+                <b>{a.label}</b>
+                {a.id === lastId && <em>Last used</em>}
+              </span>
+              {a.powerplant && <span className="card-eng">{a.powerplant}</span>}
             </span>
-            {a.powerplant && <span className="card-eng">{a.powerplant}</span>}
-            <span className="card-cta">
-              Start check
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"
-                strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 10h11" /><path d="m10.4 5.4 4.6 4.6-4.6 4.6" />
-              </svg>
-            </span>
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor"
+              strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m8 5 5 5-5 5" />
+            </svg>
           </button>
         ))}
       </div>

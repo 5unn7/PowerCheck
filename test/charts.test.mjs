@@ -57,12 +57,29 @@ for (const aircraft of AIRCRAFT) {
   console.log(" refuses to answer off the chart");
   const { chart } = chartFor(aircraft, defaultConfig(aircraft));
   const on = readingsOf(aircraft, aircraft.verify[0]);
+  const keys = new Set(aircraft.inputs.map((i) => i.key));
   check("a reading on the chart is accepted", proc.offChart({ chart, ...on }).length === 0);
   for (const i of aircraft.inputs) {
     for (const bad of [1e6, -1e6]) {
-      check(`${i.key} = ${bad > 0 ? "far high" : "far low"}`,
-            proc.offChart({ chart, ...on, [i.key]: bad }).length > 0);
+      const out = proc.offChart({ chart, ...on, [i.key]: bad });
+      check(`${i.key} = ${bad > 0 ? "far high" : "far low"}`, out.length > 0);
+      /* The notice has to name the reading it is about as well as say what
+         is wrong: the page marks that field, and a sentence the crew has to
+         match back to a box by eye is how the wrong number gets retyped. */
+      check(`${i.key}: the notice names the reading it is about`,
+            out.every((m) => m && keys.has(m.key) && typeof m.text === "string" && m.text.length > 0)
+            && out.some((m) => m.key === i.key),
+            out.map((m) => m.key).join(", "));
     }
+  }
+
+  /* An example reading behind an empty box reads as a reading that was
+     taken. Every field is labelled and carries its unit, and nothing
+     else. */
+  console.log(" the readings are asked for, never suggested");
+  for (const i of aircraft.inputs) {
+    check(`${i.key}: labelled and given its unit`, !!i.label && typeof i.unit === "string");
+    check(`${i.key}: no example value stands in the box`, i.placeholder === undefined);
   }
 }
 
@@ -158,6 +175,13 @@ console.log("\nnothing is shared between types");
           statusOf(-5, a).label === "Over the chart maximum");
     check(`${a.label}: any margin band it carries says whose figure it is`,
           a.watchBelow === undefined || !!a.watchNote);
+  }
+  /* The log draws the amber band from the aircraft the line belongs to, so
+     a type that states no figure gets no band. A shared constant here is
+     how the 407's 10 °C ends up drawn across a 212's ITT margins. */
+  for (const a of AIRCRAFT) {
+    check(`${a.label}: any band the log draws is this type's own`,
+          a.watchBelow === undefined || Number.isFinite(a.watchBelow));
   }
   // the 407 carries one; it is the operator's, and the app says so
   const b407 = byId("bell-407");

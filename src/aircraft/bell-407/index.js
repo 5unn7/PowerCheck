@@ -18,10 +18,10 @@ export default {
 
   // what the crew reads off the panel
   inputs: [
-    { key: "tq", label: "Torque", unit: "%", placeholder: "70.9" },
-    { key: "mgt", label: "MGT", unit: "°C", placeholder: "619" },
-    { key: "oat", label: "OAT", unit: "°C", placeholder: "12" },
-    { key: "pa", label: "Press alt", unit: "ft", placeholder: "4000" },
+    { key: "tq", label: "Torque", unit: "%" },
+    { key: "mgt", label: "MGT", unit: "°C" },
+    { key: "oat", label: "OAT", unit: "°C" },
+    { key: "pa", label: "Press alt", unit: "ft" },
   ],
 
   /* What is fitted, and which chart that selects.

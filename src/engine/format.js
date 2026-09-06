@@ -25,6 +25,27 @@ export function statusOf(margin, aircraft) {
   if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)", hex: "#9c211a" };
   const watch = aircraft && aircraft.watchBelow;
   if (Number.isFinite(watch) && margin < watch)
-    return { key: "watch", label: "Low margin", color: "var(--amber)", hex: "#ad5f0b" };
+    return { key: "watch", label: "Low margin", color: "var(--amber)", hex: "#985409" };
   return { key: "ok", label: "", color: "var(--green)", hex: "#0d6a4d" };
+}
+
+/* What the check says, in words.
+
+   The page prints these and the shared card carries them, so they are built
+   in one place: a card that says less than the screen it came from is how a
+   check gets filed without its verdict. A low margin is a pass with the
+   operator's caution on top, so it is two entries, in that order.
+
+   The wording of each note belongs to the aircraft — from its own manual —
+   and only the heading is this app's. */
+const VERDICT_HEX = { pass: "#0d6a4d", watch: "#985409", fail: "#9c211a" };
+
+export function verdicts(aircraft, status) {
+  const out = [];
+  const add = (kind, word, text) => { if (text) out.push({ kind, word, text, hex: VERDICT_HEX[kind] }); };
+  if (status.key === "none") return out;
+  if (status.key !== "fail") add("pass", "Passed", aircraft.passNote);
+  if (status.key === "watch") add("watch", "Low margin", aircraft.watchNote);
+  if (status.key === "fail") add("fail", "Over the chart maximum", aircraft.failNote);
+  return out;
 }

@@ -36,14 +36,21 @@ export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
   const kMin = aircraft.kMin(oat);
   return {
     K, maxMGT, kMin, margin: maxMGT - mgt,
+    /* Max MGT is the number the chart gives and the check turns on. K is the
+       height on the nomogram where the torque walk meets the temperature
+       walk — an intermediate of the drawing, not a figure printed anywhere
+       in BHT-407-FM-1, so it is labelled as the step it is rather than left
+       to read like something the manual publishes. It is kept because it is
+       what the cut-off is stated in, and what the operator's own workbook
+       shows. See docs/engineering-review.md item 8. */
     stats: [
       { label: "Max MGT °C", value: fmt(maxMGT, 0) },
-      { label: "K factor", value: fmt(K, 1) },
+      { label: "K · chart step", value: fmt(K, 1) },
     ],
     /* The aircraft supplies the wording, because it has to say whose rule
        this is, and that differs by type. */
     notes: K < kMin
-      ? [`${fmt(K, 1)} is below the ${fmt(kMin, 1)} cut-off for this OAT — no margin reported. `
+      ? [`K ${fmt(K, 1)} is below the ${fmt(kMin, 1)} cut-off for this OAT — no margin reported. `
          + (aircraft.kMinNote || "")]
       : [],
   };
@@ -78,24 +85,27 @@ export function tqSpanAt(d, pa) {
   return [Math.max(a[0], b[0]), Math.min(a[1], b[1])];
 }
 
-/* [] when every reading sits on the chart, otherwise one plain sentence
-   per reading that does not. */
+/* [] when every reading sits on the chart, otherwise one entry per reading
+   that does not: the sentence to show, and the key of the reading it is
+   about, so the field itself can be marked rather than the crew having to
+   match a sentence back to a box. */
 export function offChart({ chart: d, oat, pa, tq, mgt }) {
   const ax = axes(d);
   const out = [];
   const r0 = (v) => Math.round(v);
+  const off = (key, text) => out.push({ key, text });
   if (Number.isFinite(oat) && (oat < ax.oat[0] || oat > ax.oat[1]))
-    out.push(`OAT ${fmt(oat, 0)} °C is off the chart — it is drawn for ${ax.oat[0]} to ${ax.oat[1]} °C.`);
+    off("oat", `OAT ${fmt(oat, 0)} °C is off the chart — it is drawn for ${ax.oat[0]} to ${ax.oat[1]} °C.`);
   if (Number.isFinite(pa) && (pa < ax.pa[0] || pa > ax.pa[1]))
-    out.push(`Pressure altitude ${fmt(pa, 0)} ft is off the chart — it is drawn for ${ax.pa[0]} to ${ax.pa[1]} ft.`);
+    off("pa", `Pressure altitude ${fmt(pa, 0)} ft is off the chart — it is drawn for ${ax.pa[0]} to ${ax.pa[1]} ft.`);
   const paOnChart = Number.isFinite(pa) && pa >= ax.pa[0] && pa <= ax.pa[1];
   if (Number.isFinite(tq) && paOnChart) {
     const [lo, hi] = tqSpanAt(d, pa);
     if (tq < lo || tq > hi)
-      out.push(`Torque ${fmt(tq, 1)}% is off the chart — at this pressure altitude it is drawn for ${r0(lo)} to ${r0(hi)}%.`);
+      off("tq", `Torque ${fmt(tq, 1)}% is off the chart — at this pressure altitude it is drawn for ${r0(lo)} to ${r0(hi)}%.`);
   }
   if (Number.isFinite(mgt) && (mgt < ax.mgt[0] || mgt > ax.mgt[1]))
-    out.push(`MGT ${fmt(mgt, 0)} °C is outside the chart's ${r0(ax.mgt[0])} to ${r0(ax.mgt[1])} °C scale — check the reading.`);
+    off("mgt", `MGT ${fmt(mgt, 0)} °C is outside the chart's ${r0(ax.mgt[0])} to ${r0(ax.mgt[1])} °C scale — check the reading.`);
   return out;
 }
 

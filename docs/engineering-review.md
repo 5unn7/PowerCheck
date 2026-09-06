@@ -205,10 +205,10 @@ engine torque"* as a condition of flying the check at all.
 Certified limits remain what they always were — flight limits the crew observe
 on their own gauges, and outside the scope of this tool.
 
-## 8 · "K factor" is shown to the crew but appears in no manual
+## 8 · "K factor" is shown to the crew but appears in no manual — **closed, by renaming**
 
-`src/procedures/torque-k-mgt/index.js` reports **K factor** as one of three
-headline numbers.
+`src/aircraft/bell-407/powercheck.js` reported **K factor** as a headline
+number beside Max MGT.
 
 K is not an engineering quantity. It is the normalised vertical coordinate
 of the nomogram (0–100), an artefact of how the chart was digitised. It
@@ -216,17 +216,22 @@ appears nowhere in BHT-407-FM-1. Anyone who goes looking for it in the
 manual will not find it, and may reasonably wonder what else on the screen
 is invented.
 
-**To close:** remove it from the crew-facing display, or rename it plainly as
-an intermediate.
+Closed by the second of the two options given here: it is labelled
+**K · chart step**, and the low-torque note now names it — *"K 41.2 is below
+the 6.9 cut-off for this OAT"*. It is kept rather than removed because it is
+the quantity the cut-off is stated in and the one the operator's own workbook
+shows, so a crew cross-checking the two has it in front of them.
 
-## 9 · Density altitude is shown on the 407, which does not use it
+Removing it outright remains available, and is a one-line change.
 
-Same file. The 407 walk is torque → **pressure altitude** → OAT → MGT.
-Density altitude plays no part in it. The value shown is computed from a
-standard-atmosphere approximation, not from any page in the 407 manual.
+## 9 · Density altitude is shown on the 407, which does not use it — **closed, by removal**
 
-**To close:** remove it from the 407, or state that it is advisory and
-computed, not read.
+The 407 walk is torque → **pressure altitude** → OAT → MGT, and density
+altitude plays no part in it. Nothing on the 407 screen shows it: its check
+reports Max MGT and K and nothing else.
+
+The 212 still computes one, because BHT-212VFR-FM-1 fig 4-3 is that type's
+own published density altitude chart, and it is not displayed either.
 
 ---
 

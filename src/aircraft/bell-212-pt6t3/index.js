@@ -20,10 +20,10 @@ export default {
   charts,
 
   inputs: [
-    { key: "pa", label: "Press alt", unit: "ft", placeholder: "1500" },
-    { key: "oat", label: "OAT", unit: "°C", placeholder: "20" },
-    { key: "n1", label: "Gas prod N1", unit: "%", placeholder: "95.2" },
-    { key: "itt", label: "ITT", unit: "°C", placeholder: "710" },
+    { key: "pa", label: "Press alt", unit: "ft" },
+    { key: "oat", label: "OAT", unit: "°C" },
+    { key: "n1", label: "Gas prod N1", unit: "%" },
+    { key: "itt", label: "ITT", unit: "°C" },
   ],
 
   /* The manual's check is run one engine at a time, so which one is being

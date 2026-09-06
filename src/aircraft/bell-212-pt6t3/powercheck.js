@@ -70,17 +70,20 @@ export function axes(d) {
    failed check and still gets its negative margin. */
 const OBSERVED_SLACK = { itt: 150, n1: 15 };
 
+/* Each entry names the reading it is about as well as saying what is wrong,
+   so the field itself can be marked. */
 export function offChart({ chart: d, oat, pa, n1, itt }) {
   const ax = axes(d);
   const out = [];
   const r0 = (v) => Math.round(v);
+  const off = (key, text) => out.push({ key, text });
   if (Number.isFinite(pa) && (pa < ax.pa[0] || pa > ax.pa[1]))
-    out.push(`Pressure altitude ${fmt(pa, 0)} ft is off the table — it runs ${ax.pa[0]} to ${ax.pa[1]} ft.`);
+    off("pa", `Pressure altitude ${fmt(pa, 0)} ft is off the table — it runs ${ax.pa[0]} to ${ax.pa[1]} ft.`);
   if (Number.isFinite(oat) && (oat < ax.oat[0] || oat > ax.oat[1]))
-    out.push(`OAT ${fmt(oat, 0)} °C is off the table — it runs ${ax.oat[0]} to ${ax.oat[1]} °C.`);
+    off("oat", `OAT ${fmt(oat, 0)} °C is off the table — it runs ${ax.oat[0]} to ${ax.oat[1]} °C.`);
   if (Number.isFinite(itt) && (itt < ax.itt[0] - OBSERVED_SLACK.itt || itt > ax.itt[1]))
-    out.push(`ITT ${fmt(itt, 0)} °C is not a plausible reading for this check — the table's limits run ${r0(ax.itt[0])} to ${r0(ax.itt[1])} °C.`);
+    off("itt", `ITT ${fmt(itt, 0)} °C is not a plausible reading for this check — the table's limits run ${r0(ax.itt[0])} to ${r0(ax.itt[1])} °C.`);
   if (Number.isFinite(n1) && (n1 < ax.n1[0] - OBSERVED_SLACK.n1 || n1 > ax.n1[1]))
-    out.push(`Gas producer ${fmt(n1, 1)}% is not a plausible reading — the table's limits run ${fmt(ax.n1[0], 1)} to ${fmt(ax.n1[1], 1)}%.`);
+    off("n1", `Gas producer ${fmt(n1, 1)}% is not a plausible reading — the table's limits run ${fmt(ax.n1[0], 1)} to ${fmt(ax.n1[1], 1)}%.`);
   return out;
 }

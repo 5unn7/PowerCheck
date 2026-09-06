@@ -7,15 +7,19 @@ pressure altitude give a K factor, K and OAT give a maximum MGT — is data. It
 needs a `.charts.json` and a definition module, and nothing else changes.
 
 An aircraft whose manual walks a **different shape** — Ng and TOT, a single
-combined chart, a table rather than a nomogram — also needs a procedure module.
-That is the only place in the app that knows what the walk is. `src/App.jsx`
-does not, and must not learn.
+combined chart, a table rather than a nomogram — also needs a `powercheck.js`
+of its own. That module is the only place in the app that knows what the walk
+is. `src/App.jsx` does not, and must not learn.
+
+Everything about one type lives in one folder, `src/aircraft/<id>/`: its
+charts, the check as its own manual walks it, the drawing of that chart, and
+the definition tying them together. Nothing is shared between types.
 
 ## The same shape: charts plus a definition
 
 ### 1. Digitise the charts
 
-One JSON file per aircraft, at `src/aircraft/<id>.charts.json`, holding one
+One JSON file per aircraft, at `src/aircraft/<id>/charts.json`, holding one
 entry per configuration the manual publishes a separate chart for:
 
 ```json
@@ -47,10 +51,16 @@ past it, which is the behaviour you want.
 
 ### 2. Write the definition
 
-Copy `src/aircraft/bell-407.js` and change what differs: `id`, `label`, the
-`inputs` the crew reads off the panel, the `options` that select a chart,
+Copy `src/aircraft/bell-407/index.js` and change what differs: `id`, `label`,
+the `inputs` the crew reads off the panel, the `options` that select a chart,
 `variantFor` mapping those options to a chart key, the `meta` for each chart,
-`kMin` if the engine has an avoid area, and `footer`.
+`frame` and `gauge` — this type's own scales, never another's — `kMin` if the
+engine has an avoid area, `passNote` and `failNote` in the manual's own words,
+and `footer`.
+
+An `input` is a key, a label and a unit. It carries no example value: a greyed
+70.9 behind an empty torque box reads as a reading that was taken, and the
+test suite fails an aircraft that adds one.
 
 `powerplant` is the line under the type's name on the aircraft page. It is
 optional, and it names the family rather than a model where the model is a
@@ -147,24 +157,33 @@ deploy past it.
 Add it to `AIRCRAFT` in `src/aircraft/index.js`. It appears on the aircraft
 page — the page the app opens on — by itself.
 
-## A different shape: add a procedure
+## A different shape: write the check
 
-A procedure is a module exporting four things, and the app needs nothing else:
+`powercheck.js` in the aircraft's own folder exports three things, and the app
+needs nothing else:
 
 | export | contract |
 |---|---|
 | `compute({ chart, aircraft, ...readings })` | `{ margin, stats: [{label, value}], notes: [string] }`, plus whatever else the aircraft wants to log |
 | `axes(chart)` | the domain of each axis, read from the chart data |
-| `offChart({ chart, ...readings })` | `[]` when every reading is on the chart, else a plain sentence per reading that is not |
-| `DEFAULT_FRAME` | the printed scale, if the procedure draws a chart |
+| `offChart({ chart, ...readings })` | `[]` when every reading is on the chart, else `{ key, text }` per reading that is not — `key` is the input it is about, so the page can mark that box |
+
+The aircraft states its own scales in `frame`, because inheriting another
+type's is how one aircraft's data reaches another's screen.
 
 Its drawing half lives beside it as `view.jsx`, exporting `Chart` and
 `drawCard`, and is registered in `src/views.js`. Keeping the two apart is what
 lets `npm test` run the chart maths in plain node with no build step — do not
 import React into the computing half.
 
-Register the procedure in `PROCEDURES` in `src/aircraft/index.js` and name it
-from the aircraft's `procedure` field.
+`Chart({ chart, frame, readings, result, narrow })` is drawn to the width it
+is given: two layouts, and `narrow` says which. The narrow one is drawn in
+fewer units, not shrunk, so its type comes out the same size on the glass, and
+it carries fewer labels. `npm run smoke` drives both widths and fails if any
+part of the chart is off the side of the screen.
+
+`drawCard` may use `drawVerdicts` and `wrapText` from `src/engine/card.js` for
+the parts of a card that are the same whatever the type.
 
 ## `offChart` is not optional
 
