@@ -1,5 +1,7 @@
 import bell407 from "./bell-407.js";
+import bell212 from "./bell-212-pt6t3.js";
 import * as torqueKMgt from "../procedures/torque-k-mgt/index.js";
+import * as setTorqueOatLimits from "../procedures/set-torque-oat-limits/index.js";
 
 /* Adding an aircraft is two steps: digitise its charts into a .charts.json,
    and add a definition module next to bell-407.js describing its inputs,
@@ -11,9 +13,10 @@ import * as torqueKMgt from "../procedures/torque-k-mgt/index.js";
 
 export const PROCEDURES = {
   "torque-k-mgt": torqueKMgt,
+  "set-torque-oat-limits": setTorqueOatLimits,
 };
 
-export const AIRCRAFT = [bell407];
+export const AIRCRAFT = [bell407, bell212];
 
 export const byId = (id) => AIRCRAFT.find((a) => a.id === id) || AIRCRAFT[0];
 export const procedureFor = (aircraft) => PROCEDURES[aircraft.procedure];

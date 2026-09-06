@@ -5,24 +5,37 @@ Install it to a phone's home screen and it works with no signal.
 
 **Live: https://5unn7.github.io/PowerCheck/**
 
-Currently digitised — **Bell 407** (Rolls-Royce 250-C47B):
+Currently carried:
+
+**Bell 407** — Rolls-Royce 250-C47B. Torque, MGT, OAT and pressure altitude are
+walked through the printed nomogram the same way they are by hand, giving an
+MGT margin in °C.
 
 - BHT-407-FM-1 fig 4-1, basic inlet (also read for AFS)
 - BHT-407-FMS-3 fig 4-1, particle separator kit
 - BHT-407-FMS-4 fig 4-1, snow deflector kit
 
-Enter torque, MGT, OAT and pressure altitude, and it interpolates the chart the
-same way the printed nomogram is walked by hand, then keeps a per-aircraft log
-of MGT margin over time.
+**Bell 212 · PT6T-3** — ground check, one engine at a time. Pressure altitude
+gives the torque to stabilise at; OAT gives the gas producer speed and turbine
+temperature that torque must not exceed. Two limits, so ITT margin is the
+headline and N1 is checked alongside it — a gas producer over its limit fails
+the check however much room ITT has.
 
-Each chart is checked against its own published example on every build
-(70% torque, 6000 ft, 10 °C):
+- BHT-212VFR-FM-1 fig 4-2, PT6T-3 power assurance check (ground)
+
+Every chart is checked against its own published example on every build:
 
 | Chart | Manual | This app |
 |---|---|---|
-| FM-1 basic | 676 °C | 675.6 |
-| FMS-3 separator | 682 °C | 681.8 |
-| FMS-4 snow deflector | 722 °C | 721.5 |
+| 407 FM-1 basic | 676 °C | 675.6 |
+| 407 FMS-3 separator | 682 °C | 681.8 |
+| 407 FMS-4 snow deflector | 722 °C | 721.5 |
+| 212 fig 4-2 · torque at 1500 ft | 47.0% | 47.0 |
+| 212 fig 4-2 · limits at OAT 20 | 96.3% / 735 °C | 96.3 / 735 |
+
+More charts have been received and are not in yet — what they are, the exact
+rules that came with them and what is blocking each is in
+[docs/pending-charts.md](docs/pending-charts.md).
 
 **This is a trending aid. The flight manual is the authority for any release.**
 

@@ -59,8 +59,11 @@ export default {
      chart that cannot reproduce the number printed beside it is digitised
      wrong, and test/charts.test.mjs fails the build over it. */
   verify: [
-    { config: { inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, maxMGT: 676, source: "BHT-407-FM-1 fig 4-1" },
-    { config: { inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, maxMGT: 682, source: "BHT-407-FMS-3 fig 4-1" },
-    { config: { inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, maxMGT: 722, source: "BHT-407-FMS-4 fig 4-1" },
+    { config: { inlet: "basic", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+      expect: { maxMGT: 676 }, source: "BHT-407-FM-1 fig 4-1" },
+    { config: { inlet: "ps", snow: false }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+      expect: { maxMGT: 682 }, source: "BHT-407-FMS-3 fig 4-1" },
+    { config: { inlet: "basic", snow: true }, oat: 10, pa: 6000, tq: 70, mgt: 600,
+      expect: { maxMGT: 722 }, source: "BHT-407-FMS-4 fig 4-1" },
   ],
 };

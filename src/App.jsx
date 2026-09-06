@@ -114,7 +114,7 @@ export default function App() {
     };
     const ok = await persist([...records, rec]);
     if (!trendReg) setTrendReg(rec.reg);
-    say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} °C` : "Not saved — storage is unavailable.");
+    say(ok ? `${rec.reg} logged at ${fmt(rec.margin)} ${aircraft.marginUnit || "°C"}` : "Not saved — storage is unavailable.");
     setNote("");
   }
 
@@ -159,6 +159,8 @@ export default function App() {
     .sort((a, b) => (a.date < b.date ? -1 : 1))
     .map((r) => ({ ...r, label: (r.date || "").slice(5) })), [records, activeReg]);
   const useHours = series.length > 1 && series.every((r) => Number.isFinite(r.hours));
+  // a tail number is one aircraft, so its log reads in that aircraft's terms
+  const seriesAircraft = byId(series.length ? series[0].aircraft : aircraft.id);
 
   const trend = useMemo(() => {
     if (series.length < 2) return null;
@@ -369,7 +371,7 @@ export default function App() {
 
               <div className="hero">
                 <div className="big">
-                  <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>°C</i>
+                  <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit || "°C"}</i>
                 </div>
                 <div className="hero-side">
                   <b>{aircraft.marginLabel}</b>
@@ -407,7 +409,7 @@ export default function App() {
               {(result ? result.notes : []).map((a, i) => <p key={i} className="alert">{a}</p>)}
 
               <div className="chartscroll">
-                <Chart chart={chart} frame={frame} tq={nums.tq} pa={nums.pa} oat={nums.oat} result={result} />
+                <Chart chart={chart} frame={frame} readings={nums} result={result} />
               </div>
 
               <div className="save">
@@ -436,7 +438,7 @@ export default function App() {
                 <div>
                   <b style={{ color: statusOf(series[series.length - 1].margin).color }}>
                     {(series[series.length - 1].margin > 0 ? "+" : "") + fmt(series[series.length - 1].margin)}
-                  </b><span>Latest °C</span>
+                  </b><span>Latest {seriesAircraft.marginUnit || "°C"}</span>
                 </div>
                 <div><b>{series.length}</b><span>Checks</span></div>
                 <div>
@@ -455,7 +457,7 @@ export default function App() {
                       tick={{ fontSize: 11, fill: "var(--ink-3)" }} stroke="var(--rule)" />
                     <YAxis tick={{ fontSize: 11, fill: "var(--ink-3)" }} stroke="var(--rule)" width={42} />
                     <Tooltip contentStyle={{ borderRadius: 2, border: "1px solid var(--rule)", fontSize: 12 }}
-                      formatter={(v) => [fmt(v) + " °C", "Margin"]} />
+                      formatter={(v) => [fmt(v) + " " + (seriesAircraft.marginUnit || "°C"), "Margin"]} />
                     <ReferenceLine y={0} stroke="var(--red)" />
                     <ReferenceLine y={10} stroke="var(--amber)" strokeDasharray="4 4" />
                     <Line type="linear" dataKey="margin" stroke="var(--ink)" strokeWidth={1.6} dot={dot} isAnimationActive={false} />
@@ -465,14 +467,21 @@ export default function App() {
 
               <div className="tablewrap">
                 <table>
-                  <thead><tr><th>Date</th><th>Hrs</th><th>OAT</th><th>pAlt</th><th>Tq</th><th>MGT</th><th>Margin</th><th /></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Date</th><th>Hrs</th>
+                      {seriesAircraft.inputs.map((i) => <th key={i.key}>{i.label}</th>)}
+                      <th>Margin</th><th />
+                    </tr>
+                  </thead>
                   <tbody>
                     {[...series].reverse().map((r) => (
                       <tr key={r.id}>
                         <td>{r.date}</td>
                         <td>{Number.isFinite(r.hours) ? fmt(r.hours, 0) : "—"}</td>
-                        <td>{fmt(r.oat, 0)}</td><td>{fmt(r.pa, 0)}</td>
-                        <td>{fmt(r.tq)}</td><td>{fmt(r.mgt, 0)}</td>
+                        {seriesAircraft.inputs.map((i) => (
+                          <td key={i.key}>{fmt(r[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}</td>
+                        ))}
                         <td style={{ color: statusOf(r.margin).color, fontWeight: 600 }}>
                           {(r.margin > 0 ? "+" : "") + fmt(r.margin)}
                         </td>

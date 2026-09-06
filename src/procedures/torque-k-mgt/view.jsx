@@ -32,8 +32,9 @@ function scales(frame) {
 
 /* ------------------------------- drawing -------------------------------- */
 
-export function Chart({ chart: d, frame, tq, pa, oat, result }) {
+export function Chart({ chart: d, frame, readings, result }) {
   if (!d) return null;
+  const { tq, pa, oat } = readings;
   const S = scales(frame);
   const live = result && Number.isFinite(result.K);
 
