@@ -57,10 +57,17 @@ interpolation. That is exactly the constants the app had been carrying with
 no comment, and it reproduces the workbook's own cached value to the last
 digit — 6.9442675 at OAT 12.
 
-**Where those two points came from is not known.** They are not marked on
-BHT-407-FM-1 fig 4-1, no page held here shows them, and the operator's
-licensed engineer does not know either. The workbook itself was a **sample
-test file**, not a controlled document.
+**Where those two points came from is not known**, and the search is now
+about as complete as it can be from documents:
+
+- not marked on BHT-407-FM-1 fig 4-1;
+- **BHT-407-FM-1 §4-2** (Rev 14, page 4-3) describes the entire power
+  assurance check over a full page — conditions, walk, pass and fail, and a
+  reverse reading — and mentions **no avoid area, no minimum torque and no
+  cut-off of any kind**;
+- the operator's licensed engineer does not know;
+- the workbook it comes from was a **sample test file**, not a controlled
+  document.
 
 **Kept, deliberately.** The rule only ever withholds an answer — it can never
 produce one — so keeping it errs conservative while its provenance is open.
@@ -206,13 +213,32 @@ computed, not read.
 
 ---
 
+## 9b · Published capability the app does not offer
+
+`BHT-407-FM-1` §4-2 carries a NOTE describing the chart read **backwards**:
+
+> Chart may also be used to determine minimum specification power for actual
+> MGT. Using previous example, enter chart at actual MGT (675 °C), proceed up
+> to OAT (10 °C), across to Hp (6000 feet), and up to read minimum torque
+> available (70 %). If actual power is equal to or greater than chart torque,
+> engine performance equals or exceeds minimum specification…
+
+This is the same walk the 206L4 uses natively — the answer is a **minimum
+torque available** and the margin is in percent torque rather than °C. It is
+published, not invented, and the app does not offer it.
+
+Worth having: a crew that has an MGT reading and wants to know what torque
+the engine should be making is currently doing that walk on paper. Not a
+defect; a capability sitting unused.
+
 ## 10 · Moderate items
 
 | # | Finding | Where |
 |---|---|---|
 | 10.1 | Margin displayed to **0.1 °C** from a chart readable to perhaps ±2 °C, and against a test tolerance of ±1 °C. The display is more precise than the data supports. | `src/engine/format.js` |
 | 10.2 | **No units guard.** An OAT entered in °F is accepted silently anywhere in the −40…+50 range. −40 is the one value where both scales agree; everything above it reads hot and gives a falsely generous margin. | inputs |
-| 10.3 | **Conditions are stated but never confirmed.** Generator ≤35 A, power turbine 100%, heater/ECS/anti-ice off, purge off, 85–105 KIAS not above VNE. The tool prints them and trusts them. | `meta.cond` |
+| 10.3 | **Conditions are stated but never confirmed.** The tool prints them and trusts them. Now fuller: §4-2's *"turn off all sources of bleed air, including ENGINE ANTI-ICING"* is broader than the chart header's "anti-ice off" and is what the app now shows. | `meta.cond` |
+| 10.7 | **Fixed.** A failed check now passes on what the manual says to do — the 407 sends the crew to `BHT-407-MM` to determine the cause of low power, the 212 to determine the cause of power loss. The app had been reporting the failure and stopping there. | `failNote` |
 | 10.4 | **The log is browser storage only** — per device, per browser, wiped by clearing site data, and *not shared between the installed app and the browser tab it was installed from*. Export CSV is the only durable copy. | `README.md` |
 | 10.5 | **Future dates are accepted.** Only the format is validated. | `isISODate` |
 | 10.6 | **No engine serial or position field on the 407.** A tail number can change engines; the trend would carry straight across the change with nothing marking it. The 212 records which engine, but not which serial. | log record |

@@ -51,17 +51,17 @@ export default {
     basic: {
       src: "BHT-407-FM-1 fig 4-1 · basic inlet, read for AFS",
       rev: "TC approved · Rev 14, 28 MAR 2014 · page 4-7",
-      cond: "Hover or level flight 85–105 KIAS, not above VNE · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
+      cond: "Hover or level flight 85–105 KIAS, not above VNE · all sources of bleed air off, including engine anti-icing · generator 35 A or less · power turbine 100% · heater and ECS off",
     },
     ps: {
       src: "BHT-407-FMS-3 fig 4-1 · particle separator kit",
       rev: "TC approved · Rev 1, 16 JAN 2018 · page 3",
-      cond: "Hover or level flight 85–105 KIAS, not above VNE · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
+      cond: "Hover or level flight 85–105 KIAS, not above VNE · separator purge off · all sources of bleed air off, including engine anti-icing · generator 35 A or less · power turbine 100% · heater and ECS off",
     },
     psb: {
       src: "BHT-407-FMS-4 fig 4-1 · snow deflector kit",
       rev: "TC approved · Rev 1, 16 JAN 2018 · page 4",
-      cond: "Level flight only, 85–105 KIAS, not above VNE · separator purge off · generator 35 A or less · power turbine 100% · heater, ECS and anti-ice off",
+      cond: "Level flight only, 85–105 KIAS, not above VNE · separator purge off · all sources of bleed air off, including engine anti-icing · generator 35 A or less · power turbine 100% · heater and ECS off",
     },
   },
 
@@ -77,9 +77,11 @@ export default {
      The app reproduces the workbook to the digit — 6.9442675 at OAT 12.
 
      WHERE THOSE TWO POINTS CAME FROM IS NOT KNOWN. They are not marked on
-     BHT-407-FM-1 fig 4-1, no page held here shows them, and the operator's
-     licensed engineer does not know either. The workbook they come from was
-     a sample test file, not a controlled document.
+     BHT-407-FM-1 fig 4-1; BHT-407-FM-1 4-2, which describes the whole check
+     over a full page, does not mention an avoid area, a minimum torque or a
+     cut-off of any kind; and the operator's licensed engineer does not know
+     either. The workbook they come from was a sample test file, not a
+     controlled document.
 
      It is kept because it only ever withholds an answer and never produces
      one, so keeping it errs conservative while its provenance is open. What
@@ -104,6 +106,13 @@ export default {
      licensed engineer, 2026. The source workbook colours the margin red
      below zero and nothing else; this band was added by the operator on
      top of that, so the app shows it and says whose it is. */
+  /* BHT-407-FM-1 4-2: "If actual MGT is greater than chart MGT, engine
+     performance is less than minimum specification and all performance data
+     contained in this manual cannot be achieved. Refer to BHT-407-MM to
+     determine cause of low power (high MGT)." The app was reporting the
+     failure without passing on what the manual says to do about it. */
+  failNote: "Engine performance is below minimum specification and the performance data in the flight manual cannot be achieved. Refer to BHT-407-MM to determine the cause of low power (high MGT).",
+
   watchBelow: 10,
   watchNote: "10 °C is this operator's practice, not a flight manual figure.",
 

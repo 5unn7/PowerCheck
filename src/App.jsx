@@ -503,6 +503,9 @@ export default function App() {
               {status.key === "watch" && aircraft.watchNote && (
                 <p className="quiet watchnote">{aircraft.watchNote}</p>
               )}
+              {status.key === "fail" && aircraft.failNote && (
+                <p className="alert failnote">{aircraft.failNote}</p>
+              )}
 
               <div className="stats">
                 {(result ? result.stats : proc.compute({ chart, aircraft, oat: NaN, pa: NaN, tq: NaN, mgt: NaN }).stats)

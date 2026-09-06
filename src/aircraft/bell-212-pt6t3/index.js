@@ -58,6 +58,11 @@ export default {
   frame: { oat: [-60, 55], itt: [500, 830], n1: [84, 102] },
   gauge: [-20, 60],
 
+  /* BHT-212VFR-FM-1 fig 4-2 step 10: "If OBSERVED GAS PROD (N1) RPM AND/OR
+     ITT ARE GREATER THAN CHART B ... FOR OBSERVED OAT, STEPS SHOULD BE TAKEN
+     TO DETERMINE CAUSE OF POWER LOSS." */
+  failNote: "Steps should be taken to determine the cause of power loss.",
+
   marginUnit: "°C",
   marginLabel: "ITT margin",
   footer: "Tables transcribed from BHT-212VFR-FM-1 fig 4-2. Check each engine in turn, and hover IGE to confirm torque needle split is no greater than 4%. Trending aid — the flight manual is the authority.",
