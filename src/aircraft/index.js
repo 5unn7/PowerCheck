@@ -1,5 +1,6 @@
 import bell407 from "./bell-407/index.js";
 import bell212 from "./bell-212-pt6t3/index.js";
+import bell206l4 from "./bell-206l4/index.js";
 
 /* One folder per aircraft, and everything about that aircraft is inside it:
    its digitised charts, the power check as its own flight manual walks it,
@@ -16,7 +17,7 @@ import bell212 from "./bell-212-pt6t3/index.js";
    Adding an aircraft is a new folder here plus one line below. See
    docs/adding-an-aircraft.md. */
 
-export const AIRCRAFT = [bell407, bell212];
+export const AIRCRAFT = [bell407, bell212, bell206l4];
 
 export const byId = (id) => AIRCRAFT.find((a) => a.id === id) || AIRCRAFT[0];
 /* The power check as this aircraft's own manual walks it. */

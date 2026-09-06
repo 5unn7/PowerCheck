@@ -27,6 +27,15 @@ the check however much room ITT has.
 
 - BHT-212VFR-FM-1 fig 4-2, PT6T-3 power assurance check (ground)
 
+**Bell 206L-4 · 250-C30P** — level flight check, and the one that runs the
+other way round: the chart does not give a temperature to stay under, it gives
+the *minimum torque* the engine must be making at the observed TOT, OAT and
+pressure altitude. So the margin is in percent of torque. The chart's printed
+AVOID THIS AREA (possible bleed valve open) is the lower edge of the curves
+themselves, so a check flown too cool is refused by name rather than answered.
+
+- BHT-206L4-FM-1 fig 4-1, base aircraft
+
 Every chart is checked against its own published example on every build:
 
 | Chart | Manual | This app |
@@ -36,10 +45,14 @@ Every chart is checked against its own published example on every build:
 | 407 FMS-4 snow deflector | 722 °C | 721.5 |
 | 212 fig 4-2 · torque at 1500 ft | 47.0% | 47.0 |
 | 212 fig 4-2 · limits at OAT 20 | 96.3% / 735 °C | 96.3 / 735 |
+| 206L4 FM-1 · min torque | 65% | 64.9 |
 
-More charts have been received and are not in yet — what they are, the exact
-rules that came with them and what is blocking each is in
-[docs/pending-charts.md](docs/pending-charts.md).
+Ten more charts have been received and are not in yet. Every one of them is
+blocked on the same thing: the sheet prints no worked example, so a tracing of
+it could not be proved. What they are, the exact rules that came with them and
+what each needs is in [docs/pending-charts.md](docs/pending-charts.md); the
+method that got the 206L4 in is in
+[docs/tracing-a-chart.md](docs/tracing-a-chart.md).
 
 **This is a trending aid. The flight manual is the authority for any release.**
 

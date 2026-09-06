@@ -51,7 +51,6 @@ export default {
     },
   },
 
-  kMin: () => -Infinity,
   /* This type's own axes and its own dial range, in °C of ITT margin. See
      the note in bell-407.js: the dial range is presentation, not manual
      data, and each type states its own so none inherits another's. */

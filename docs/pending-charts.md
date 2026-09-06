@@ -2,9 +2,10 @@
 
 Eighteen manual pages across four types, re-read page by page. Revisions,
 conditions and rules below are transcribed exactly — they are the part that
-gets lost. What is missing in almost every case is the curve coordinates,
-which a scan of a nomogram does not give up. See **What is blocking** at the
-end.
+gets lost. What is missing in most cases is the curve coordinates. Those can
+be recovered from the scans — the 206L4 base chart was, on 06 SEP 2026 — but
+only where the sheet prints an answer to check the tracing against. See
+**What is blocking** at the end.
 
 ## Inventory
 
@@ -19,10 +20,10 @@ end.
 | 7 | fig 4-1 sh 2/4 · PT6T-3B in-flight · gage −101 · p 4-8 | 212 | curves needed, **no printed answer** |
 | 8 | fig 4-1 sh 3/4 · PT6T-3B hover · gage −113 · p 4-9 | 212 | curves needed, **no printed answer** |
 | 9 | fig 4-1 sh 4/4 · PT6T-3B in-flight · gage −113 · p 4-10 | 212 | curves needed, **no printed answer** |
-| 10 | BHT-206L4-FM-1 fig 4-1 · base · TC · Rev 2, 22 AUG 2008 · p 4-7 | 206L4 | curves needed — **answer now established, see below** |
+| 10 | BHT-206L4-FM-1 fig 4-1 · base · TC · Rev 2, 22 AUG 2008 · p 4-7 | 206L4 | **in**, traced; reads 64.9% against the printed 65% |
 | 11 | BHT-206L4-FMS-7 fig 4-1 sh 1/2 · snow deflector · TC · 19 OCT 2011 · p 4 | 206L4 | curves needed, **no printed answer** |
 | 12 | BHT-206L4-FMS-7 fig 4-1 sh 2/2 · snow deflector + particle separator, purge on · TC · 19 OCT 2011 · p 5 | 206L4 | curves needed, **no printed answer** |
-| 13 | BHT-206L4-FMS-3 §4-6 · TC · 26 AUG 2011 · p 4 | 206L4 | **rule captured** — see below |
+| 13 | BHT-206L4-FMS-3 §4-6 · TC · 26 AUG 2011 · p 4 | 206L4 | **rule captured** — see below; no chart of its own |
 | 14 | BHT-205A1-FM-1 · SN 30001–30052 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
 | 15 | BHT-205A1-FM-2 · SN 30053–30127 · FAA · Rev 11 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
 | 16 | BHT-205A1-FM-3 · SN 30128 and subs · FAA · Rev 13 · p 5-7 | 205A-1 | curves needed, **no printed answer** |
@@ -31,7 +32,27 @@ end.
 Pages 17 and 18 arrived as one image, which is why there are seventeen files
 and eighteen pages.
 
-## Bell 206L4 — the one chart whose answer is now established
+## Bell 206L4 — FM-1 is in
+
+Traced 06 SEP 2026 and shipped as `src/aircraft/bell-206l4/`. Fifteen indicated-TOT
+curves on the left carpet (500 through 768 °C) and nine pressure-altitude curves on
+the right (sea level through 16,000 ft), every one stored only over the extent Bell
+drew it. Cubic fits to the traced pixels sit at sd 0.4–1.3 px, which at this scan's
+11.1 px per grid square is under a tenth of a degree of OAT and under a tenth of a
+percent of torque.
+
+The chart's own drawn example is the check: OAT 25 °C, TOT 720 °C, Hp 12,000 ft.
+The manual's arrows land on 65% minimum torque available; the app reads **64.91%**.
+Both anchors fell out of the trace independently — the 720 curve passes through the
+example's OAT within 0.6 px, and the 12,000 ft curve crosses the carry row at
+x = 1914.3 px against the 1914.3 px the printed 65% demands.
+
+**What FM-1 still needs from a licensed engineer:** the Section 4 text around fig 4-1.
+The chart page prints no procedure and no pass/fail wording, so the app states only
+what the chart's own bottom axis says — torque made against the chart's minimum — and
+offers no next step on a failure. If §4 carries one, it belongs in `failNote`.
+
+## What was established before the trace
 
 BHT-206L4-FM-1 fig 4-1 prints an example box giving only the **inputs**:
 
@@ -238,23 +259,32 @@ what is limiting here.
 
 ## What is blocking
 
-Not the rules, and not the procedures — those are a day's work each once the
-data exists. It is the curve coordinates.
+Not the rules, and not the procedures. It is not the tracing either, any
+more: the 206L4 base chart came off its 2550×1650 scan and lands on the
+manual's own printed answer to 0.09 of a percent. The method is in
+`docs/tracing-a-chart.md`.
 
-The 407 data in this repo is precise to three decimals (`52.281, -0.078`).
-That did not come from looking at a scan; the interpolation in
-`src/engine/interp.js` still carries a comment matching it to a spreadsheet's
-`FORECAST(x, OFFSET(knownY, MATCH(x, knownX, 1) - 1, 0, 2), ...)`. **Wherever
-those points came from is the fastest path for these charts too** — send that
-workbook, or the traced points in any form, and each of these becomes a
-`charts.json` plus a definition module in its own folder.
+**What is blocking is that ten of the remaining sheets print no answer.**
 
-Tracing curves off a 2550×1650 scan by eye is the alternative, and it is not
-one to take for flight data: the grid lines, the labels lying across the
-curves and the crossing families all bias a tracing, and with no published
-answer on most of these sheets there would be nothing to catch the error.
-A chart that cannot prove itself against a printed answer does not go in.
+That is the whole of it. A tracing is a measurement, and a measurement with
+nothing to check it against is a number nobody should sign against. The grid
+lines, the labels lying across the curves and the crossing families each bias
+a trace in a direction that looks entirely plausible on screen; the only thing
+that catches that is the manual's own worked example landing where it should.
+On the 206L4 two independent anchors landed — the TOT curve and the altitude
+curve — and that is what made it safe to ship. A chart that cannot prove
+itself against a printed answer does not go in.
 
-The 206L4 base chart is now the exception on verifiability only — its answer
-is established. Its curves are still a tracing, and still need to come from
-the same place the 407's did.
+So the fastest path for each remaining sheet is **the page before the chart**.
+In every one of these manuals the worked example is printed in the Section 4
+or FMS text facing the figure, not on the figure itself:
+
+| Sheet | What to send |
+| --- | --- |
+| 212 PT6T-3B fig 4-1, sheets 1–4 | BHT-212VFR-FM-1 §4 text facing p 4-7 to 4-10 |
+| 206L4 FMS-7 fig 4-1, sheets 1–2 | BHT-206L4-FMS-7 §4 text, pp 3–4 |
+| 205A-1 FM-2 and FM-3 | page 5-6 of each (FM-1's is already transcribed below) |
+
+One worked example per sheet is enough. Failing that, six readings taken off
+the printed chart by hand at the corners — `docs/verification-worksheet.md`
+sets out which — do the same job.

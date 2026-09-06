@@ -527,8 +527,8 @@ export default function App() {
               )}
 
               <div className="stats">
-                {(result ? result.stats : proc.compute({ chart, aircraft, oat: NaN, pa: NaN, tq: NaN, mgt: NaN }).stats)
-                  .map((st) => <div key={st.label}><b>{result ? st.value : "—"}</b><span>{st.label}</span></div>)}
+                {(result ? result.stats : proc.statLabels.map((label) => ({ label, value: "—" })))
+                  .map((st) => <div key={st.label}><b>{st.value}</b><span>{st.label}</span></div>)}
               </div>
 
               {(result ? result.notes : []).map((a, i) => <p key={i} className="alert">{a}</p>)}

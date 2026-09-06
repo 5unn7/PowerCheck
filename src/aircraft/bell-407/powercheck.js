@@ -30,6 +30,10 @@ import { fmt } from "../../engine/format.js";
    altitude and does not use it, and the standard-atmosphere model that would
    produce it was checked against the 212's own fig 4-3 — another type's
    chart, which is not evidence about this one. */
+/* The stats this check reports, in order. Declared rather than discovered,
+   so an empty form can be drawn without running the chart at all. */
+export const statLabels = ["Chart MGT °C", "Actual MGT °C"];
+
 export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
   const K = interp(d.pa.map((p, i) => [p, interp(d.tqK[i], tq)]), pa);
   const maxMGT = interp(d.oat.map((o, i) => [o, interp(d.mgtK[i], K, 1, 0)]), oat);

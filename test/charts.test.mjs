@@ -6,7 +6,7 @@ import { AIRCRAFT, byId, checkFor, chartFor, defaultConfig, frameFor,
 import { statusOf } from "../src/engine/format.js";
 
 // how close a digitised chart has to sit to the manual's own printed answer
-const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, default: 1 };
+const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, minTq: 0.5, default: 1 };
 
 let failed = 0, ran = 0;
 const check = (name, ok, detail = "") => {
@@ -44,6 +44,34 @@ for (const aircraft of AIRCRAFT) {
       check(`${variant}: an MGT curve per OAT`, d.oat.length === d.mgtK.length);
       check(`${variant}: pressure altitudes ascend`, asc(d.pa));
       check(`${variant}: OATs ascend`, asc(d.oat));
+    }
+    if (d.oatCarry) {
+      check(`${variant}: an OAT curve per TOT`, d.tot.length === d.oatCarry.length);
+      check(`${variant}: a torque curve per pressure altitude`, d.hp.length === d.carryTq.length);
+      check(`${variant}: TOTs ascend`, asc(d.tot));
+      check(`${variant}: pressure altitudes ascend`, asc(d.hp));
+      check(`${variant}: every curve ascends in its own x`,
+            [...d.oatCarry, ...d.carryTq].every((c) => asc(c.map((p) => p[0]))));
+      /* Both carpets have to run the same way for every curve, or an
+         interpolation between two of them crosses a third. */
+      check(`${variant}: carry rises with TOT at a shared OAT`,
+            d.oatCarry.every((c, i) => {
+              if (i === 0) return true;
+              const p = d.oatCarry[i - 1];
+              const lo = Math.max(c[0][0], p[0][0]), hi = Math.min(c[c.length - 1][0], p[p.length - 1][0]);
+              if (lo >= hi) return true;
+              const at = (cv, x) => cv.reduce((a, q) => (q[0] <= x ? q : a), cv[0])[1];
+              return at(c, (lo + hi) / 2) > at(p, (lo + hi) / 2);
+            }));
+      check(`${variant}: minimum torque falls as altitude rises`,
+            d.carryTq.every((c, i) => {
+              if (i === 0) return true;
+              const p = d.carryTq[i - 1];
+              const lo = Math.max(c[0][0], p[0][0]), hi = Math.min(c[c.length - 1][0], p[p.length - 1][0]);
+              if (lo >= hi) return true;
+              const at = (cv, x) => cv.reduce((a, q) => (q[0] <= x ? q : a), cv[0])[1];
+              return at(c, (lo + hi) / 2) < at(p, (lo + hi) / 2);
+            }));
     }
     if (d.torque) {
       check(`${variant}: a torque for every pressure altitude`, d.torque.pa.length === d.torque.tq.length);
@@ -189,7 +217,7 @@ console.log("\nthe avoid area matches the template it came from");
   check("kMin at OAT 12 reproduces the workbook to the digit",
         Math.abs(air.kMin(12) - 6.944267515923567) < 1e-12, String(air.kMin(12)));
   check("a cut-off that can withhold an answer says whose rule it is",
-        AIRCRAFT.every((a) => !Number.isFinite(a.kMin(10)) || !!a.kMinNote));
+        AIRCRAFT.every((a) => !a.kMin || !Number.isFinite(a.kMin(10)) || !!a.kMinNote));
   check("and the 407's does not claim the flight manual",
         /no source in the flight manual/i.test(air.kMinNote));
   check("the two points it is drawn through are recorded on the aircraft",

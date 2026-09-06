@@ -20,6 +20,10 @@ import { fmt } from "../../engine/format.js";
    however much room ITT has.                                              */
 
 
+/* The stats this check reports, in order. Declared rather than discovered,
+   so an empty form can be drawn without running the chart at all. */
+export const statLabels = ["Set torque %", "Max ITT °C", "N1 margin %"];
+
 export function compute({ chart: d, aircraft, oat, pa, n1, itt }) {
   const setTq = interp(d.torque.pa.map((p, i) => [p, d.torque.tq[i]]), pa);
   const maxN1 = interp(d.limits.oat.map((o, i) => [o, d.limits.n1[i]]), oat);
@@ -37,11 +41,10 @@ export function compute({ chart: d, aircraft, oat, pa, n1, itt }) {
 
   return {
     setTq, maxN1, maxITT, margin, n1Margin, da: densityAlt(pa, oat),  // fig 4-3 is this type's own chart
-    stats: [
-      { label: "Set torque %", value: fmt(setTq, 1) },
-      { label: "Max ITT °C", value: fmt(maxITT, 0) },
-      { label: "N1 margin %", value: (n1Margin > 0 ? "+" : "") + fmt(n1Margin, 1) },
-    ],
+    stats: statLabels.map((label, i) => ({
+      label,
+      value: [fmt(setTq, 1), fmt(maxITT, 0), (n1Margin > 0 ? "+" : "") + fmt(n1Margin, 1)][i],
+    })),
     notes,
   };
 }
