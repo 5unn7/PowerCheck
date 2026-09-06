@@ -13,6 +13,8 @@ import charts from "./bell-212-pt6t3.charts.json" with { type: "json" };
 export default {
   id: "bell-212-pt6t3",
   label: "Bell 212 · PT6T-3",
+  engine: "Pratt & Whitney PT6T-3 Twin-Pac",
+  blurb: "On the ground, one engine at a time. Pressure altitude sets the torque; OAT sets the N1 and ITT it must not exceed.",
   procedure: "set-torque-oat-limits",
   charts,
 

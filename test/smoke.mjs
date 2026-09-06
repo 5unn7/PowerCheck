@@ -23,7 +23,8 @@ page.on("pageerror", (e) => errors.push(String(e.message)));
 page.on("console", (m) => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
 
 await page.goto(new URL("../index.html", import.meta.url).href);
-await page.waitForSelector(".field input", { timeout: 15000 });
+// the app opens on the aircraft page, so the check is reached through it
+await page.waitForSelector(".fleet .card", { timeout: 15000 });
 
 let failed = 0;
 const check = (name, ok, detail = "") => {
@@ -32,10 +33,14 @@ const check = (name, ok, detail = "") => {
 };
 
 async function selectAircraft(air) {
-  if (AIRCRAFT.length > 1) {
-    await page.locator(".fleet button", { hasText: air.label }).first().click();
-    await page.waitForTimeout(250);
+  // already on a check — the header badge goes back to the aircraft page
+  if (await page.locator(".change").count()) {
+    await page.locator(".change").click();
+    await page.waitForSelector(".fleet .card");
   }
+  await page.locator(".fleet .card", { hasText: air.label }).first().click();
+  await page.waitForSelector(".field input");
+  await page.waitForTimeout(250);
 }
 
 async function applyConfig(air, config) {
@@ -94,6 +99,15 @@ for (const air of AIRCRAFT) {
         && (await page.locator(".offchart span").count()) > 0);
   check("and the check cannot be logged", await page.locator(".save .btn").isDisabled());
 }
+
+console.log("\nthe aircraft page");
+await page.locator(".change").click();
+await page.waitForSelector(".fleet .card");
+check("every registered aircraft is offered",
+      (await page.locator(".fleet .card").count()) === AIRCRAFT.length);
+check("the one last checked is marked", (await page.locator(".fleet .card em").count()) === 1);
+await page.locator(".fleet .card").first().click();
+check("picking one shows the check", (await page.locator(".field input").count()) > 0);
 
 console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));

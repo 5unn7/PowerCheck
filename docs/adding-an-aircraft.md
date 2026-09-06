@@ -52,6 +52,10 @@ Copy `src/aircraft/bell-407.js` and change what differs: `id`, `label`, the
 `variantFor` mapping those options to a chart key, the `meta` for each chart,
 `kMin` if the engine has an avoid area, and `footer`.
 
+`engine` and `blurb` are what the aircraft page shows on the type's card — the
+powerplant, and a sentence saying what the check is. Both are optional; the
+card reads thin without them.
+
 If the printed scale differs from the 407's — a torque axis that runs to 110%,
 an MGT axis starting at 300 — add a `frame`:
 
@@ -78,8 +82,8 @@ deploy past it.
 
 ### 4. Register it
 
-Add it to `AIRCRAFT` in `src/aircraft/index.js`. The picker appears in the UI
-by itself once there is more than one.
+Add it to `AIRCRAFT` in `src/aircraft/index.js`. It appears on the aircraft
+page — the page the app opens on — by itself.
 
 ## A different shape: add a procedure
 

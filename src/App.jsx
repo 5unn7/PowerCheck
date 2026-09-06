@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 import { AIRCRAFT, byId, procedureFor, chartFor, frameFor, defaultConfig } from "./aircraft/index.js";
 import { VIEWS } from "./views.js";
+import { AircraftSelect } from "./pick.jsx";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
 import { CSS } from "./css.js";
 
@@ -27,6 +28,10 @@ function decodeConfig(aircraft, s) {
 }
 
 export default function App() {
+  // The app opens on the aircraft page and only then shows the check, so a
+  // check is never read against whichever type happened to be selected last.
+  const [picked, setPicked] = useState(false);
+  const [lastId, setLastId] = useState("");
   const [aircraftId, setAircraftId] = useState(AIRCRAFT[0].id);
   const aircraft = byId(aircraftId);
   const proc = procedureFor(aircraft);
@@ -62,6 +67,7 @@ export default function App() {
           const v = JSON.parse(p.value);
           const a = byId(v.aircraft || "bell-407");
           setAircraftId(a.id);
+          setLastId(a.id);
           if (v.reg) setReg(v.reg);
           if (v.trendReg) setTrendReg(v.trendReg);
           // v.inlet / v.snow are the pre-registry shape of the same thing
@@ -78,10 +84,18 @@ export default function App() {
     window.storage.set(PREF_KEY, JSON.stringify({ aircraft: aircraftId, reg, config, trendReg })).catch(() => {});
   }, [aircraftId, reg, config, trendReg, loading]);
 
+  /* Coming back to the page and choosing the same type again keeps the
+     readings already typed; choosing a different one cannot, since the
+     readings and the fitted options are that aircraft's. */
   function pickAircraft(id) {
-    setAircraftId(id);
-    setConfig(defaultConfig(byId(id)));
-    setValues({});
+    if (id !== aircraftId) {
+      setAircraftId(id);
+      setConfig(defaultConfig(byId(id)));
+      setValues({});
+    }
+    setLastId(id);
+    setPicked(true);
+    setTab("check");
   }
 
   const { chart, meta } = chartFor(aircraft, config);
@@ -279,6 +293,15 @@ export default function App() {
 
   /* ------------------------------- render ------------------------------- */
 
+  if (!picked) {
+    return (
+      <div className="wrap">
+        <style>{CSS}</style>
+        <AircraftSelect aircraft={AIRCRAFT} lastId={lastId} onPick={pickAircraft} />
+      </div>
+    );
+  }
+
   const dot = ({ cx, cy, payload }) => (
     <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin).color} stroke="var(--paper)" strokeWidth={1.5} />
   );
@@ -291,7 +314,13 @@ export default function App() {
 
       <header className="plate">
         <div className="plate-l">
-          <span className="badge">{aircraft.label.toUpperCase()}</span>
+          <button className="badge change" onClick={() => setPicked(false)} aria-label="Change aircraft">
+            {aircraft.label.toUpperCase()}
+            <svg viewBox="0 0 20 20" width="11" height="11" fill="none" stroke="currentColor"
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m5 8 5 5 5-5" />
+            </svg>
+          </button>
           <h1>Power assurance</h1>
         </div>
         <div className="plate-r">
@@ -309,16 +338,6 @@ export default function App() {
 
       {tab === "check" && (
         <>
-          {AIRCRAFT.length > 1 && (
-            <div className="fleet">
-              <div className="seg wrapseg">
-                {AIRCRAFT.map((a) => (
-                  <button key={a.id} className={a.id === aircraft.id ? "on" : ""} onClick={() => pickAircraft(a.id)}>{a.label}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="config">
             {aircraft.options.map((opt) => opt.type === "segmented" ? (
               <div className="seg" key={opt.key}>
