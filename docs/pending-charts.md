@@ -237,7 +237,48 @@ separates them from the captions around them.
 | 3 hover, gage −113 | 366.5 | 14.413 | 655.5 | 2.8883 | 86 → 1668.5 | 29.375 |
 | 4 in-flight, gage −113 | 292.5 | 14.475 | 580.5 | 2.9150 | 86 → 1599.5 | 29.05 |
 
-**What is left is the tracing, and it is the biggest single piece in the set.**
+### What the 07 SEP 2026 pass established
+
+**The altitude fan is labelled −1000, not 1000.** `Hp - FT` then `−1000`,
+`0 (SEA LEVEL)`, `2000`, `4000`, `6000`, `8000`, `10,000` — seven curves, and
+the first step is 1000 ft where every other is 2000. That was the whole reason
+the ladder would not close on the first attempt: with `1000` assumed, no
+ordering of the seven traced curves produced a consistent spacing, and the
+mistake looked like a tracing fault rather than a reading one. It is worth
+stating plainly because it is the failure mode the whole method is built to
+catch, and here it very nearly was not caught: the signature that fixes it is
+that **the first gap is visibly smaller than the rest**, which every sheet
+shows (≈3.3 % of torque against ≈5.2 %).
+
+**The two left-hand fans separate on where they cross the bottom axis.** The
+altitude fan and the OAT-for-ITT fan sit side by side in the same half of the
+plot, at almost the same angle, and neither slope nor spacing tells them apart.
+What does: the altitude fan is *entered* from the printed torque scale, so it
+crosses the bottom axis inside 40–85 %; the OAT fan is only ever read at the
+top, and its lower ends run off past the end of that scale. Splitting on that
+gives 7 and 10 cleanly.
+
+**And the four sheets check each other.** This is the part that makes them
+provable without a printed example:
+
+- Sheets 1 and 3 are both **hover**; sheets 2 and 4 are both **in-flight**. The
+  gas producer gage part number changes the N1 *scale* and nothing else, so the
+  ITT half of sheet 1 must match sheet 3, and sheet 2 must match sheet 4.
+  Measured, they do: the hover pair agree on the ITT fan to ≈9 °C and the
+  in-flight pair to ≈6 °C, while hover and in-flight differ from each other by
+  a consistent ≈10 °C. Two independent tracings of the same drawing.
+- The altitude fan is common to all four, and all four agree on it to within
+  0.5 % of torque.
+
+**What is left is finishing the extraction.** On the best sheet the fans come
+out 7 of 7, 9 of 10 and 9 of 10; on the worst, boundary lines (**bleed valve
+opens**, **maximum for takeoff**, **maximum continuous**) are still being
+picked up as family members and have to be seeded and discarded the way the
+205A-1's operating limit was. Two curves short in a ten-curve fan is a
+systematic error in waiting — it shifts every label past the gap — so this is
+not going in until all thirty curves per sheet come out and the ladders close.
+
+**The biggest single piece in the set.**
 Each sheet is not one carpet but three sharing a carry: torque × Hp gives the
 carry; the carry × OAT gives maximum allowable ITT; and the carry × OAT again,
 on a second fan with its own scale, gives maximum allowable N1. Twelve carpets
