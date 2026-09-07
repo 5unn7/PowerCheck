@@ -42,12 +42,35 @@ Two checks, both automatic, both run on every build:
    and no missing one. A gap of twice the spacing is a curve the trace missed.
    A curve with no label to take is a trace that hopped.
 
-Check 2 is what makes the four **212 PT6T-3B** sheets tractable despite Section
-4 printing no example for figure 4-1. They are traceable now, and the ladder
-closing — or failing to close — is the acceptance test. Method in
-`docs/tracing-a-chart.md`.
+Check 2 got the four **212 PT6T-3B** sheets most of the way and then stopped.
+Their ladders very nearly close — 7 of 7 on the altitude fan, 9 of 10 on the
+OAT fans — but not quite, and on that chart a curve short shifts every label by
+about 30 °C of allowable ITT. It is the only chart in the set with no printed
+answer *and* no cross-check standing in for one.
 
-## If you do want to spot-check one
+**So for these four sheets a hand reading is not optional. It is the anchor.**
+One per sheet, set out at the end of this file. Everything else here stays a
+nice-to-have.
+
+## The four readings that finish the 212 PT6T-3B
+
+**These are wanted.** One entry per sheet, four readings in total:
+
+| Sheet | Torque | Pressure altitude | OAT | Read off |
+|---|---|---|---|---|
+| 1 — hover, gage −101 | 50% | sea level | −40 °C | max ITT **and** max N1 |
+| 2 — in-flight, gage −101 | 50% | sea level | −40 °C | max ITT **and** max N1 |
+| 3 — hover, gage −113 | 50% | sea level | −40 °C | max ITT **and** max N1 |
+| 4 — in-flight, gage −113 | 50% | sea level | −40 °C | max ITT **and** max N1 |
+
+Both numbers matter: the ITT panel and the N1 panel are separate fans and a
+trace can be right on one and wrong on the other. If the point runs past a
+boundary the sheet draws (**bleed valve opens**, **maximum for takeoff**,
+**maximum continuous**), move it in until it reads cleanly and note what you
+used — where it stops being readable is what the off-chart gate has to
+reproduce.
+
+## Everything below is a spot-check
 
 Useful, never required. Read the answer off the paper *before* looking at any
 number the app gives, or the check is worth nothing — the eye finds what it is

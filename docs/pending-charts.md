@@ -270,13 +270,59 @@ provable without a printed example:
 - The altitude fan is common to all four, and all four agree on it to within
   0.5 % of torque.
 
-**What is left is finishing the extraction.** On the best sheet the fans come
-out 7 of 7, 9 of 10 and 9 of 10; on the worst, boundary lines (**bleed valve
-opens**, **maximum for takeoff**, **maximum continuous**) are still being
-picked up as family members and have to be seeded and discarded the way the
-205A-1's operating limit was. Two curves short in a ten-curve fan is a
-systematic error in waiting — it shifts every label past the gap — so this is
-not going in until all thirty curves per sheet come out and the ladders close.
+**The hottest OAT curve is drawn dashed.** Counting the labels at
+magnification: the ITT fan carries exactly ten — 40, 30, 20, 10, OAT 0 °C,
+−10, −20, −30, −40, −50 — and the **+40 °C line is dashed** where the other
+nine are solid. That is the second reading fault this chart has produced, and
+like the −1000 it presented as a tracing fault: nine curves kept coming out of
+a ten-curve fan, evenly spaced, with nothing to say which end was missing.
+
+It does at least settle the labels. The nine solid curves are −50 through +30
+in increasing ITT, and the dashed one is +40 at the hot end. That assignment is
+now forced and the pair check confirms it: the two hover sheets agree with each
+other on the solid nine, and the two in-flight sheets agree with each other, to
+a few degrees.
+
+### Where this actually stands, and what closes it
+
+Per sheet the extraction now gives:
+
+| | got | need |
+| --- | --- | --- |
+| Altitude fan | 7 | 7 ✓ |
+| OAT fan for ITT | 9 solid | 10 (the tenth is dashed) |
+| OAT fan for N1 | 9 on the best sheet, fewer on the others | 10 |
+
+The N1 fan is the weak one and the reason is geometry, not method: that carpet
+is 580 px wide for twenty percent of N1, so its curves sit about 29 px apart
+against a tracking tolerance of 4.5 — a quarter of the separation the ITT fan
+has. Two of the four sheets come back with the fan broken by the **bleed valve
+opens** boundary running through it.
+
+**So this is the one chart in the set that tracing alone has not proved, and
+it is the one chart with no printed answer anywhere in Section 4.** Everything
+else in the app has an anchor: a worked example on the page, or — for the
+206L-4's snow deflector sheets — a physical ordering across three plates that a
+mis-identified curve cannot survive. These four sheets have neither.
+
+**What closes it is four readings**, one per sheet, from the plates:
+
+| Sheet | Enter | Read |
+| --- | --- | --- |
+| 1 — hover, gage −101 | torque 50%, sea level, OAT −40 °C | max allowable ITT, max allowable N1 |
+| 2 — in-flight, gage −101 | same | same |
+| 3 — hover, gage −113 | same | same |
+| 4 — in-flight, gage −113 | same | same |
+
+One known (torque, Hp, OAT) → (ITT, N1) per sheet fixes which curve is which,
+exactly as the printed example fixed the 206L-4 and the 205A-1, and the even
+ladder does the rest. If 50% torque at sea level runs past a boundary on any
+sheet, move it in and note what was used — where it stops being readable is
+itself the gate.
+
+Until then the traced geometry is kept but not shipped. Nine of ten curves in
+a fan is a systematic error in waiting: it shifts every label past the gap, and
+on this chart one label is worth about 30 °C of allowable ITT.
 
 **The biggest single piece in the set.**
 Each sheet is not one carpet but three sharing a carry: torque × Hp gives the
