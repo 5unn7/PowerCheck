@@ -1,7 +1,8 @@
-# Power Assurance
+# PowerCheck
 
-A power assurance check and engine trend log, read from the approved charts.
-Install it to a phone's home screen and it works with no signal.
+Power assurance checks and engine trend for Bell helicopters, read off the
+approved charts. Install it to a phone's home screen and it works with no
+signal.
 
 **Live: https://5unn7.github.io/PowerCheck/**
 
