@@ -226,6 +226,53 @@ console.log("\nnothing is shared between types");
         [NaN, -5, 0, 50].every((m) => Object.keys(statusOf(m)).join() === "key,color,hex"));
 }
 
+/* Two of the 206L4's three charts print no worked example, so they are proved
+   a different way: against each other, and against physics the manual states.
+   Every kit bolted to the inlet costs power, so at the same OAT, TOT and
+   pressure altitude the torque a healthy engine must demonstrate can only
+   fall as more is fitted. Three charts traced independently, from three
+   separate plates, agreeing on that ordering everywhere is not something a
+   mis-identified curve survives. */
+console.log("\nthe 206L4 inlet kits cost power, in the right order");
+{
+  const air = byId("bell-206l4");
+  const proc = checkFor(air);
+  const at = (kit, oat, tot, pa) => {
+    const { chart } = chartFor(air, { kit });
+    if (proc.offChart({ chart, oat, tot, pa, tq: 70 }).length) return null;
+    return proc.compute({ chart, aircraft: air, oat, tot, pa, tq: 70 }).minTq;
+  };
+  const cases = [[25, 720, 12000], [20, 740, 8000], [10, 680, 4000], [0, 700, 6000],
+                 [30, 740, 10000], [-10, 660, 8000], [15, 700, 2000]];
+  let compared = 0, ordered = 0;
+  for (const [oat, tot, pa] of cases) {
+    const b = at("basic", oat, tot, pa), s1 = at("snow", oat, tot, pa), s2 = at("snowps", oat, tot, pa);
+    if (b !== null && s1 !== null) { compared++; if (s1 < b) ordered++; }
+    if (s1 !== null && s2 !== null) { compared++; if (s2 < s1) ordered++; }
+  }
+  check("every comparable point is ordered basic > snow deflector > snow + particle separator",
+        compared >= 8 && ordered === compared, `${ordered}/${compared} ordered`);
+  const b = at("basic", 25, 720, 12000), s1 = at("snow", 25, 720, 12000), s2 = at("snowps", 25, 720, 12000);
+  check("and the steps are the size a kit costs, not a mislabelled curve",
+        b - s1 > 2 && b - s1 < 15 && s1 - s2 > 0.5 && s1 - s2 < 8,
+        `basic ${b.toFixed(1)} -> snow ${s1.toFixed(1)} -> snow+PS ${s2.toFixed(1)}`);
+  /* The hot end of the TOT family is 760 and 768 -- eight degrees apart where
+     every other step is twenty. That tight last pair is what fixes the whole
+     ladder on a sheet with no printed answer: count in from it and every
+     label is forced. */
+  for (const v of ["snow", "snowps"]) {
+    const d = air.charts[v];
+    const n = d.tot.length;
+    check(`${v}: the TOT ladder ends on the 760/768 pair`,
+          d.tot[n - 1] === 768 && d.tot[n - 2] === 760 && d.tot[n - 3] === 740);
+    const mid = (c) => c[Math.floor(c.length / 2)][0];
+    const gaps = d.oatCarry.map(mid).map((v2, i, a) => (i ? v2 - a[i - 1] : null)).slice(1);
+    const last = gaps[gaps.length - 1], typical = gaps[Math.floor(gaps.length / 2)];
+    check(`${v}: and that pair sits closer than a twenty-degree step`,
+          last < typical * 0.7, `last ${last.toFixed(2)} vs typical ${typical.toFixed(2)} °C`);
+  }
+}
+
 /* The 407 avoid area came from the source template, not from this app, and
    the template holds a cached value to check against. */
 console.log("\nthe avoid area is recorded, and inert");
