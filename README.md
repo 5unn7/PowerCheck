@@ -35,6 +35,17 @@ AVOID THIS AREA (possible bleed valve open) is the lower edge of the curves
 themselves, so a check flown too cool is refused by name rather than answered.
 
 - BHT-206L4-FM-1 fig 4-1, base aircraft
+- BHT-206L4-FMS-7 fig 4-1 sheet 1, snow deflector
+- BHT-206L4-FMS-7 fig 4-1 sheet 2, snow deflector and particle separator
+
+**Bell 205A-1 · Lycoming T53** — maximum power (torquemeter pressure) check,
+flown in a climb. The chart answers with a torquemeter pressure the engine must
+reach, so the margin is in PSI. Split by **serial number**: three manuals,
+three approvals, three separately traced charts.
+
+- BHT-205A1-FM-1 page 5-7, SN 30001 through 30052
+- BHT-205A1-FM-2 page 5-7, SN 30053 through 30127
+- BHT-205A1-FM-3 page 5-7, SN 30128 and subsequent
 
 Every chart is checked against its own published example on every build:
 
@@ -46,13 +57,20 @@ Every chart is checked against its own published example on every build:
 | 212 fig 4-2 · torque at 1500 ft | 47.0% | 47.0 |
 | 212 fig 4-2 · limits at OAT 20 | 96.3% / 735 °C | 96.3 / 735 |
 | 206L4 FM-1 · min torque | 65% | 64.9 |
+| 205A-1 FM-1 · chart PSI | 43.1 PSI | 43.4 |
+| 205A-1 FM-2 · chart PSI | 43.1 PSI | 43.3 |
+| 205A-1 FM-3 · chart PSI | 43.1 PSI | 43.3 |
 
-Ten more charts have been received and are not in yet. Every one of them is
-blocked on the same thing: the sheet prints no worked example, so a tracing of
-it could not be proved. What they are, the exact rules that came with them and
-what each needs is in [docs/pending-charts.md](docs/pending-charts.md); the
-method that got the 206L4 in is in
-[docs/tracing-a-chart.md](docs/tracing-a-chart.md).
+Two charts print no example — the 206L-4's snow deflector sheets — and those
+are held to a different test: every kit bolted to the inlet costs power, so the
+torque a healthy engine must demonstrate can only fall as more is fitted. Three
+plates traced independently agree on that ordering at every comparable point.
+
+Four more charts have been received and are not in yet — the 212's PT6T-3B
+sheets. Every one of them is
+Each is three carpets sharing a carry rather than one, and their axes are
+already pinned — see [docs/pending-charts.md](docs/pending-charts.md). The
+method is in [docs/tracing-a-chart.md](docs/tracing-a-chart.md).
 
 **This is a trending aid. The flight manual is the authority for any release.**
 

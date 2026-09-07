@@ -1,0 +1,50 @@
+{
+  "sh1_hover_gage101": {
+    "file": "824408d0-image.png",
+    "tq40": 338.0,
+    "pxTq": 14.59,
+    "itt500": 629.5,
+    "pxItt": 2.9133,
+    "n1lo": 85,
+    "n1x": 1649.0,
+    "pxN1": 29.6,
+    "plotTop": 747,
+    "plotBot": 1332
+  },
+  "sh2_inflight_gage101": {
+    "file": "ef56572c-image.png",
+    "tq40": 278.0,
+    "pxTq": 14.463,
+    "itt500": 567.0,
+    "pxItt": 2.9117,
+    "n1lo": 85,
+    "n1x": 1584.0,
+    "pxN1": 29.55,
+    "plotTop": 738,
+    "plotBot": 1324
+  },
+  "sh3_hover_gage113": {
+    "file": "420592ea-image.png",
+    "tq40": 366.5,
+    "pxTq": 14.413,
+    "itt500": 655.5,
+    "pxItt": 2.8883,
+    "n1lo": 86,
+    "n1x": 1668.5,
+    "pxN1": 29.375,
+    "plotTop": 757,
+    "plotBot": 1338
+  },
+  "sh4_inflight_gage113": {
+    "file": "054c7978-image.png",
+    "tq40": 292.5,
+    "pxTq": 14.475,
+    "itt500": 580.5,
+    "pxItt": 2.915,
+    "n1lo": 86,
+    "n1x": 1599.5,
+    "pxN1": 29.05,
+    "plotTop": 745,
+    "plotBot": 1322
+  }
+}

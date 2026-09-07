@@ -219,6 +219,37 @@ sheets are built when the data arrives:
 > applicable to basic helicopter without any optional equipment that would
 > appreciably affect lift, drag, or power available.
 
+### Tracing status, 07 SEP 2026 — calibrated, not yet traced
+
+The axes are pinned on all four sheets and the numbers are in
+`docs/pt6t3b-calibration.json`. They were not easy to get: each plate carries
+**three** scales on one page — engine torque along the bottom, maximum
+allowable ITT along the top left, maximum allowable gas producer along the top
+right — and all three differ slightly from sheet to sheet, so nothing can be
+carried across. The twelve top-axis tick labels sit in one band and are picked
+out by looking for the run with the most regular spacing, which is what
+separates them from the captions around them.
+
+| Sheet | torque 40% at | px/% | ITT 500 at | px/°C | N1 at | px/% |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 hover, gage −101 | 338.0 | 14.590 | 629.5 | 2.9133 | 85 → 1649.0 | 29.60 |
+| 2 in-flight, gage −101 | 278.0 | 14.463 | 567.0 | 2.9117 | 85 → 1584.0 | 29.55 |
+| 3 hover, gage −113 | 366.5 | 14.413 | 655.5 | 2.8883 | 86 → 1668.5 | 29.375 |
+| 4 in-flight, gage −113 | 292.5 | 14.475 | 580.5 | 2.9150 | 86 → 1599.5 | 29.05 |
+
+**What is left is the tracing, and it is the biggest single piece in the set.**
+Each sheet is not one carpet but three sharing a carry: torque × Hp gives the
+carry; the carry × OAT gives maximum allowable ITT; and the carry × OAT again,
+on a second fan with its own scale, gives maximum allowable N1. Twelve carpets
+across four sheets, for one type.
+
+When it is done it belongs in its own folder — `bell-212-pt6t3b`, not inside
+`bell-212-pt6t3`. It is a different engine model read off a different kind of
+chart. Its options are already decided: flight state is **check scope** (§4-2-A
+lets the pilot choose hover or in-flight, and the two are drawn from different
+data, so it splits the trend) and the gas producer gage part number is
+**fitted** (it changes the N1 scale, and it is a property of the airframe).
+
 **What Section 4 did not carry: a worked example.** §4-1 through §4-3 print
 none for figure 4-1, and the sample performance problem at §4-11 (pages
 4-5/4-6) is a weight-altitude-temperature payload problem, not a power check.
