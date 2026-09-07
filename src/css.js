@@ -202,6 +202,23 @@ export const CSS = `
 .btn.ghost{background:none;color:var(--ink);border-color:var(--line);}
 .btn.ghost:disabled{color:#c3ced2;}
 .flash{font-size:13px;color:var(--green);margin:0;padding:14px 20px 0;}
+
+/* the install offer — a sheet at the foot of the page, clear of the iPhone
+   home indicator, and never covering the Log check button */
+.install{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:flex-start;gap:12px;
+  background:var(--ink);color:#eef3f4;padding:15px 16px calc(15px + env(safe-area-inset-bottom));
+  box-shadow:0 -8px 28px rgba(10,26,32,.22);animation:install-up .26s ease-out;}
+@keyframes install-up{from{transform:translateY(100%);}to{transform:none;}}
+.install-text{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0;}
+.install-text>b{font-size:14px;font-weight:600;letter-spacing:.01em;}
+.install-text>span{font-size:12.5px;color:#a9bcc1;line-height:1.45;}
+.install-how{margin:7px 0 0;font-size:12.5px;line-height:1.7;color:#dbe6e8;}
+.install-how b{font-weight:600;color:#fff;}
+.install-how svg{vertical-align:-2px;margin:0 1px;}
+.btn.install-go{align-self:flex-start;margin-top:9px;background:#fff;color:var(--ink);border:0;}
+.install-x{background:none;border:0;color:#7d959b;font-size:22px;line-height:1;cursor:pointer;padding:2px 4px;}
+.install-x:hover{color:#eef3f4;}
+@media(prefers-reduced-motion:reduce){.install{animation:none;}}
 .quiet{color:var(--ink-3);font-size:14px;margin:2px 0 16px;}
 .empty{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
 

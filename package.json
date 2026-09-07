@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node test/charts.test.mjs",
+    "test": "node test/charts.test.mjs && node test/install.test.mjs",
     "smoke": "node test/smoke.mjs",
     "icons": "node tools/make-icons.mjs",
     "check": "npm run build && npm test && npm run smoke"

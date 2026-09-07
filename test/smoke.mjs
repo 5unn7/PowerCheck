@@ -195,6 +195,50 @@ console.log("\nthe app installs");
 check("a manifest is linked", !!(await page.locator("link[rel=manifest]").getAttribute("href")));
 check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));
 
+/* The install offer, driven through a browser that has no install API — which
+   is the case it exists for. Chromium here never fires beforeinstallprompt, so
+   pretending to be Safari is also the only way to see the sheet at all. */
+{
+  const url = new URL("../index.html", import.meta.url).href;
+  const iphone = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 "
+    + "(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
+  const ctx = await browser.newContext({ userAgent: iphone, viewport: { width: 390, height: 844 } });
+  const ip = await ctx.newPage();
+  const errs = [];
+  ip.on("pageerror", (e) => errs.push(String(e.message)));
+  await ip.goto(url);
+  await ip.waitForSelector(".fleet .card", { timeout: 15000 });
+
+  await ip.waitForSelector(".install", { timeout: 12000 });
+  const how = (await ip.locator(".install-how").innerText()).trim();
+  check("an iPhone is told where its own button is", /Add to Home Screen/i.test(how), how);
+  check("and is not shown an Install button it cannot use",
+        (await ip.locator(".install-go").count()) === 0);
+
+  await ip.locator(".install-x").click();
+  await ip.waitForTimeout(200);
+  check("dismissing it closes it", (await ip.locator(".install").count()) === 0);
+
+  const again = await ctx.newPage();
+  await again.goto(url);
+  await again.waitForSelector(".fleet .card", { timeout: 15000 });
+  await again.waitForTimeout(6000);
+  check("and it stays dismissed on the next visit", (await again.locator(".install").count()) === 0);
+  check("no JavaScript errors on the way", errs.length === 0, errs.slice(0, 2).join(" | "));
+  await ctx.close();
+
+  /* A Chrome or Firefox on iOS is Safari underneath with the install path
+     withheld, so the only useful thing to say is which browser to open. */
+  const crios = iphone.replace("Version/17.5 ", "CriOS/126.0.6478.54 ");
+  const ctx2 = await browser.newContext({ userAgent: crios, viewport: { width: 390, height: 844 } });
+  const cp = await ctx2.newPage();
+  await cp.goto(url);
+  await cp.waitForSelector(".install", { timeout: 15000 });
+  const t2 = (await cp.locator(".install-how").innerText()).trim();
+  check("iPhone Chrome is sent to Safari by name", /Chrome/.test(t2) && /Safari/.test(t2), t2);
+  await ctx2.close();
+}
+
 await browser.close();
 console.log(failed ? `\n${failed} failed` : "\nall passed");
 process.exit(failed ? 1 : 0);

@@ -3,6 +3,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 import { AIRCRAFT, byId, checkFor, chartFor, frameFor, defaultConfig,
   fittedOptions, checkOptions, seriesKey, seriesLabel } from "./aircraft/index.js";
+import { installTarget, canOffer } from "./install.js";
+import { InstallToast } from "./install-toast.jsx";
 import { VIEWS } from "./views.js";
 import { AircraftSelect } from "./pick.jsx";
 import { num, fmt, uid, todayISO, isISODate, statusOf } from "./engine/format.js";
@@ -14,6 +16,7 @@ const MIN_FOR_TREND = 5;
 
 const STORE_KEY = "pc407:records:v1";
 const PREF_KEY = "pc407:prefs:v1";
+const INSTALL_KEY = "pc407:install-dismissed:v1";
 
 /* Fitted options travel with a check, so a log entry can always be recomputed
    against the chart it was actually read from. They serialise as
@@ -57,9 +60,59 @@ export default function App() {
   const [trendReg, setTrendReg] = useState("");
   const [condOpen, setCondOpen] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [prompt, setPrompt] = useState(null);     // the browser's own install event, if it offers one
+  const [installOpen, setInstallOpen] = useState(false);
   const fileRef = useRef(null);
 
   const say = (msg, ms = 4000) => { setFlash(msg); setTimeout(() => setFlash(""), ms); };
+
+  /* The install offer. Chromium fires beforeinstallprompt and hands over a real
+     one-tap install; every other browser needs telling where its own button is,
+     and some have none at all — see install.js.
+
+     It waits a few seconds so it never lands on top of someone already typing a
+     reading, and once it is dismissed or the app is installed it does not come
+     back. */
+  useEffect(() => {
+    const offer = (e) => { e.preventDefault(); setPrompt(e); };
+    const done = () => { setPrompt(null); setInstallOpen(false); };
+    window.addEventListener("beforeinstallprompt", offer);
+    window.addEventListener("appinstalled", done);
+    let live = true;
+    (async () => {
+      try { if (await window.storage.get(INSTALL_KEY)) return; } catch (e) { /* never dismissed */ }
+      setTimeout(() => { if (live) setInstallOpen(true); }, 4000);
+    })();
+    return () => {
+      live = false;
+      window.removeEventListener("beforeinstallprompt", offer);
+      window.removeEventListener("appinstalled", done);
+    };
+  }, []);
+
+  const standalone = typeof window !== "undefined"
+    && (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true);
+  const target = installTarget({
+    ua: navigator.userAgent, platform: navigator.platform,
+    maxTouchPoints: navigator.maxTouchPoints || 0,
+    standalone, canPrompt: !!prompt,
+  });
+
+  const dismissInstall = () => {
+    setInstallOpen(false);
+    window.storage.set(INSTALL_KEY, "1").catch(() => {});
+  };
+  const doInstall = async () => {
+    if (!prompt) return;
+    setInstallOpen(false);
+    try { await prompt.prompt(); } catch (e) { /* the browser withdrew it */ }
+    setPrompt(null);
+  };
+  /* Drawn on the aircraft page as well as the check, because the aircraft page
+     is where the app opens and where someone is not yet mid-reading. */
+  const installSheet = installOpen && canOffer(target)
+    ? <InstallToast target={target} onInstall={doInstall} onDismiss={dismissInstall} />
+    : null;
 
   useEffect(() => {
     (async () => {
@@ -378,6 +431,7 @@ export default function App() {
       <div className="wrap">
         <style>{CSS}</style>
         <AircraftSelect aircraft={AIRCRAFT} lastId={lastId} onPick={pickAircraft} />
+        {installSheet}
       </div>
     );
   }
@@ -627,6 +681,8 @@ export default function App() {
       )}
 
       {flash && <p className="flash">{flash}</p>}
+
+      {installSheet}
 
       <footer className="foot">
         {aircraft.footer}

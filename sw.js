@@ -2,10 +2,10 @@
 
    The whole app is one HTML file, so precaching it is the entire job: once
    installed the aircraft can be out of coverage and the check still works.
-   206885d8e3e4 is replaced at build time with a hash of index.html, so a
+   9c0be9d00bcf is replaced at build time with a hash of index.html, so a
    deploy produces a new cache and the old one is dropped on activate. */
 
-const CACHE = "powercheck-206885d8e3e4";
+const CACHE = "powercheck-9c0be9d00bcf";
 const SHELL = [
   "./",
   "./index.html",
