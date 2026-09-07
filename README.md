@@ -67,9 +67,8 @@ torque a healthy engine must demonstrate can only fall as more is fitted. Three
 plates traced independently agree on that ordering at every comparable point.
 
 Four more charts have been received and are not in yet — the 212's PT6T-3B
-sheets. Every one of them is
-Each is three carpets sharing a carry rather than one, and their axes are
-already pinned — see [docs/pending-charts.md](docs/pending-charts.md). The
+sheets. Each is three carpets sharing a carry rather than one, and their axes
+are already pinned — see [docs/pending-charts.md](docs/pending-charts.md). The
 method is in [docs/tracing-a-chart.md](docs/tracing-a-chart.md).
 
 **This is a trending aid. The flight manual is the authority for any release.**
