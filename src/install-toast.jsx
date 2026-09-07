@@ -2,10 +2,10 @@ import React from "react";
 
 /* The install offer, in the terms of the browser it is talking to.
 
-   One line of what installing gets you — it works with no signal, which on a
-   ramp is the whole point — and then whatever that browser actually needs:
-   a button where there is an API, a description of where the button is where
-   there is not, and nothing at all where there is no path. See install.js. */
+   No heading and no pitch — just the action. Where there is an API that is a
+   button; where there is not it is where the button lives, drawn with the same
+   glyphs the browser uses so it can be followed without reading. Where there is
+   no path at all, nothing is shown. See install.js. */
 
 const Share = () => (                        // iOS share glyph, so the instruction is unmistakable
   <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor"
@@ -29,37 +29,21 @@ export function InstallToast({ target, onInstall, onDismiss }) {
   if (t.kind === "prompt") {
     body = <button className="btn install-go" onClick={onInstall}>Install</button>;
   } else if (t.kind === "ios-safari") {
-    body = (
-      <p className="install-how">
-        Tap <Share /> then <Plus /> <b>Add to Home Screen</b>
-      </p>
-    );
+    body = <p className="install-how"><Share /> then <Plus /> <b>Add to Home Screen</b></p>;
   } else if (t.kind === "ios-other") {
-    body = (
-      <p className="install-how">
-        {t.browser} on iPhone and iPad cannot install a web app. Open this page in
-        <b> Safari</b>, then <Share /> <b>Add to Home Screen</b>.
-      </p>
-    );
+    // naming Safari is the whole of it: this browser has no install path
+    body = <p className="install-how"><b>Open in Safari</b> — <Share /> <b>Add to Home Screen</b></p>;
   } else if (t.kind === "mac-safari") {
-    body = (
-      <p className="install-how">
-        <Share /> in the toolbar, then <b>Add to Dock</b>
-      </p>
-    );
+    body = <p className="install-how"><Share /> then <b>Add to Dock</b></p>;
   } else if (t.kind === "android-firefox") {
-    body = <p className="install-how">Menu <b>⋮</b> then <b>Install</b></p>;
+    body = <p className="install-how"><b>⋮</b> then <b>Install</b></p>;
   } else {
     return null;                             // nothing this browser can do
   }
 
   return (
     <div className="install" role="dialog" aria-label="Install this app">
-      <div className="install-text">
-        <b>Install PowerCheck</b>
-        <span>Opens like an app, and the charts work with no signal.</span>
-        {body}
-      </div>
+      <div className="install-text">{body}</div>
       <button className="install-x" onClick={onDismiss} aria-label="Not now">×</button>
     </div>
   );

@@ -212,6 +212,7 @@ check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "
   await ip.waitForSelector(".install", { timeout: 12000 });
   const how = (await ip.locator(".install-how").innerText()).trim();
   check("an iPhone is told where its own button is", /Add to Home Screen/i.test(how), how);
+  check("and Safari is not told to open Safari", !/Open in Safari/i.test(how), how);
   check("and is not shown an Install button it cannot use",
         (await ip.locator(".install-go").count()) === 0);
 
@@ -235,7 +236,7 @@ check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "
   await cp.goto(url);
   await cp.waitForSelector(".install", { timeout: 15000 });
   const t2 = (await cp.locator(".install-how").innerText()).trim();
-  check("iPhone Chrome is sent to Safari by name", /Chrome/.test(t2) && /Safari/.test(t2), t2);
+  check("iPhone Chrome is sent to Safari", /Open in Safari/i.test(t2), t2);
   await ctx2.close();
 }
 
