@@ -69,7 +69,7 @@ async function enter(air, v) {
 for (const air of AIRCRAFT) {
   console.log(`\n${air.label}`);
   await selectAircraft(air);
-  const v = air.verify[0];
+  const v = air.verify[0] || air.sample;
   await applyConfig(air, v.config || {});
   await enter(air, v);
 
@@ -82,7 +82,7 @@ for (const air of AIRCRAFT) {
 
   // the number the manual prints, read off the screen
   const labels = await page.locator(".stats div span").allInnerTexts();
-  for (const [key, want] of Object.entries(v.expect)) {
+  for (const [key, want] of Object.entries(v.expect || {})) {
     const at = labels.findIndex((l) => /max mgt/i.test(l) && key === "maxMGT"
       || /max itt/i.test(l) && key === "maxITT"
       || /set torque/i.test(l) && key === "setTq");

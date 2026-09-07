@@ -49,6 +49,14 @@ for (const aircraft of AIRCRAFT) {
       check(`${variant}: pressure altitudes ascend`, asc(d.pa));
       check(`${variant}: OATs ascend`, asc(d.oat));
     }
+    if (d.tqCarry) {
+      check(`${variant}: a torque curve per pressure altitude`, d.hp.length === d.tqCarry.length);
+      check(`${variant}: an ITT curve per OAT`, d.oat.length === d.carryItt.length);
+      check(`${variant}: pressure altitudes ascend`, asc(d.hp));
+      check(`${variant}: OATs ascend`, asc(d.oat));
+      check(`${variant}: every curve ascends in its own x`,
+            [...d.tqCarry, ...d.carryItt].every((c) => asc(c.map((p) => p[0]))));
+    }
     if (d.paPsi) {
       check(`${variant}: an altitude curve per OAT`, d.oat.length === d.paPsi.length);
       check(`${variant}: OATs ascend`, asc(d.oat));
@@ -106,8 +114,9 @@ for (const aircraft of AIRCRAFT) {
   }
 
   console.log(" refuses to answer off the chart");
-  const { chart } = chartFor(aircraft, defaultConfig(aircraft));
-  const on = readingsOf(aircraft, aircraft.verify[0]);
+  const base = aircraft.verify[0] || aircraft.sample;
+  const { chart } = chartFor(aircraft, { ...defaultConfig(aircraft), ...(base.config || {}) });
+  const on = readingsOf(aircraft, base);
   check("a reading on the chart is accepted", proc.offChart({ chart, ...on }).length === 0);
   for (const i of aircraft.inputs) {
     for (const bad of [1e6, -1e6]) {
@@ -212,7 +221,7 @@ console.log("\nnothing is shared between types");
       check(`${a.label}: carries no ${k}`, a[k] === undefined);
     }
     const { chart } = chartFor(a, defaultConfig(a));
-    const r = checkFor(a).compute({ chart, aircraft: a, ...readingsOf(a, a.verify[0]) });
+    const r = checkFor(a).compute({ chart, aircraft: a, ...readingsOf(a, a.verify[0] || a.sample) });
     check(`${a.label}: its check says nothing in words either`,
           Array.isArray(r.notes) && r.notes.length === 0);
   }
@@ -273,6 +282,61 @@ console.log("\nthe 206L4 inlet kits cost power, in the right order");
   }
 }
 
+/* Figure 4-1 prints no worked example anywhere in Section 4, so the PT6T-3B
+   charts are held to what the drawing itself has to be true of. Both signatures
+   below are the ones that fixed a misreading during tracing, so both are worth
+   keeping: a label set that does not satisfy them is a label set that was read
+   wrong. */
+console.log("\nthe PT6T-3B fans are shaped the way the sheet draws them");
+{
+  const air = byId("bell-212-pt6t3b");
+  const proc = checkFor(air);
+  for (const v of ["hover", "inflight"]) {
+    const d = air.charts[v];
+    const at = (c, x) => c.reduce((a, q) => (q[0] <= x ? q : a), c[0])[1];
+
+    /* The altitude fan is labelled −1000, 0, 2000, 4000, 6000, 8000, 10,000 —
+       the first step is 1000 ft where every other is 2000, and it took a crop
+       at magnification to see the minus sign. So the first gap must come out
+       roughly half the rest, and if it ever does not, the labels are wrong. */
+    check(`${v}: the altitude fan starts below sea level`,
+          d.hp[0] === -1000 && d.hp[1] === 0 && d.hp[2] === 2000 && d.hp.length === 7);
+    const carr = d.tqCarry.map((c) => at(c, 50));
+    const gaps = carr.map((x, i) => (i ? carr[i - 1] - x : null)).slice(1);
+    check(`${v}: and its first step is about half the others, as 1000 ft to 2000 ft must be`,
+          gaps[0] > 0.3 * gaps[1] && gaps[0] < 0.75 * gaps[1],
+          `first ${gaps[0].toFixed(2)} vs next ${gaps[1].toFixed(2)}`);
+    check(`${v}: carry falls as altitude rises`, gaps.every((g) => g > 0));
+
+    /* The OAT fan is ten curves at 10 °C, of which nine are solid ink and the
+       hottest is dashed; the nine that are here must step evenly in ITT. */
+    check(`${v}: nine OAT curves, −50 through +30`,
+          d.oat.length === 9 && d.oat[0] === -50 && d.oat[8] === 30);
+    const itts = d.carryItt.filter((c) => c[0][0] <= 20 && c[c.length - 1][0] >= 20).map((c) => at(c, 20));
+    const steps = itts.map((x, i) => (i ? x - itts[i - 1] : null)).slice(1);
+    check(`${v}: allowable ITT rises with OAT, evenly`,
+          steps.length >= 6 && steps.every((t) => t > 20 && t < 42),
+          steps.map((t) => t.toFixed(0)).join(" "));
+  }
+  /* More torque is more power, so the chart must allow more heat for it. */
+  const itt = (v, tq, pa, oat) => {
+    const { chart } = chartFor(air, { flight: v, engine: "1" });
+    if (proc.offChart({ chart, tq, pa, oat, itt: 700 }).length) return null;
+    return proc.compute({ chart, aircraft: air, tq, pa, oat, itt: 700 }).maxITT;
+  };
+  const rising = [50, 55, 60].map((t) => itt("hover", t, 0, -20));
+  check("more torque allows more ITT", rising.every((x, i) => i === 0 || x > rising[i - 1]),
+        rising.map((x) => x && x.toFixed(0)).join(" -> "));
+  const warmer = [-20, -10, 0].map((o) => itt("hover", 55, 0, o));
+  check("and so does a warmer day", warmer.every((x, i) => i === 0 || x > warmer[i - 1]),
+        warmer.map((x) => x && x.toFixed(0)).join(" -> "));
+  /* Hover and in-flight are different data, and must not have been traced onto
+     each other. */
+  const h = itt("hover", 58, 2000, 10), f = itt("inflight", 58, 2000, 10);
+  check("hover and in-flight are different charts", h !== f && Math.abs(h - f) < 25,
+        `${h.toFixed(0)} vs ${f.toFixed(0)}`);
+}
+
 /* The 407 avoid area came from the source template, not from this app, and
    the template holds a cached value to check against. */
 console.log("\nthe avoid area is recorded, and inert");
@@ -303,7 +367,7 @@ console.log("\nthe screen shows only what a manual would recognise");
 {
   for (const a of AIRCRAFT) {
     const { chart } = chartFor(a, defaultConfig(a));
-    const v = a.verify[0];
+    const v = a.verify[0] || a.sample;
     const r = checkFor(a).compute({ chart, aircraft: a, ...readingsOf(a, v) });
     const labels = r.stats.map((s) => s.label);
     check(`${a.label}: no digitising artefact on screen — ${labels.join(", ")}`,

@@ -27,6 +27,14 @@ the check however much room ITT has.
 
 - BHT-212VFR-FM-1 fig 4-2, PT6T-3 power assurance check (ground)
 
+**Bell 212 · PT6T-3B** — hover and in-flight checks, which §4-2-A lets the
+pilot choose between, so which one was flown is recorded and splits the trend.
+Torque and pressure altitude give a carry; the carry and OAT give the maximum
+allowable ITT. The gas producer half of the sheet is not read.
+
+- BHT-212VFR-FM-1 fig 4-1 sheets 1 and 3, hover
+- BHT-212VFR-FM-1 fig 4-1 sheets 2 and 4, in flight
+
 **Bell 206L-4 · 250-C30P** — level flight check, and the one that runs the
 other way round: the chart does not give a temperature to stay under, it gives
 the *minimum torque* the engine must be making at the observed TOT, OAT and
@@ -61,15 +69,22 @@ Every chart is checked against its own published example on every build:
 | 205A-1 FM-2 · chart PSI | 43.1 PSI | 43.3 |
 | 205A-1 FM-3 · chart PSI | 43.1 PSI | 43.3 |
 
-Two charts print no example — the 206L-4's snow deflector sheets — and those
-are held to a different test: every kit bolted to the inlet costs power, so the
-torque a healthy engine must demonstrate can only fall as more is fitted. Three
-plates traced independently agree on that ordering at every comparable point.
+Four charts print no example, and each is held to a test of its own instead.
 
-Four more charts have been received and are not in yet — the 212's PT6T-3B
-sheets. Each is three carpets sharing a carry rather than one, and their axes
-are already pinned — see [docs/pending-charts.md](docs/pending-charts.md). The
-method is in [docs/tracing-a-chart.md](docs/tracing-a-chart.md).
+The 206L-4's two snow deflector sheets: every kit bolted to the inlet costs
+power, so the torque a healthy engine must demonstrate can only fall as more is
+fitted. Three plates traced independently agree on that ordering at every
+comparable point.
+
+The 212's two PT6T-3B charts: each is built from **two independently traced
+plates** that agree to 0.1–0.6 °C, because the gas producer gage part number
+that distinguishes the sheets changes only the N1 scale, which is not read
+here. Where the two disagree, the fan's own step arbitrates.
+
+Every page received is now in the app. What each one is, the rules that came
+with it and how it was proved is in
+[docs/pending-charts.md](docs/pending-charts.md); the method is in
+[docs/tracing-a-chart.md](docs/tracing-a-chart.md).
 
 **This is a trending aid. The flight manual is the authority for any release.**
 

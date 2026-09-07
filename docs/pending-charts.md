@@ -16,10 +16,10 @@ only where the sheet prints an answer to check the tracing against. See
 | 3 | BHT-407-FMS-4 fig 4-1 · snow deflector · TC · Rev 1, 16 JAN 2018 · p 4 | 407 | **in**, verified 722 °C |
 | 4 | BHT-212VFR-FM-1 fig 4-2 · PT6T-3 ground · FAA · Rev 5, 17 OCT 2011 · p 4-11 | 212 | **in**, all 49 printed values re-verified |
 | 5 | BHT-212VFR-FM-1 fig 4-3 · density altitude · FAA · p 4-12 | 212 | **in**, computed; reproduces the page's example |
-| 6 | BHT-212VFR-FM-1 fig 4-1 sh 1/4 · PT6T-3B hover · gage −101 · FAA · Rev 9, 24 MAY 2022 · p 4-7 | 212 | curves needed, **no printed answer** |
-| 7 | fig 4-1 sh 2/4 · PT6T-3B in-flight · gage −101 · p 4-8 | 212 | curves needed, **no printed answer** |
-| 8 | fig 4-1 sh 3/4 · PT6T-3B hover · gage −113 · p 4-9 | 212 | curves needed, **no printed answer** |
-| 9 | fig 4-1 sh 4/4 · PT6T-3B in-flight · gage −113 · p 4-10 | 212 | curves needed, **no printed answer** |
+| 6 | BHT-212VFR-FM-1 fig 4-1 sh 1/4 · PT6T-3B hover · gage −101 · FAA · Rev 9, 24 MAY 2022 · p 4-7 | 212 | **in** (hover chart, with sheet 3) |
+| 7 | fig 4-1 sh 2/4 · PT6T-3B in-flight · gage −101 · p 4-8 | 212 | **in** (in-flight chart, with sheet 4) |
+| 8 | fig 4-1 sh 3/4 · PT6T-3B hover · gage −113 · p 4-9 | 212 | **in** (second tracing of the hover chart) |
+| 9 | fig 4-1 sh 4/4 · PT6T-3B in-flight · gage −113 · p 4-10 | 212 | **in** (second tracing of the in-flight chart) |
 | 10 | BHT-206L4-FM-1 fig 4-1 · base · TC · Rev 2, 22 AUG 2008 · p 4-7 | 206L4 | **in**, traced; reads 64.9% against the printed 65% |
 | 11 | BHT-206L4-FMS-7 fig 4-1 sh 1/2 · snow deflector · TC · 19 OCT 2011 · p 4 | 206L4 | curves needed, **no printed answer** |
 | 12 | BHT-206L4-FMS-7 fig 4-1 sh 2/2 · snow deflector + particle separator, purge on · TC · 19 OCT 2011 · p 5 | 206L4 | curves needed, **no printed answer** |
@@ -283,48 +283,52 @@ now forced and the pair check confirms it: the two hover sheets agree with each
 other on the solid nine, and the two in-flight sheets agree with each other, to
 a few degrees.
 
-### Where this actually stands, and what closes it
+### In, 07 SEP 2026 — and what made it provable
 
-Per sheet the extraction now gives:
+The gas producer half was **ruled out of scope by the operator's licensed
+engineer**, and that is what unlocked the rest. Two consequences follow:
 
-| | got | need |
+1. **The gage part number stops mattering.** It changes the N1 scale and
+   nothing else, so with N1 gone the −101 hover sheet and the −113 hover sheet
+   are two drawings of the same thing, as are the two in-flight sheets. Four
+   sheets become two charts.
+2. **Each chart therefore has two independent tracings**, and their agreement
+   is what stands in for the worked example figure 4-1 does not print.
+
+They agree well. Traced separately from separate plates, fused only where both
+were drawn:
+
+| | curves | median disagreement |
 | --- | --- | --- |
-| Altitude fan | 7 | 7 ✓ |
-| OAT fan for ITT | 9 solid | 10 (the tenth is dashed) |
-| OAT fan for N1 | 9 on the best sheet, fewer on the others | 10 |
+| hover, altitude fan | 7 of 7 | 0.18–0.26 % torque |
+| hover, ITT fan | 9 of 9 | 0.10–0.33 °C |
+| in-flight, altitude fan | 7 of 7 | 0.04–0.13 % torque |
+| in-flight, ITT fan | 9 of 9 | 0.16–0.58 °C |
 
-The N1 fan is the weak one and the reason is geometry, not method: that carpet
-is 580 px wide for twenty percent of N1, so its curves sit about 29 px apart
-against a tracking tolerance of 4.5 — a quarter of the separation the ITT fan
-has. Two of the four sheets come back with the fan broken by the **bleed valve
-opens** boundary running through it.
+Where the two disagreed, the **ladder arbitrated**. The fan's step is measured
+from the curves both tracings agree on, and a candidate is accepted only if it
+lands within 9 °C of what that step predicts. It caught a real fault: the hover
++20 °C curve had one tracing wandering — 669, 694, 717, 745, 750, 743 across
+the carry, not even monotone — while the other followed the ladder to the
+degree (805, 783, 763, 743 against a predicted 805, 783, 762, 743). Thirty-nine
+of a hundred and fifteen samples were rejected on that curve, all from the bad
+tracing.
 
-**So this is the one chart in the set that tracing alone has not proved, and
-it is the one chart with no printed answer anywhere in Section 4.** Everything
-else in the app has an anchor: a worked example on the page, or — for the
-206L-4's snow deflector sheets — a physical ordering across three plates that a
-mis-identified curve cannot survive. These four sheets have neither.
+Two reading faults were found and fixed along the way, and both are worth
+keeping in mind for any future sheet:
 
-**What closes it is four readings**, one per sheet, from the plates:
+- **The altitude fan is labelled −1000, not 1000.** No ordering of seven curves
+  gives consistent spacing with `1000` assumed, and the fault presents as bad
+  tracing rather than bad reading. The signature is that the first gap comes
+  out about half the rest, and the suite now asserts exactly that.
+- **The hottest OAT curve is dashed** where the other nine are solid, which is
+  why nine kept coming out of a ten-curve fan. The nine solid ones are −50
+  through +30 and they are what is carried; +40 is not.
 
-| Sheet | Enter | Read |
-| --- | --- | --- |
-| 1 — hover, gage −101 | torque 50%, sea level, OAT −40 °C | max allowable ITT, max allowable N1 |
-| 2 — in-flight, gage −101 | same | same |
-| 3 — hover, gage −113 | same | same |
-| 4 — in-flight, gage −113 | same | same |
+**Still not carried:** the gas producer half, and the +40 °C OAT curve. Both
+are recorded here rather than guessed.
 
-One known (torque, Hp, OAT) → (ITT, N1) per sheet fixes which curve is which,
-exactly as the printed example fixed the 206L-4 and the 205A-1, and the even
-ladder does the rest. If 50% torque at sea level runs past a boundary on any
-sheet, move it in and note what was used — where it stops being readable is
-itself the gate.
 
-Until then the traced geometry is kept but not shipped. Nine of ten curves in
-a fan is a systematic error in waiting: it shifts every label past the gap, and
-on this chart one label is worth about 30 °C of allowable ITT.
-
-**The biggest single piece in the set.**
 Each sheet is not one carpet but three sharing a carry: torque × Hp gives the
 carry; the carry × OAT gives maximum allowable ITT; and the carry × OAT again,
 on a second fan with its own scale, gives maximum allowable N1. Twelve carpets
