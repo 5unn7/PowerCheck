@@ -45,16 +45,12 @@ export function compute({ chart: d, aircraft, oat, pa, tq, mgt }) {
        the nomogram, an artefact of digitising that appears in no manual, and
        a crew looking for it would not find it. It stays in the result
        because the chart is drawn from it, and off the screen. */
-    stats: [
-      { label: "Chart MGT °C", value: fmt(maxMGT, 0) },
-      { label: "Actual MGT °C", value: fmt(mgt, 0) },
-    ],
-    /* The aircraft supplies the wording, because it has to say whose rule
-       this is, and that differs by type. */
-    notes: K < kMin
-      ? [`${fmt(K, 1)} is below the ${fmt(kMin, 1)} cut-off for this OAT — no margin reported. `
-         + (aircraft.kMinNote || "")]
-      : [],
+    stats: statLabels.map((label, i) => ({ label, value: fmt([maxMGT, mgt][i], 0) })),
+    /* No note. The check gives a number and a colour; the avoid area is
+       carried on the aircraft as recorded data (it came from the operator's
+       workbook, not the flight manual) but it says nothing to the crew and
+       withholds nothing — see docs/engineering-review.md. */
+    notes: [],
   };
 }
 

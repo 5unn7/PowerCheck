@@ -57,19 +57,7 @@ export default {
   frame: { oat: [-60, 55], itt: [500, 830], n1: [84, 102] },
   gauge: [-20, 60],
 
-  /* BHT-212VFR-FM-1 fig 4-2 step 8: "OBSERVED GAS PROD (N1) RPM AND ITT
-     MUST BE LESS THAN CHART GAS PROD (N1) RPM AND ITT FOR OBSERVED OAT." */
-  passNote: "Observed gas producer speed and ITT are both below the chart figures for this OAT.",
 
-  /* BHT-212VFR-FM-1 §4-2-B, which is fuller than fig 4-2 step 10 and says the
-     airworthiness-relevant part out loud: "If either engine does not meet
-     requirements of ground power assurance check, published performance may
-     not be achievable. Cause of engine power loss, or excessive ITT or GAS
-     PROD RPM (NI), should be determined as soon as practical."
-
-     Step 10 on the figure itself says the same thing shorter: "STEPS SHOULD
-     BE TAKEN TO DETERMINE CAUSE OF POWER LOSS." */
-  failNote: "Published performance may not be achievable. Cause of engine power loss, or excessive ITT or gas producer speed, should be determined as soon as practical.",
 
   marginUnit: "°C",
   marginLabel: "ITT margin",

@@ -177,49 +177,48 @@ console.log("\nnothing is shared between types");
     }
   }
 
-  /* A judgement band belongs to one manual. Neither of ours publishes one,
-     so neither may carry one — and no shared default may fill the gap. */
+  /* The check answers one question and answers it with a number.
+
+     An engineer reading fig 4-1 by hand draws two lines, takes a figure off
+     the axis and compares it to the gauge. They do not get a paragraph with
+     it. So no aircraft may carry verdict prose, advice on what to do next, or
+     a band that turns "met the chart" into something softer — and no type may
+     grow one later without this failing. */
   for (const a of AIRCRAFT) {
-    check(`${a.label}: a positive margin is not called serviceable`,
-          statusOf(50, a).label === "");
-    check(`${a.label}: a negative margin states the fact`,
-          statusOf(-5, a).label === "Over the chart maximum");
-    check(`${a.label}: any margin band it carries says whose figure it is`,
-          a.watchBelow === undefined || !!a.watchNote);
+    for (const k of ["passNote", "failNote", "watchNote", "watchBelow"]) {
+      check(`${a.label}: carries no ${k}`, a[k] === undefined);
+    }
+    const { chart } = chartFor(a, defaultConfig(a));
+    const r = checkFor(a).compute({ chart, aircraft: a, ...readingsOf(a, a.verify[0]) });
+    check(`${a.label}: its check says nothing in words either`,
+          Array.isArray(r.notes) && r.notes.length === 0);
   }
-  // the 407 carries one; it is the operator's, and the app says so
-  const b407 = byId("bell-407");
-  check("the 407 amber band is 10 °C", b407.watchBelow === 10);
-  check("and it is attributed to the operator, not the manual",
-        /practice/i.test(b407.watchNote) && /not a flight manual/i.test(b407.watchNote));
-  check("a margin inside it reads low, not failed", statusOf(5, b407).key === "watch");
-  check("a margin outside it reads clear", statusOf(15, b407).key === "ok");
-  /* The check exists to answer one question, so both answers must be in
-     words and both must come from the manual rather than from this app. */
-  for (const a of AIRCRAFT) {
-    check(`${a.label}: a passed check says so`, !!a.passNote);
-    check(`${a.label}: a failed check carries the manual's next step`, !!a.failNote);
-    check(`${a.label}: neither verdict reads as a release to service`,
-          !/serviceable|airworth|released|fit for/i.test(a.passNote + " " + a.failNote));
-  }
-  check("the 407 sends the crew to the maintenance manual",
-        /BHT-407-MM/.test(b407.failNote));
-  check("the 212 carries no band of its own", byId("bell-212-pt6t3").watchBelow === undefined);
+  check("meeting the chart figure exactly is green", statusOf(0).key === "ok");
+  check("over it is green", statusOf(50).key === "ok");
+  check("under it is red", statusOf(-0.1).key === "fail");
+  check("there is no third state between them",
+        [0, 0.1, 5, 50].every((m) => statusOf(m).key === "ok"));
+  check("no reading at all is neither", statusOf(NaN).key === "none");
+  check("and the status is a colour with nothing to read",
+        [NaN, -5, 0, 50].every((m) => Object.keys(statusOf(m)).join() === "key,color,hex"));
 }
 
 /* The 407 avoid area came from the source template, not from this app, and
    the template holds a cached value to check against. */
-console.log("\nthe avoid area matches the template it came from");
+console.log("\nthe avoid area is recorded, and inert");
 {
   const air = byId("bell-407");
   // Powercheck_407_v2.2.xlsx, sheet "Tq-pA" cell A72, with OAT 12 on the
   // Powercheck sheet: TREND through (-32.5, 0) and (46, 12.25)
   check("kMin at OAT 12 reproduces the workbook to the digit",
         Math.abs(air.kMin(12) - 6.944267515923567) < 1e-12, String(air.kMin(12)));
-  check("a cut-off that can withhold an answer says whose rule it is",
-        AIRCRAFT.every((a) => !a.kMin || !Number.isFinite(a.kMin(10)) || !!a.kMinNote));
-  check("and the 407's does not claim the flight manual",
-        /no source in the flight manual/i.test(air.kMinNote));
+  check("it withholds nothing — a reading below it still gets its number",
+        Number.isFinite(checkFor(air).compute({
+          chart: chartFor(air, defaultConfig(air)).chart, aircraft: air,
+          oat: 19, pa: 2000, tq: 60, mgt: 692,
+        }).margin));
+  check("and says nothing about itself to the crew",
+        AIRCRAFT.every((a) => a.kMinNote === undefined));
   check("the two points it is drawn through are recorded on the aircraft",
         JSON.stringify(air.avoidArea) === JSON.stringify([[-32.5, 0], [46, 12.25]]));
   check("it passes through both of them",

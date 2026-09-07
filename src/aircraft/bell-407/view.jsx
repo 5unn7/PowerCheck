@@ -251,10 +251,8 @@ export async function drawCard({ aircraft, chart, frame, meta, title, readings, 
   x.fillText(big, 40, 168);
   const bw = x.measureText(big).width;
   x.font = F(600, 26); x.fillText("°C", 46 + bw, 168);
-  x.fillStyle = accent; x.font = F(600, 15);
-  x.fillText((status || "").toUpperCase(), 42, 192);
   x.fillStyle = CARD_INK3; x.font = FB(600, 10.5);
-  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 210);
+  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 196);
 
   result.stats.forEach((st, i) => {
     const sx = 470 + i * 178;

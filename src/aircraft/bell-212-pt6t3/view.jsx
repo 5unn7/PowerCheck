@@ -95,7 +95,7 @@ const CARD_INK = "#15272d", CARD_INK3 = "#7b8f95";
 const F = (w, sz) => `${w} ${sz}px 'Barlow Semi Condensed', system-ui, -apple-system, sans-serif`;
 const FB = (w, sz) => `${w} ${sz}px 'Barlow', system-ui, -apple-system, sans-serif`;
 
-export async function drawCard({ aircraft, meta, title, readings, reg, date, hours, result, accent, status }) {
+export async function drawCard({ aircraft, meta, title, readings, reg, date, hours, result, accent }) {
   const W = 1000, H = 460, SC = 2;
   const cv = document.createElement("canvas");
   cv.width = W * SC; cv.height = H * SC;
@@ -116,10 +116,8 @@ export async function drawCard({ aircraft, meta, title, readings, reg, date, hou
   x.fillText(big, 40, 168);
   const bw = x.measureText(big).width;
   x.font = F(600, 26); x.fillText("°C", 46 + bw, 168);
-  x.fillStyle = accent; x.font = F(600, 15);
-  x.fillText((status || "").toUpperCase(), 42, 192);
   x.fillStyle = CARD_INK3; x.font = FB(600, 10.5);
-  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 210);
+  x.fillText(aircraft.marginLabel.toUpperCase(), 42, 196);
 
   result.stats.forEach((st, i) => {
     const sx = 470 + i * 178;

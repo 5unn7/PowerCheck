@@ -83,13 +83,14 @@ export default {
      either. The workbook they come from was a sample test file, not a
      controlled document.
 
-     It is kept because it only ever withholds an answer and never produces
-     one, so keeping it errs conservative while its provenance is open. What
-     it must not do is speak in the flight manual's voice, which is why the
-     wording below says plainly whose rule it is. See
-     docs/engineering-review.md item 2. */
+     It is now inert: the check gives a number and a colour, so nothing
+     withholds an answer and nothing is said about this rule to the crew. The
+     two points stay recorded here because they are the only surviving record
+     of where the operator's spreadsheet drew the line, and the test suite
+     reproduces the workbook's cached value from them to the digit. If a
+     source for the rule ever turns up, this is what it has to match.
+     See docs/engineering-review.md item 2. */
   avoidArea: [[-32.5, 0], [46, 12.25]],
-  kMinNote: "This cut-off is inherited from the operator's spreadsheet and has no source in the flight manual — repeat at higher torque, or read fig 4-1 directly.",
   kMin: (oat) => {
     const [[o0, k0], [o1, k1]] = [[-32.5, 0], [46, 12.25]];
     return k0 + ((k1 - k0) * (oat - o0)) / (o1 - o0);
@@ -106,26 +107,8 @@ export default {
      licensed engineer, 2026. The source workbook colours the margin red
      below zero and nothing else; this band was added by the operator on
      top of that, so the app shows it and says whose it is. */
-  /* The verdict the check exists to give, in the manual's own words rather
-     than in words this app invented. BHT-407-FM-1 4-2: "If actual MGT is
-     less than or equal to chart MGT, engine performance equals or exceeds
-     minimum specification and performance data contained in this manual can
-     be achieved."
 
-     Note what this is not. It is a statement about whether the engine meets
-     the Rolls-Royce minimum specification, which is what the chart tests. It
-     is not a release to service and does not read like one. */
-  passNote: "Engine performance equals or exceeds minimum specification, and the performance data in the flight manual can be achieved.",
 
-  /* BHT-407-FM-1 4-2: "If actual MGT is greater than chart MGT, engine
-     performance is less than minimum specification and all performance data
-     contained in this manual cannot be achieved. Refer to BHT-407-MM to
-     determine cause of low power (high MGT)." The app was reporting the
-     failure without passing on what the manual says to do about it. */
-  failNote: "Engine performance is below minimum specification and the performance data in the flight manual cannot be achieved. Refer to BHT-407-MM to determine the cause of low power (high MGT).",
-
-  watchBelow: 10,
-  watchNote: "10 °C is this operator's practice, not a flight manual figure.",
 
   marginUnit: "°C",
   marginLabel: "MGT margin",

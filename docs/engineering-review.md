@@ -33,12 +33,40 @@ Eleven further charts are held but not implemented — see `pending-charts.md`.
 
 ## 1 · Airworthiness language — **closed**
 
-"Serviceable" is gone, and it has not been replaced with silence. The check
-exists to answer one question, so both answers are now stated in words — and
-in the manual's words, not this app's:
+"Serviceable" is gone, and so is everything else that was written in its
+place. Ruled by the operator's licensed engineer, 07 SEP 2026:
 
-| | Shown |
-|---|---|
+> We don't have to write any wording, and we shouldn't write any wordings
+> either. The only goal is to give a number — if it meets the minimum
+> criteria it's a green number, if it doesn't it's a red number. Don't need
+> any of the engine performance, so-need-wash, look-at-different-things. We
+> are not there to read that.
+
+So the check now shows the margin and its colour and nothing else. Removed
+from all three types: `passNote`, `failNote`, `watchNote`, `watchBelow`, and
+the 407's avoid-area note. `statusOf` returns green above or at zero, red
+below it, and carries no text at all — the object is `{key, color, hex}` and a
+test asserts exactly those three fields, so a verdict string cannot creep back
+in unnoticed.
+
+The reasoning behind the ruling, which is sound: an engineer reading fig 4-1
+by hand draws two lines, takes a figure off the axis and compares it to the
+gauge. They do not get a paragraph with it. Prose that this app writes is
+prose the manual did not write, however carefully it is sourced, and a crew
+that needs to know what to do about a failed check has a maintenance manual
+for that.
+
+The 10 °C amber band is gone with the rest. It was shop practice, the
+engineer had already said so, and green/red leaves no room for a third state.
+
+What is deliberately kept: the collapsible **conditions** block, which states
+the manual's conditions for flying the check (level flight, N2 100%, anti-ice
+off, and so on) and the revision the chart came from. That is not a verdict —
+it is what makes the reading valid — and it stays behind a disclosure so it is
+there when wanted and out of the way when not. The footer disclaimer stays for
+the same reason: it says what the tool is, not what the engine is.
+
+---|---|
 | **407 pass** | *Engine performance equals or exceeds minimum specification, and the performance data in the flight manual can be achieved.* — BHT-407-FM-1 §4-2 |
 | **407 fail** | *Engine performance is below minimum specification… Refer to BHT-407-MM to determine the cause of low power (high MGT).* — §4-2 |
 | **212 pass** | *Observed gas producer speed and ITT are both below the chart figures for this OAT.* — fig 4-2 step 8 |
@@ -254,7 +282,7 @@ defect; a capability sitting unused.
 | 10.1 | Margin displayed to **0.1 °C** from a chart readable to perhaps ±2 °C, and against a test tolerance of ±1 °C. The display is more precise than the data supports. | `src/engine/format.js` |
 | 10.2 | **No units guard.** An OAT entered in °F is accepted silently anywhere in the −40…+50 range. −40 is the one value where both scales agree; everything above it reads hot and gives a falsely generous margin. | inputs |
 | 10.3 | **Conditions are stated but never confirmed.** The tool prints them and trusts them. Now fuller: §4-2's *"turn off all sources of bleed air, including ENGINE ANTI-ICING"* is broader than the chart header's "anti-ice off" and is what the app now shows. | `meta.cond` |
-| 10.7 | **Fixed.** A failed check now passes on what the manual says to do — the 407 sends the crew to `BHT-407-MM` to determine the cause of low power, the 212 to determine the cause of power loss. The app had been reporting the failure and stopping there. | `failNote` |
+| 10.7 | **Withdrawn 07 SEP 2026.** This had added the manual's next step to a failed check. The engineer's ruling (item 1) removed it again, and rightly: reporting the failure and stopping there is the whole job. | — |
 | 10.4 | **The log is browser storage only** — per device, per browser, wiped by clearing site data, and *not shared between the installed app and the browser tab it was installed from*. Export CSV is the only durable copy. | `README.md` |
 | 10.5 | **Future dates are accepted.** Only the format is validated. | `isISODate` |
 | 10.6 | **No engine serial or position field on the 407.** A tail number can change engines; the trend would carry straight across the change with nothing marking it. The 212 records which engine, but not which serial. | log record |

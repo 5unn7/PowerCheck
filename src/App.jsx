@@ -163,7 +163,7 @@ export default function App() {
   const result = complete && chart && offChart.length === 0
     ? proc.compute({ chart, aircraft, ...nums })
     : null;
-  const status = statusOf(result ? result.margin : NaN, aircraft);
+  const status = statusOf(result ? result.margin : NaN);
 
   /* Which readings are still to come — shown once entry has started, so a
      half-filled check reads as unfinished rather than as broken. */
@@ -195,7 +195,7 @@ export default function App() {
     let blob;
     try {
       blob = await view.drawCard({
-        aircraft, chart, frame, meta, result, accent: status.hex, status: status.label,
+        aircraft, chart, frame, meta, result, accent: status.hex,
         title: `${aircraft.label.toUpperCase()}  ·  POWER ASSURANCE CHECK`,
         readings: [
           ...aircraft.inputs.map((i) => `${i.label} ${fmt(nums[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}${i.unit ? " " + i.unit : ""}`),
@@ -384,7 +384,7 @@ export default function App() {
 
   // each point is coloured by the aircraft whose margin it is
   const dot = ({ cx, cy, payload }) => (
-    <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin, byId(payload.aircraft)).color}
+    <circle cx={cx} cy={cy} r={4} fill={statusOf(payload.margin).color}
       stroke="var(--paper)" strokeWidth={1.5} />
   );
   const setValue = (k, v) => setValues((s) => ({ ...s, [k]: v }));
@@ -495,8 +495,7 @@ export default function App() {
                   <span>{result ? (result.margin > 0 ? "+" : "") + fmt(result.margin) : "––"}</span><i>{aircraft.marginUnit}</i>
                 </div>
                 <div className="hero-side">
-                  <b>{result ? status.label : aircraft.marginLabel}</b>
-                  {result && <span>{aircraft.marginLabel}</span>}
+                  <b>{aircraft.marginLabel}</b>
                 </div>
                 <button className="share" onClick={shareCard} disabled={!result} aria-label="Share this check as an image">
                   <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor"
@@ -513,18 +512,6 @@ export default function App() {
               )}
 
               {result && <Gauge aircraft={aircraft} margin={result.margin} />}
-              {/* The answer in words, not only in colour. A margin at or
-                  above zero is a pass however small it is — the amber band
-                  is the operator's caution on top, not a different verdict. */}
-              {result && status.key !== "fail" && aircraft.passNote && (
-                <p className="verdict pass">{aircraft.passNote}</p>
-              )}
-              {status.key === "watch" && aircraft.watchNote && (
-                <p className="quiet watchnote">{aircraft.watchNote}</p>
-              )}
-              {status.key === "fail" && aircraft.failNote && (
-                <p className="verdict fail">{aircraft.failNote}</p>
-              )}
 
               <div className="stats">
                 {(result ? result.stats : proc.statLabels.map((label) => ({ label, value: "—" })))
@@ -567,7 +554,7 @@ export default function App() {
 
               <div className="stats tstats">
                 <div>
-                  <b style={{ color: statusOf(series[series.length - 1].margin, seriesAircraft).color }}>
+                  <b style={{ color: statusOf(series[series.length - 1].margin).color }}>
                     {(series[series.length - 1].margin > 0 ? "+" : "") + fmt(series[series.length - 1].margin)}
                   </b><span>Latest {seriesAircraft.marginUnit}</span>
                 </div>
@@ -620,7 +607,7 @@ export default function App() {
                         {seriesAircraft.inputs.map((i) => (
                           <td key={i.key}>{fmt(r[i.key], i.unit === "ft" || i.unit === "°C" ? 0 : 1)}</td>
                         ))}
-                        <td style={{ color: statusOf(r.margin, seriesAircraft).color, fontWeight: 600 }}>
+                        <td style={{ color: statusOf(r.margin).color, fontWeight: 600 }}>
                           {(r.margin > 0 ? "+" : "") + fmt(r.margin)}
                         </td>
                         <td><button className="x" onClick={() => persist(records.filter((q) => q.id !== r.id))}>×</button></td>

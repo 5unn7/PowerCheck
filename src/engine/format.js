@@ -11,20 +11,19 @@ export const todayISO = () => {
 };
 export const isISODate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 
-/* The sign of the margin is a fact: the reading was over the chart's maximum
-   or it was not. Anything finer is a judgement, and a judgement belongs to
-   one aircraft's approved data — never to a shared default applied to types
-   whose margins are different quantities read off different charts. So an
-   aircraft may supply watchBelow, in its own margin unit, when its manual
-   gives such a figure. Neither of ours does, so neither sets one.
+/* Green or red, and nothing else.
+
+   The check answers one question — did the engine meet the chart's figure or
+   did it not — and the sign of the margin is the whole answer. An engineer
+   reading fig 4-1 by hand draws two lines and takes a number off the axis;
+   they do not get a paragraph with it, and neither should this. No verdict
+   wording, no advice about what to do next, no third colour for "nearly":
+   the number is the answer and the colour says which side of zero it is on.
 
    `color` is for the page, `hex` for the shared card: canvas cannot resolve a
    CSS variable and silently keeps the last fill, which drew every card grey. */
-export function statusOf(margin, aircraft) {
-  if (!Number.isFinite(margin)) return { key: "none", label: "", color: "var(--ink-3)", hex: "#8b9ba1" };
-  if (margin < 0) return { key: "fail", label: "Over the chart maximum", color: "var(--red)", hex: "#9c211a" };
-  const watch = aircraft && aircraft.watchBelow;
-  if (Number.isFinite(watch) && margin < watch)
-    return { key: "watch", label: "Low margin", color: "var(--amber)", hex: "#ad5f0b" };
-  return { key: "ok", label: "", color: "var(--green)", hex: "#0d6a4d" };
+export function statusOf(margin) {
+  if (!Number.isFinite(margin)) return { key: "none", color: "var(--ink-3)", hex: "#8b9ba1" };
+  if (margin < 0) return { key: "fail", color: "var(--red)", hex: "#9c211a" };
+  return { key: "ok", color: "var(--green)", hex: "#0d6a4d" };
 }

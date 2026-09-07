@@ -50,7 +50,8 @@ x = 1914.3 px against the 1914.3 px the printed 65% demands.
 **What FM-1 still needs from a licensed engineer:** the Section 4 text around fig 4-1.
 The chart page prints no procedure and no pass/fail wording, so the app states only
 what the chart's own bottom axis says — torque made against the chart's minimum — and
-offers no next step on a failure. If §4 carries one, it belongs in `failNote`.
+offers no next step on a failure — and after the 07 SEP 2026 ruling no type
+does, so this is no longer something FM-1's Section 4 is needed for.
 
 ## What was established before the trace
 
@@ -115,8 +116,9 @@ Three things follow:
    the crew chooses. Nothing in the app should offer it.
 3. **§4-2 still points at BHT-206L4-FM-1 Section 4 for the procedure** — which
    is the page still outstanding, and the one that would give the shipped
-   FM-1 chart its `passNote` and `failNote`. It is now wanted twice over:
-   for FM-1 itself and for both FMS-7 sheets.
+   FM-1 chart its procedure text. Wanted for the conditions block and for
+   the walk, not for verdict wording — see the ruling in
+   `engineering-review.md` item 1.
 
 §4-6 on the same page covers performance variation for hover ceiling and rate
 of climb, not the power check, and is not used here.
@@ -206,8 +208,9 @@ sheets are built when the data arrives:
    407 has no such option and must never grow one.
 2. **The gage part number is a fitted option** — it is a property of the
    airframe, set once per tail, and it selects between the −101 and −113 pairs.
-3. `failNote` for both is the §4-2-A sentence above, which is the same wording
-   §4-2-B gives the PT6T-3 and is now carried on that type.
+3. The §4-2-A failure sentence is recorded here for the record only. After
+   the 07 SEP 2026 ruling the app states no verdict in words, so it is not
+   carried on the type.
 
 §4-1 also applies to every chart in this section:
 
@@ -222,8 +225,8 @@ none for figure 4-1, and the sample performance problem at §4-11 (pages
 Each sheet carries trace arrows with **no numbers on them**.
 
 So these four are now the clearest case in the whole set: the rules are
-complete, the conditions are complete, the verdict wording is complete, and
-there is still nothing to check a tracing against. **Corner readings are the
+complete and the conditions are complete, and there is still nothing to check
+a tracing against. **Corner readings are the
 only route left** — see `docs/verification-worksheet.md`, which now covers
 these sheets.
 
@@ -254,8 +257,8 @@ others do not:
 > not be obtained. If this occurs, the cause of the deterioration should be
 > determined.
 
-That second paragraph is the `passNote` and `failNote` for this type, in the
-manual's own words.
+Recorded for the record. After the 07 SEP 2026 ruling the app states no
+verdict in words, so it is not carried on the type.
 
 ### Tracing status, 06 SEP 2026 — FM-3 part-traced, not shipped
 
@@ -420,10 +423,16 @@ more: the 206L4 base chart came off its 2550×1650 scan and lands on the
 manual's own printed answer to 0.09 of a percent. The method is in
 `docs/tracing-a-chart.md`.
 
-**What is blocking is that ten of the remaining sheets print no answer.**
+**What is blocking is tracer work, not evidence.** That changed on
+07 SEP 2026, when the operator's licensed engineer ruled that a properly
+traced line checked against the source image beats a line drawn by eye — which
+is what an engineer reading these charts does anyway. So a sheet with no
+printed answer is no longer barred; it has to close its **ladder** instead
+(see `verification-worksheet.md`), which catches the fault a printed answer
+catches — a curve identified as the wrong one — without needing one.
 
-That is the whole of it. A tracing is a measurement, and a measurement with
-nothing to check it against is a number nobody should sign against. The grid
+A published example is still better where it exists, and every chart in the app
+reproduces its own on every build. The grid
 lines, the labels lying across the curves and the crossing families each bias
 a trace in a direction that looks entirely plausible on screen; the only thing
 that catches that is the manual's own worked example landing where it should.

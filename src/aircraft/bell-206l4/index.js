@@ -52,13 +52,6 @@ export default {
   marginUnit: "%",
   marginLabel: "Torque margin",
 
-  /* Both verdicts restate the chart's own bottom axis — MINIMUM TORQUE
-     AVAILABLE — and nothing more. Fig 4-1 prints no procedure on the chart
-     page, and the Section 4 text around it has not been read, so unlike the
-     407 and the 212 there is no next step here to hand the crew. Recorded in
-     docs/pending-charts.md. */
-  passNote: "Torque made is at or above the minimum the chart gives for these conditions.",
-  failNote: "Torque made is below the minimum the chart gives for these conditions. Fig 4-1 prints no next step on the chart page — refer to the flight manual.",
 
   footer: "Traced from BHT-206L4-FM-1 fig 4-1. The chart's own worked example reads 64.9% against its printed 65%. Trending aid — the flight manual is the authority.",
 

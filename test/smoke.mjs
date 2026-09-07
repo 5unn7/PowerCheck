@@ -126,24 +126,26 @@ console.log("\ntwo different checks never share a line");
   await page.waitForTimeout(200);
 }
 
-/* The crew fill in the readings and the last thing they should see is the
-   answer in words. Both verdicts, driven through the real UI. */
-console.log("\nthe check answers in words, not only in colour");
+/* The crew fill in the readings and the last thing they see is the number,
+   green or red. Nothing else, and nothing to read. */
+console.log("\nthe check answers with a number and a colour");
 {
   const b407 = AIRCRAFT.find((a) => a.id === "bell-407");
   await selectAircraft(b407);
   const v = b407.verify[0];
   await applyConfig(b407, v.config || {});
-  await enter(b407, v);                                  // 619 against 676 — a pass
-  const pass = (await page.locator(".verdict.pass").innerText().catch(() => "")).trim();
-  check("a passing check states the verdict", /minimum specification/i.test(pass), pass.slice(0, 58));
-  check("and no failure notice is shown", (await page.locator(".verdict.fail").count()) === 0);
+  await enter(b407, v);                                  // 600 against 676 — a pass
+  const big = () => page.locator(".hero .big span").innerText();
+  const colour = () => page.locator(".hero .big").evaluate((e) => getComputedStyle(e).color);
+  const green = await colour();
+  check("a passing check shows a positive number", (await big()).startsWith("+"), await big());
+  check("and no verdict paragraph anywhere", (await page.locator(".verdict").count()) === 0);
 
   await enter(b407, { ...v, mgt: 760 });                 // over the chart maximum
-  const fail = (await page.locator(".verdict.fail").innerText().catch(() => "")).trim();
-  check("a failing check states it and names the next step",
-        /BHT-407-MM/.test(fail), fail.slice(0, 58));
-  check("and no pass notice is shown", (await page.locator(".verdict.pass").count()) === 0);
+  const red = await colour();
+  check("a failing check shows a negative number", (await big()).startsWith("-"), await big());
+  check("in a different colour from the passing one", red !== green, `${green} -> ${red}`);
+  check("and still no verdict paragraph", (await page.locator(".verdict").count()) === 0);
 }
 
 /* A slope through two points is not a trend. Logged through the real UI. */
