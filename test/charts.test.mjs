@@ -6,7 +6,11 @@ import { AIRCRAFT, byId, checkFor, chartFor, defaultConfig, frameFor,
 import { statusOf } from "../src/engine/format.js";
 
 // how close a digitised chart has to sit to the manual's own printed answer
-const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, minTq: 0.5, default: 1 };
+/* How close a digitised chart has to sit to the manual's own printed answer.
+   chartPsi is the loosest and the reason is the paper: on all three 205A-1
+   sheets Bell's own construction line disagrees with Bell's own printed
+   number by up to 0.24 PSI. See the note on bell-205a1's verify list. */
+const TOLERANCE = { maxMGT: 1, maxITT: 1, setTq: 0.1, maxN1: 0.1, minTq: 0.5, chartPsi: 0.35, default: 1 };
 
 let failed = 0, ran = 0;
 const check = (name, ok, detail = "") => {
@@ -44,6 +48,25 @@ for (const aircraft of AIRCRAFT) {
       check(`${variant}: an MGT curve per OAT`, d.oat.length === d.mgtK.length);
       check(`${variant}: pressure altitudes ascend`, asc(d.pa));
       check(`${variant}: OATs ascend`, asc(d.oat));
+    }
+    if (d.paPsi) {
+      check(`${variant}: an altitude curve per OAT`, d.oat.length === d.paPsi.length);
+      check(`${variant}: OATs ascend`, asc(d.oat));
+      check(`${variant}: every curve ascends in altitude`,
+            d.paPsi.every((c) => asc(c.map((p) => p[0]))));
+      check(`${variant}: the -54 entry repeats the -20 curve, as the sheet draws it`,
+            JSON.stringify(d.paPsi[0]) === JSON.stringify(d.paPsi[1]));
+      /* Colder air, more power, so a higher pressure is demanded — at every
+         altitude where two neighbouring curves are both drawn. */
+      check(`${variant}: chart pressure rises as OAT falls`,
+            d.paPsi.every((c, i) => {
+              if (i < 2) return true;
+              const p = d.paPsi[i - 1];
+              const lo = Math.max(c[0][0], p[0][0]), hi = Math.min(c[c.length - 1][0], p[p.length - 1][0]);
+              if (lo >= hi) return true;
+              const at = (cv, x) => cv.reduce((a, q) => (q[0] <= x ? q : a), cv[0])[1];
+              return at(c, (lo + hi) / 2) < at(p, (lo + hi) / 2);
+            }));
     }
     if (d.oatCarry) {
       check(`${variant}: an OAT curve per TOT`, d.tot.length === d.oatCarry.length);
