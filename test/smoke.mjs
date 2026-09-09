@@ -210,11 +210,28 @@ check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "
   await ip.waitForSelector(".fleet .card", { timeout: 15000 });
 
   await ip.waitForSelector(".install", { timeout: 12000 });
-  const how = (await ip.locator(".install-how").innerText()).trim();
-  check("an iPhone is told where its own button is", /Add to Home Screen/i.test(how), how);
-  check("and Safari is not told to open Safari", !/Open in Safari/i.test(how), how);
-  check("and is not shown an Install button it cannot use",
-        (await ip.locator(".install-go").count()) === 0);
+  check("it says whose app is asking", (await ip.locator(".install-name").innerText()) === "PowerCheck");
+  check("and carries the icon inline, so it draws with no network",
+        (await ip.locator(".install-icon").count()) === 1);
+  check("and names where the crew ends up",
+        (await ip.locator(".install-sub").innerText()).trim() === "Add to Home Screen");
+  /* an install banner that covers the home indicator or the browser toolbar is
+     the fault this design exists to fix — keep it inset from both edges */
+  const box = await ip.locator(".install-card").boundingBox();
+  check("the card floats clear of the screen edges",
+        box.x >= 6 && box.x + box.width <= 384, JSON.stringify(box));
+
+  /* Safari has no install API, so the button opens the way instead of
+     pretending to install. Nothing about the card says which it will be. */
+  check("there is a button to press", (await ip.locator(".install-go").count()) === 1);
+  check("and the steps are not in the way until it is pressed",
+        (await ip.locator(".install-step").count()) === 0);
+  await ip.locator(".install-go").click();
+  await ip.waitForSelector(".install-step", { timeout: 4000 });
+  const steps = (await ip.locator(".install-step-label").allInnerTexts()).map((x) => x.trim());
+  check("pressing it lays out Safari's own rows, in order",
+        steps.join(" / ") === "Share / Add to Home Screen", steps.join(" / "));
+  check("and the button stands down once it has", (await ip.locator(".install-go").count()) === 0);
 
   await ip.locator(".install-x").click();
   await ip.waitForTimeout(200);
@@ -235,8 +252,11 @@ check("no JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "
   const cp = await ctx2.newPage();
   await cp.goto(url);
   await cp.waitForSelector(".install", { timeout: 15000 });
-  const t2 = (await cp.locator(".install-how").innerText()).trim();
-  check("iPhone Chrome is sent to Safari", /Open in Safari/i.test(t2), t2);
+  await cp.locator(".install-go").click();
+  await cp.waitForSelector(".install-step", { timeout: 4000 });
+  const s2 = (await cp.locator(".install-step-label").allInnerTexts()).map((x) => x.trim());
+  check("iPhone Chrome is sent to Safari first", s2[0] === "Open in Safari", s2.join(" / "));
+  check("and Safari itself is not", steps[0] === "Share", steps.join(" / "));
   await ctx2.close();
 }
 

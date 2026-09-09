@@ -203,20 +203,63 @@ export const CSS = `
 .btn.ghost:disabled{color:#c3ced2;}
 .flash{font-size:13px;color:var(--green);margin:0;padding:14px 20px 0;}
 
-/* the install offer — a sheet at the foot of the page, clear of the iPhone
-   home indicator, and never covering the Log check button */
-.install{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:12px;
-  background:var(--ink);color:#eef3f4;padding:13px 16px calc(13px + env(safe-area-inset-bottom));
-  box-shadow:0 -8px 28px rgba(10,26,32,.22);animation:install-up .26s ease-out;}
-@keyframes install-up{from{transform:translateY(100%);}to{transform:none;}}
+/* the install offer — an iOS install banner, not a page element: a floating
+   card inset from the edges, clear of the home indicator and the Safari
+   toolbar, set in the system font so it reads as the platform asking rather
+   than as more app chrome. The padding is inert to touch so the page under it
+   stays reachable. */
+.install{position:fixed;left:0;right:0;bottom:0;z-index:40;pointer-events:none;
+  padding:0 8px calc(8px + env(safe-area-inset-bottom));
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,'Segoe UI',sans-serif;}
+.install-card{pointer-events:auto;max-width:520px;margin:0 auto;padding:11px 12px;
+  border-radius:22px;background:#fff;
+  box-shadow:0 12px 40px rgba(6,20,25,.20),0 2px 10px rgba(6,20,25,.07),inset 0 0 0 .5px rgba(0,0,0,.07);
+  animation:install-up .44s cubic-bezier(.32,.72,0,1);}
+/* the frosted material where the browser can draw it, opaque white where it
+   cannot — never a half-transparent card over unreadable page text */
+@supports (backdrop-filter:blur(20px)) or (-webkit-backdrop-filter:blur(20px)){
+  .install-card{background:rgba(255,255,255,.8);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);}
+}
+@keyframes install-up{from{transform:translateY(130%);opacity:0;}to{transform:none;opacity:1;}}
+
+.install-row{display:flex;align-items:center;gap:12px;}
+.install-icon{flex:none;display:block;width:52px;height:52px;border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.16);}
 .install-text{flex:1;min-width:0;}
-.install-how{margin:0;font-size:13px;line-height:1.7;color:#dbe6e8;}
-.install-how b{font-weight:600;color:#fff;}
-.install-how svg{vertical-align:-2px;margin:0 1px;}
-.btn.install-go{background:#fff;color:var(--ink);border:0;}
-.install-x{background:none;border:0;color:#7d959b;font-size:22px;line-height:1;cursor:pointer;padding:2px 4px;}
-.install-x:hover{color:#eef3f4;}
-@media(prefers-reduced-motion:reduce){.install{animation:none;}}
+.install-name{display:block;font-size:15px;font-weight:600;letter-spacing:-.012em;
+  color:#000;line-height:1.25;}
+.install-sub{display:block;margin-top:1px;font-size:13px;letter-spacing:-.006em;
+  color:rgba(60,60,67,.6);}
+
+/* one button on every card, in the system blue, sized to Apple's own */
+.install-go{flex:none;font:600 15px/1 inherit;font-family:inherit;letter-spacing:-.01em;
+  color:#fff;background:#007aff;border:0;border-radius:980px;padding:10px 20px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity .15s;}
+.install-go:active{opacity:.72;}
+
+.install-x{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  border:0;padding:0;cursor:pointer;color:#8a8a8e;background:rgba(120,120,128,.12);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .15s,color .15s;}
+.install-x:hover{color:#5c5c60;background:rgba(120,120,128,.2);}
+
+/* the steps, drawn as the rows the browser is about to show — same glyph, same
+   words — so the card and the screen can be matched without reading either */
+.install-steps{list-style:none;margin:11px 0 1px;padding:11px 0 0;
+  border-top:.5px solid rgba(60,60,67,.18);animation:install-steps-in .28s ease-out;}
+@keyframes install-steps-in{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+.install-step{display:flex;align-items:center;gap:11px;padding:7px 2px;}
+.install-step-glyph{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+  color:#007aff;background:rgba(0,122,255,.11);}
+.install-step-glyph svg{display:block;}
+.install-step-label{font-size:14px;letter-spacing:-.008em;color:#000;}
+.install-step-hint{margin-left:auto;font-size:12.5px;color:rgba(60,60,67,.5);white-space:nowrap;}
+
+@media(prefers-reduced-motion:reduce){.install-card,.install-steps{animation:none;}}
+/* the banner floats over the page, so give the page room to be scrolled clear
+   of it — otherwise the foot of a check sits under the card until it is
+   dismissed. Browsers without :has() simply keep the standing padding. */
+.wrap:has(.install){padding-bottom:150px;}
 .quiet{color:var(--ink-3);font-size:14px;margin:2px 0 16px;}
 .empty{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
 
